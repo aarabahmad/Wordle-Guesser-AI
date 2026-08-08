@@ -855,11 +855,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setGameOverButtons(isChallengeOrPassPlay) {
+        if (newGameButton) newGameButton.classList.remove('hidden');
         if (isChallengeOrPassPlay) {
-            if (newGameButton) newGameButton.classList.remove('hidden');
             if (gameOverChallengeButton) gameOverChallengeButton.classList.add('hidden');
         } else {
-            if (newGameButton) newGameButton.classList.add('hidden');
             if (gameOverChallengeButton) gameOverChallengeButton.classList.remove('hidden');
         }
     }
