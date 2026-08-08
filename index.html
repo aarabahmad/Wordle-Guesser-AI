@@ -78,7 +78,7 @@
         <!-- Symmetrical Inline Header Row -->
         <div id="header-row" class="w-full max-w-[896px] mx-auto flex flex-col md:flex-row gap-8 items-center mb-6 pb-3 border-b border-gray-200 px-2 sm:px-0">
             <div class="w-full max-w-[352px] sm:max-w-[432px] flex justify-center">
-                <h1 id="header-title" class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-transparent bg-clip-text">AI Wordle Guesser</h1>
+                <h1 id="header-title" class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-transparent bg-clip-text cursor-pointer select-none">AI Wordle Guesser</h1>
             </div>
             <div id="header-controls-container" class="w-full max-w-[352px] sm:max-w-[432px] flex justify-center items-center">
                 <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
@@ -410,7 +410,10 @@
     </div>
     <!-- Game Over Modal Overlay -->
     <div id="game-over-container" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[115] p-4">
-        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 w-full max-w-sm space-y-4 fade-in">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 w-full max-w-sm space-y-4 fade-in relative">
+            <button id="close-game-over-btn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors" title="Close">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
             <div id="game-over-emoji" class="text-5xl text-center leading-none"></div>
             <h3 id="game-over-title" class="text-2xl font-bold text-center"></h3>
             <div id="game-over-word-reveal" class="hidden flex justify-center gap-1.5"></div>

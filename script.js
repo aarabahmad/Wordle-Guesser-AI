@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeDefBtn = document.getElementById('close-def-btn');
     const shareImageButton = document.getElementById('share-image-button');
     const newGameButton = document.getElementById('new-game-button');
+    const closeGameOverBtn = document.getElementById('close-game-over-btn');
     const statsButton = document.getElementById('stats-button');
     const statsModal = document.getElementById('stats-modal');
     const closeStatsModal = document.getElementById('close-stats-modal');
@@ -1402,6 +1403,20 @@ document.addEventListener('DOMContentLoaded', () => {
         openModeSelection();
     });
 
+    closeGameOverBtn?.addEventListener('click', () => {
+        gameOverContainer.classList.add('hidden');
+    });
+
+    headerTitle?.addEventListener('click', () => {
+        state.isChallengeMode = false;
+        state.challengeWord = null;
+        state.isPassAndPlayMode = false;
+        state.passAndPlayWord = null;
+        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+        window.history.replaceState({}, document.title, cleanUrl);
+        openModeSelection();
+    });
+
     acceptChallengeBtn?.addEventListener('click', () => {
         if (challengeLandingOverlay) {
             challengeLandingOverlay.classList.add('hidden');
@@ -1737,6 +1752,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     let dailyCountdownTimer = null;
     function showDailyResultOverlay(record, streak) {
+        if (gameOverContainer) gameOverContainer.classList.add('hidden');
         const emojiMap = { correct: '🟩', present: '🟨', absent: '⬛' };
         document.getElementById('daily-result-emoji-icon').textContent = record.won ? '🎉' : '😔';
         document.getElementById('daily-result-title').textContent = record.won ? '🎉 Solved It!' : 'Better luck tomorrow!';
