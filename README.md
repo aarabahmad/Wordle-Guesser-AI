@@ -10,10 +10,11 @@ A sophisticated, highly interactive Wordle companion and gameplay platform. Feat
 
 - [✨ Key Features](#-key-features)
 - [🎮 Game Modes](#-game-modes)
+- [🧠 The AI Solver Algorithm](#-the-ai-solver-algorithm)
+- [📊 Persistence & Stats Tracking](#-persistence--stats-tracking)
 - [🛠️ Technologies Used](#️-technologies-used)
 - [🚀 Local Setup & Installation](#-local-setup--installation)
 - [🌐 Hosting & Deployment](#-hosting--deployment)
-- [🤝 How to Contribute](#-how-to-contribute)
 - [📄 License](#-license)
 
 ---
@@ -36,14 +37,60 @@ A sophisticated, highly interactive Wordle companion and gameplay platform. Feat
 
 ## 🎮 Game Modes
 
-1. **AI Solver Mode:** Set a secret word in your mind, then guide the AI to guess it by inputting the color feedback. Select between **Normal** and **Hard** difficulty levels inside the mode details modal.
-2. **Daily Challenge:** Play the word of the day with persistent win-streak tracking and guess distribution histograms.
-3. **Challenge Mode:** Generate a encrypted custom link containing a secret 5-letter word to challenge a friend!
-4. **Pass 'n Play:** Classic two-player mode where Player 1 sets the word and Player 2 tries to solve it.
+### 🤖 AI Solver Mode
+Set a secret word in your mind, then guide the AI to guess it by inputting the color feedback. Select between **Normal** and **Hard** difficulty levels inside the mode details modal.
 
-| Daily Statistics Modal | Game Over Modal |
+- **Normal Mode:** AI guesses any word that maximizes entropy (clue information gain).
+- **Hard Mode:** AI is restricted to only guessing words that comply with all previously discovered yellow/green letter rules.
+
+### 📅 Daily Challenge
+Play the official word of the day (updated daily at midnight local time) with persistent win-streak tracking and guess distribution histograms.
+
+### ⚔️ Challenge Mode
+Generate an encrypted custom URL containing a secret 5-letter word to challenge a friend!
+
+### 👥 Pass 'n Play
+Classic two-player mode where Player 1 sets the word and Player 2 tries to solve it on the same device.
+
+| Mode Onboarding & Difficulty | Daily Statistics Histograms |
 | :---: | :---: |
-| ![Stats Modal](images/stats_modal.png) | ![Game Over](images/game_over_modal.png) |
+| ![Mode Select](images/mode_selection.png) | ![Stats Modal](images/stats_modal.png) |
+
+---
+
+## 🧠 The AI Solver Algorithm
+
+The engine solves Wordle by selecting the word $w$ from the candidate dictionary $D$ that maximizes the expected information gain (entropy). 
+
+### 1. Clue Patterns
+For any guess, there are $3^5 = 243$ possible clue patterns (colors) that could be returned.
+
+### 2. Entropy Calculation
+The entropy $H(w)$ of a guess $w$ is defined as:
+$$H(w) = - \sum_{i=1}^{243} P(C_i) \log_2 P(C_i)$$
+where $P(C_i)$ is the probability of receiving clue pattern $C_i$ if the secret word is randomly selected from the remaining candidates. A higher entropy means the guess is expected to eliminate a larger portion of the candidate list.
+
+### 3. Search Space & Confidence Bars
+The interface shows the **AI Thought Process** listing the top suggestions. The **Confidence Bar** represents the information reduction strength of a suggestion, scaling with the remaining candidate count:
+
+![Confidence Bars](images/confidence_bars.png)
+
+---
+
+## 📊 Persistence & Stats Tracking
+
+The game uses `localStorage` to save stats, streaks, and user preferences locally:
+
+- **Theme Preferences:** Persists `wordle_dark_mode` (true/false) to prevent flash-of-light-theme on load.
+- **Daily Stats Schema:** Saves `wordle_daily_global_stats` tracking:
+  - `played`: Total daily games completed.
+  - `won`: Total daily games won.
+  - `streak`: Current daily challenge win streak.
+  - `maxStreak`: Maximum daily challenge streak achieved.
+  - `guesses`: Guess count distribution array `[1st, 2nd, 3rd, 4th, 5th, 6th]`.
+- **Inline Dictionary Definitions:** On daily challenge completion, the app fetches definitions from the Free Dictionary API and renders them automatically on the win/loss modal overlay:
+
+![Daily Definition](images/daily_definition.png)
 
 ---
 
