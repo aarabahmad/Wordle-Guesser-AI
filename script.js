@@ -856,11 +856,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setGameOverButtons(isChallengeOrPassPlay) {
         if (newGameButton) newGameButton.classList.remove('hidden');
-        if (isChallengeOrPassPlay) {
-            if (gameOverChallengeButton) gameOverChallengeButton.classList.add('hidden');
-        } else {
-            if (gameOverChallengeButton) gameOverChallengeButton.classList.remove('hidden');
-        }
     }
 
     async function winGame(tiles) {
