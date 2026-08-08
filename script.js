@@ -1,123 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let wordList = [
-        "aback", "abase", "abate", "abbey", "abbot", "abhor", "abide", "abled", "abode", "abort", "about", "above", "abuse", "abyss", "acorn", "acrid", "actor", "acute", "adage", "adapt", "adieu",
-        "adept", "admin", "admit", "adobe", "adopt", "adore", "adorn", "adult", "affix", "afire", "afoot", "afoul", "after", "again", "agape", "agate", "agent", "agile", "aging", "aglow",
-        "agony", "agree", "ahead", "aider", "aisle", "alarm", "album", "alert", "algae", "alibi", "alien", "align", "alike", "alive", "allay", "alley", "allot", "allow", "alloy", "aloft",
-        "alone", "along", "aloof", "aloud", "alpha", "altar", "alter", "amass", "amaze", "amber", "amble", "amend", "amiss", "amity", "among", "amply", "amuse", "angel", "anger", "angle",
-        "angry", "angst", "anime", "ankle", "annex", "annoy", "annul", "anode", "antic", "anvil", "aorta", "apart", "aphid", "aping", "apnea", "apple", "apply", "apron", "aptly", "arbor",
-        "ardor", "arena", "argue", "arise", "armor", "aroma", "arose", "array", "arrow", "arson", "artsy", "ascot", "ashen", "aside", "askew", "assay", "asset", "atoll", "atone", "attic",
-        "audio", "audit", "augur", "aunty", "avail", "avert", "avian", "avoid", "await", "awake", "award", "aware", "awash", "awful", "awoke", "axial", "axiom", "axion", "azure", "bacon",
-        "badge", "badly", "bagel", "baggy", "baker", "baler", "balmy", "banal", "banjo", "barge", "baron", "basal", "basic", "basil", "basin", "basis", "baste", "batch", "bathe", "baton",
-        "batty", "bawdy", "bayou", "beach", "beady", "beard", "beast", "beech", "beefy", "befit", "began", "begat", "beget", "begin", "begun", "being", "belch", "belie", "belle", "belly",
-        "below", "bench", "beret", "berry", "berth", "beset", "betel", "bevel", "bezel", "bible", "bicep", "biddy", "bigot", "bilge", "billy", "binge", "bingo", "biome", "birch", "birth",
-        "bison", "bitty", "black", "blade", "blame", "bland", "blank", "blare", "blast", "blaze", "bleak", "bleat", "bleed", "bleep", "blend", "bless", "blimp", "blind", "blink", "bliss",
-        "blitz", "bloat", "block", "bloke", "blond", "blood", "bloom", "blown", "bluer", "bluff", "blunt", "blurb", "blurt", "blush", "board", "boast", "bobby", "boney", "bongo", "bonus",
-        "booby", "boost", "booth", "booty", "booze", "boozy", "borax", "borne", "bosom", "bossy", "botch", "bough", "boule", "bound", "bowel", "boxer", "brace", "braid", "brain", "brake",
-        "brand", "brash", "brass", "brave", "bravo", "brawl", "brawn", "bread", "break", "breed", "briar", "bribe", "brick", "bride", "brief", "brine", "bring", "brink", "briny", "brisk",
-        "broad", "broil", "broke", "brood", "brook", "broom", "broth", "brown", "brunt", "brush", "brute", "buddy", "budge", "buggy", "bugle", "build", "built", "bulge", "bulky", "bully",
-        "bunch", "bunny", "burly", "burnt", "burst", "bused", "bushy", "butch", "butte", "buxom", "buyer", "bylaw", "cabal", "cabby", "cabin", "cable", "cacao", "cache", "cacti", "caddy",
-        "cadet", "cagey", "cairn", "camel", "cameo", "canal", "candy", "canny", "canon", "caper", "caput", "carat", "cargo", "carny", "carol", "carry", "carve", "caste", "catch", "cater",
-        "catty", "caulk", "cause", "cavil", "cease", "cedar", "cello", "chafe", "chaff", "chain", "chair", "chalk", "champ", "chant", "chaos", "chard", "charm", "chart", "chase", "chasm",
-        "cheap", "cheat", "check", "cheek", "cheer", "chess", "chest", "chick", "chide", "chief", "child", "chili", "chill", "chime", "china", "chirp", "chock", "choir", "choke", "chord",
-        "chore", "chose", "chuck", "chump", "chunk", "churn", "chute", "cider", "cigar", "cinch", "circa", "civic", "civil", "clack", "claim", "clamp", "clang", "clank", "clash", "clasp",
-        "class", "clean", "clear", "cleat", "cleft", "clerk", "click", "cliff", "climb", "cling", "clink", "cloak", "clock", "clone", "close", "cloth", "cloud", "clout", "clove", "clown",
-        "cluck", "clued", "clump", "clung", "coach", "coast", "cobra", "cocoa", "colon", "color", "comet", "comfy", "comic", "comma", "conch", "condo", "conic", "copse", "coral", "corer",
-        "corny", "couch", "cough", "could", "count", "coupe", "court", "coven", "cover", "covet", "covey", "cower", "coyly", "crack", "craft", "cramp", "crane", "crank", "crash", "crass",
-        "crate", "crave", "crawl", "craze", "crazy", "creak", "cream", "credo", "creed", "creek", "creep", "creme", "crepe", "crept", "cress", "crest", "crick", "cried", "crier", "crime",
-        "crimp", "crisp", "croak", "crock", "crone", "crony", "crook", "cross", "croup", "crowd", "crown", "crude", "cruel", "crumb", "crump", "crush", "crust", "crypt", "cubic", "cumin",
-        "curio", "curly", "curry", "curse", "curve", "curvy", "cutie", "cyber", "cycle", "cynic", "daddy", "daily", "dairy", "daisy", "dally", "dance", "dandy", "datum", "daunt", "dealt",
-        "death", "debar", "debit", "debug", "debut", "decal", "decay", "decor", "decoy", "decry", "defer", "deign", "deity", "delay", "delta", "delve", "demon", "demur", "denim", "dense",
-        "depot", "depth", "derby", "deter", "detox", "deuce", "devil", "diary", "dicey", "digit", "dilly", "dimly", "diner", "dingo", "dingy", "diode", "dirge", "dirty", "disco", "ditch",
-        "ditto", "ditty", "diver", "dizzy", "dodge", "dodgy", "dogma", "doing", "dolly", "donor", "donut", "dopey", "doubt", "dough", "dowel", "downy", "dowry", "dozen", "draft", "drain",
-        "drake", "drama", "drank", "drape", "drawl", "drawn", "dread", "dream", "dress", "dried", "drier", "drift", "drill", "drink", "drive", "droit", "droll", "drone", "drool", "droop",
-        "dross", "drove", "drown", "druid", "drunk", "dryer", "dryly", "duchy", "dully", "dummy", "dumpy", "dunce", "duvet", "dwarf", "dwell", "dwelt", "dying", "eager", "eagle", "early",
-        "earth", "easel", "eaten", "eater", "ebony", "eclat", "edict", "edify", "eerie", "egret", "eight", "eject", "eking", "elate", "elbow", "elder", "elect", "elegy", "elfin", "elide",
-        "elite", "elope", "elude", "email", "embed", "ember", "emcee", "empty", "enact", "endow", "enema", "enemy", "enjoy", "ennui", "ensue", "enter", "entry", "envoy", "epoch", "epoxy",
-        "equal", "equip", "erase", "erect", "erode", "error", "erupt", "essay", "ester", "ether", "ethic", "ethos", "etude", "evade", "event", "every", "evict", "evoke", "exact", "exalt",
-        "excel", "exert", "exile", "exist", "expel", "extol", "extra", "exult", "eying", "fable", "facet", "faint", "fairy", "faith", "false", "fancy", "fanny", "farce", "fatal", "fatty",
-        "fault", "fauna", "favor", "feast", "fecal", "feign", "fella", "felon", "femme", "femur", "fence", "feral", "ferry", "fetal", "fetch", "fever", "fewer", "fiber", "ficus", "field",
-        "fiend", "fiery", "fifth", "fifty", "fight", "filer", "filet", "filly", "filmy", "filth", "final", "finch", "finer", "first", "fishy", "fixer", "fizzy", "fjord", "flack", "flail",
-        "flair", "flake", "flaky", "flame", "flank", "flare", "flash", "flask", "fleck", "fleet", "flesh", "flick", "flier", "fling", "flint", "flirt", "float", "flock", "flood", "floor",
-        "flora", "floss", "flour", "flout", "flown", "fluff", "fluid", "fluke", "flume", "flung", "flunk", "flush", "flute", "flyer", "foamy", "focal", "focus", "foggy", "foist", "folio",
-        "folly", "foray", "force", "forge", "forgo", "forte", "forth", "forty", "forum", "found", "foyer", "frail", "frame", "frank", "fraud", "freak", "freed", "freer", "fresh", "friar",
-        "fried", "frill", "frisk", "fritz", "frock", "frond", "front", "frost", "froth", "frown", "froze", "fruit", "fudge", "fugue", "fully", "fungi", "funky", "funny", "furor", "furry",
-        "fussy", "fuzzy", "gaffe", "gaily", "gamer", "gamma", "gamut", "gassy", "gaudy", "gauge", "gaunt", "gauze", "gavel", "gawky", "gayer", "gayly", "gazer", "gecko", "geeky", "geese",
-        "genie", "genre", "ghost", "ghoul", "giant", "giddy", "gipsy", "girly", "girth", "given", "giver", "glade", "gland", "glare", "glass", "glaze", "gleam", "glean", "glide", "glint",
-        "gloat", "globe", "gloom", "glory", "gloss", "glove", "glyph", "gnash", "gnome", "godly", "going", "golem", "golly", "gonad", "goner", "goody", "gooey", "goofy", "goose", "gorge",
-        "gouge", "gourd", "grace", "grade", "graft", "grail", "grain", "grand", "grant", "grape", "graph", "grasp", "grass", "grate", "grave", "gravy", "graze", "great", "greed", "green",
-        "greet", "grief", "grill", "grime", "grimy", "grind", "gripe", "groan", "groin", "groom", "grope", "gross", "group", "grout", "grove", "growl", "grown", "gruel", "gruff", "grunt",
-        "guard", "guava", "guess", "guest", "guide", "guild", "guile", "guilt", "guise", "gulch", "gully", "gumbo", "gummy", "guppy", "gusto", "gusty", "gypsy", "habit", "hairy", "halve",
-        "handy", "happy", "hardy", "harem", "harpy", "harry", "harsh", "haste", "hasty", "hatch", "hater", "haunt", "haute", "haven", "havoc", "hazel", "heady", "heard", "heart", "heath",
-        "heave", "heavy", "hedge", "hefty", "heist", "helix", "hello", "hence", "heron", "hilly", "hinge", "hippo", "hippy", "hitch", "hoard", "hobby", "hoist", "holly", "homer", "honey",
-        "honor", "horde", "horny", "horse", "hotel", "hotly", "hound", "house", "hovel", "hover", "howdy", "human", "humid", "humor", "humph", "humus", "hunch", "hunky", "hurry", "husky",
-        "hussy", "hutch", "hydro", "hyena", "hymen", "hyper", "icily", "icing", "ideal", "idiom", "idiot", "idler", "idyll", "igloo", "iliac", "image", "imbue", "impel", "imply", "inane",
-        "inbox", "incur", "index", "inept", "inert", "infer", "ingot", "inlay", "inlet", "inner", "input", "inter", "intro", "ionic", "irate", "irony", "islet", "issue", "ivory", "jaunt",
-        "jazzy", "jelly", "jerky", "jetty", "jewel", "jiffy", "joint", "joist", "joker", "jolly", "joust", "judge", "juice", "juicy", "jumbo", "jumpy", "junta", "junto", "juror", "kappa",
-        "karma", "kayak", "kebab", "khaki", "kinky", "kiosk", "kitty", "knack", "knave", "knead", "kneed", "kneel", "knelt", "knife", "knock", "knoll", "known", "koala", "krill", "label",
-        "labor", "laden", "ladle", "lager", "lance", "lanky", "lapel", "lapse", "large", "larva", "lasso", "latch", "later", "lathe", "latte", "laugh", "layer", "leach", "leafy", "leaky",
-        "leant", "leapt", "learn", "lease", "leash", "least", "leave", "ledge", "leech", "leery", "lefty", "legal", "leggy", "lemon", "lemur", "leper", "level", "lever", "libel", "liege",
-        "light", "liken", "lilac", "limbo", "limit", "linen", "liner", "lingo", "lipid", "lithe", "liver", "livid", "llama", "loamy", "loath", "lobby", "local", "locus", "lodge", "lofty",
-        "logic", "login", "loopy", "loose", "lorry", "loser", "louse", "lousy", "lover", "lower", "lowly", "loyal", "lucid", "lucky", "lumen", "lumpy", "lunar", "lunch", "lunge", "lupus",
-        "lurch", "lurid", "lusty", "lying", "lymph", "lyric", "macaw", "macho", "macro", "madam", "madly", "mafia", "magic", "magma", "maize", "major", "maker", "mambo", "mamma", "mammy",
-        "manga", "mange", "mango", "mangy", "mania", "manic", "manly", "manor", "maple", "march", "marry", "marsh", "mason", "masse", "match", "matey", "mauve", "maxim", "maybe", "mayor",
-        "mealy", "meant", "meaty", "mecca", "medal", "media", "medic", "melee", "melon", "mercy", "merge", "merit", "merry", "metal", "meter", "metro", "micro", "midge", "midst", "might",
-        "milky", "mimic", "mince", "miner", "minim", "minor", "minty", "minus", "mirth", "miser", "missy", "mocha", "modal", "model", "modem", "mogul", "moist", "molar", "moldy", "money",
-        "month", "moody", "moose", "moral", "moron", "morph", "mossy", "motel", "motif", "motor", "motto", "moult", "mound", "mount", "mourn", "mouse", "mouth", "mover", "movie", "mower",
-        "mucky", "mucus", "muddy", "mulch", "mummy", "munch", "mural", "murky", "mushy", "music", "musky", "musty", "myrrh", "nadir", "naive", "nanny", "nasal", "nasty", "natal", "naval",
-        "navel", "needy", "neigh", "nerdy", "nerve", "never", "newer", "newly", "nicer", "niche", "niece", "night", "ninja", "ninny", "ninth", "noble", "nobly", "noise", "noisy", "nomad",
-        "noose", "north", "nosey", "notch", "novel", "nudge", "nurse", "nutty", "nylon", "nymph", "oaken", "obese", "occur", "ocean", "octal", "octet", "odder", "oddly", "offal", "offer",
-        "often", "olden", "older", "olive", "ombre", "omega", "onion", "onset", "opera", "opine", "opium", "optic", "orbit", "order", "organ", "other", "otter", "ought", "ounce", "outdo",
-        "outer", "outgo", "ovary", "ovate", "overt", "ovine", "ovoid", "owing", "owner", "oxide", "ozone", "paddy", "pagan", "paint", "paler", "palsy", "panel", "panic", "pansy", "papal",
-        "paper", "parer", "parka", "parry", "parse", "party", "pasta", "paste", "pasty", "patch", "patio", "patsy", "patty", "pause", "payee", "payer", "peace", "peach", "pearl", "pecan",
-        "pedal", "penal", "pence", "penne", "penny", "perch", "peril", "perky", "pesky", "pesto", "petal", "phase", "phone", "phony", "photo", "piano", "picky", "piece", "piety", "piggy",
-        "pilot", "pinch", "piney", "pinky", "pinto", "piper", "pique", "pitch", "pithy", "pivot", "pixel", "pixie", "pizza", "place", "plaid", "plain", "plait", "plane", "plank", "plant",
-        "plate", "plaza", "plead", "pleat", "plied", "plier", "pluck", "plumb", "plume", "plump", "plunk", "plush", "poesy", "point", "poise", "poker", "polar", "polka", "polyp", "pooch",
-        "poppy", "porch", "poser", "posit", "posse", "pouch", "pound", "pouty", "power", "prank", "prawn", "preen", "press", "price", "prick", "pride", "pried", "prime", "primo", "print",
-        "prior", "prism", "privy", "prize", "probe", "prone", "prong", "proof", "prose", "proud", "prove", "prowl", "proxy", "prude", "prune", "psalm", "pubic", "pudgy", "puffy", "pulpy",
-        "pulse", "punch", "pupil", "puppy", "puree", "purer", "purge", "purse", "pushy", "putty", "pygmy", "quack", "quail", "quake", "qualm", "quark", "quart", "quash", "quasi", "queen",
-        "queer", "quell", "query", "quest", "queue", "quick", "quiet", "quill", "quilt", "quirk", "quite", "quota", "quote", "quoth", "rabbi", "rabid", "racer", "radar", "radii", "radio",
-        "rainy", "raise", "rajah", "rally", "ralph", "ramen", "ranch", "randy", "range", "rapid", "rarer", "raspy", "ratio", "ratty", "raven", "rayon", "razor", "reach", "react", "ready",
-        "realm", "rearm", "rebar", "rebel", "rebus", "rebut", "recap", "recur", "recut", "reddy", "redeem", "redux", "reedy", "refer", "refit", "regal", "rehab", "reign", "relax", "relay",
-        "relic", "remit", "renal", "renew", "repay", "repel", "reply", "rerun", "reset", "resin", "retch", "retro", "retry", "reuse", "revel", "revue", "rhino", "rhyme", "rider", "ridge",
-        "rifle", "right", "rigid", "rigor", "rinse", "ripen", "riper", "risen", "riser", "risky", "rival", "river", "rivet", "roach", "roast", "robin", "robot", "rocky", "rodeo", "roger",
-        "rogue", "roomy", "roost", "rotor", "rouge", "rough", "round", "rouse", "route", "rover", "rowdy", "rower", "royal", "ruddy", "ruder", "rugby", "ruler", "rumba", "rumor", "rupee",
-        "rural", "rusty", "sadly", "safer", "saint", "salad", "sally", "salon", "salsa", "salty", "salve", "salvo", "sandy", "saner", "sappy", "sassy", "satin", "satyr", "sauce", "saucy",
-        "sauna", "saute", "savor", "savoy", "savvy", "scald", "scale", "scalp", "scaly", "scamp", "scant", "scape", "scare", "scarf", "scary", "scene", "scent", "scion", "scoff", "scold",
-        "scone", "scoop", "scoot", "scope", "score", "scorn", "scour", "scout", "scowl", "scram", "scrap", "scree", "screw", "scrub", "scrum", "scuba", "sedan", "seedy", "segue", "seize",
-        "semen", "sense", "sepia", "serif", "serum", "serve", "setup", "seven", "sever", "sewer", "shack", "shade", "shady", "shaft", "shake", "shaky", "shale", "shall", "shalt", "shame",
-        "shank", "shape", "shard", "share", "shark", "sharp", "shave", "shawl", "shear", "sheen", "sheep", "sheer", "sheet", "sheik", "shelf", "shell", "shied", "shift", "shine", "shiny",
-        "shire", "shirk", "shirt", "shoal", "shock", "shone", "shook", "shoot", "shore", "shorn", "short", "shout", "shove", "shown", "showy", "shrew", "shrub", "shrug", "shuck", "shunt",
-        "shush", "shyly", "siege", "sieve", "sight", "sigma", "silky", "silly", "since", "sinew", "singe", "siren", "sissy", "sixth", "sixty", "skate", "skier", "skiff", "skill", "skimp",
-        "skirt", "skulk", "skull", "skunk", "slack", "slain", "slang", "slant", "slash", "slate", "slave", "sleek", "sleep", "sleet", "slept", "slice", "slick", "slide", "slime", "slimy",
-        "sling", "slink", "sloop", "slope", "slosh", "sloth", "slump", "slung", "slunk", "slurp", "slush", "slyly", "smack", "small", "smart", "smash", "smear", "smell", "smelt", "smile",
-        "smirk", "smite", "smith", "smock", "smoke", "smoky", "smote", "snack", "snail", "snake", "snaky", "snare", "snarl", "sneak", "sneer", "snide", "sniff", "snipe", "snoop", "snore",
-        "snort", "snout", "snowy", "snuck", "snuff", "soapy", "sober", "soggy", "solar", "solid", "solve", "sonar", "sonic", "sooth", "sooty", "sorry", "sound", "south", "sower", "space",
-        "spade", "spank", "spare", "spark", "spasm", "spawn", "speak", "spear", "speck", "speed", "spell", "spelt", "spend", "spent", "sperm", "spice", "spicy", "spied", "spiel", "spike",
-        "spiky", "spill", "spilt", "spine", "spiny", "spire", "spite", "splat", "split", "spoil", "spoke", "spoof", "spook", "spool", "spoon", "spore", "sport", "spout", "spray", "spree",
-        "sprig", "spunk", "spurn", "spurt", "squad", "squat", "squib", "stack", "staff", "stage", "staid", "stain", "stair", "stake", "stale", "stalk", "stall", "stamp", "stand", "stank",
-        "stare", "stark", "start", "stash", "state", "stave", "stead", "steak", "steal", "steam", "steed", "steel", "steep", "steer", "stein", "stern", "stick", "stiff", "still", "stilt",
-        "sting", "stink", "stint", "stock", "stoic", "stoke", "stole", "stomp", "stone", "stony", "stood", "stool", "stoop", "store", "stork", "storm", "story", "stout", "stove", "strap",
-        "straw", "stray", "strip", "strut", "stuck", "study", "stuff", "stump", "stung", "stunk", "stunt", "style", "suave", "sugar", "suing", "suite", "sulky", "sully", "sumac", "sunny",
-        "super", "surer", "surge", "surly", "sushi", "swami", "swamp", "swarm", "swash", "swath", "swear", "sweat", "sweep", "sweet", "swell", "swept", "swift", "swill", "swine", "swing",
-        "swirl", "swish", "swoon", "swoop", "sword", "swore", "sworn", "swung", "synod", "syrup", "tabby", "table", "taboo", "tacit", "tacky", "taffy", "taint", "taken", "taker", "tally", "tares",
-        "talon", "tamer", "tango", "tangy", "taper", "tapir", "tardy", "tarot", "taste", "tasty", "tatty", "taunt", "tawny", "teach", "teary", "tease", "teddy", "teeth", "tempo", "tenet",
-        "tenor", "tense", "tenth", "tepee", "tepid", "terra", "terse", "testy", "thank", "theft", "their", "theme", "there", "these", "theta", "thick", "thief", "thigh", "thing", "think",
-        "third", "thong", "thorn", "those", "three", "threw", "throb", "throw", "thrum", "thumb", "thump", "thyme", "tiara", "tibia", "tidal", "tiger", "tight", "tilde", "timer", "timid",
-        "tipsy", "titan", "tithe", "title", "toast", "today", "toddy", "token", "tonal", "tonga", "tonic", "tooth", "topaz", "topic", "torch", "torso", "torus", "total", "totem", "touch",
-        "tough", "towel", "tower", "toxic", "toxin", "trace", "track", "tract", "trade", "trail", "train", "trait", "tramp", "trash", "trawl", "tread", "treat", "trend", "triad", "trial",
-        "tribe", "trice", "trick", "tried", "tripe", "trite", "troll", "troop", "trope", "trout", "trove", "truce", "truck", "truer", "truly", "trump", "trunk", "truss", "trust", "truth",
-        "tryst", "tubal", "tuber", "tulip", "tulle", "tummy", "tumor", "tunic", "turbo", "tutor", "twang", "tweak", "tweed", "tweet", "twice", "twine", "twirl", "twist", "twixt", "tying",
-        "udder", "ulcer", "ultra", "umbra", "uncle", "uncut", "under", "undid", "undue", "unfed", "unfit", "unify", "union", "unite", "unity", "unlit", "unmet", "unset", "untie", "until",
-        "unwed", "unzip", "upper", "upset", "urban", "urine", "usage", "usher", "using", "usual", "usurp", "utile", "utter", "vague", "valet", "valid", "valor", "value", "valve", "vampy",
-        "vapor", "vault", "vaunt", "vegan", "venom", "venue", "verge", "verse", "verso", "verve", "vicar", "video", "vigil", "vigor", "villa", "vinyl", "viola", "viper", "viral", "virus",
-        "visit", "visor", "vista", "vital", "vivid", "vixen", "vocal", "vodka", "vogue", "voice", "voila", "vomit", "voter", "vouch", "vowel", "vying", "wacky", "wader", "wafer", "wager",
-        "wagon", "waist", "waive", "waltz", "warty", "waste", "watch", "water", "waver", "waxen", "weary", "weave", "wedge", "weedy", "weigh", "weird", "welch", "welsh", "whack", "whale",
-        "wharf", "wheat", "wheel", "whelp", "where", "which", "whiff", "while", "whine", "whiny", "whirl", "whisk", "white", "whole", "whoop", "whose", "widen", "wider", "widow", "width",
-        "wield", "wight", "willy", "wimpy", "wince", "winch", "windy", "wiser", "wispy", "witch", "witty", "woken", "woman", "women", "woody", "wooer", "wooly", "woozy", "wordy", "world",
-        "worry", "worse", "worst", "worth", "would", "wound", "woven", "wrack", "wrath", "wreak", "wreck", "wrest", "wring", "wrist", "write", "wrong", "wrote", "wrung", "wryly", "yacht",
-        "yearn", "yeast", "yield", "young", "youth", "zebra", "zesty", "zonal"
-    ];
+    let wordList = ["cigar", "rebut", "sissy", "humph", "awake", "blush", "focal", "evade", "naval", "serve", "heath", "dwarf", "model", "karma", "stink", "grade", "quiet", "bench", "abate", "feign", "major", "death", "fresh", "crust", "stool", "colon", "abase", "marry", "react", "batty", "pride", "floss", "helix", "croak", "staff", "paper", "unfed", "whelp", "trawl", "outdo", "adobe", "crazy", "sower", "repay", "digit", "crate", "cluck", "spike", "mimic", "pound", "maxim", "linen", "unmet", "flesh", "booby", "forth", "first", "stand", "belly", "ivory", "seedy", "print", "yearn", "drain", "bribe", "stout", "panel", "crass", "flume", "offal", "agree", "error", "swirl", "argue", "bleed", "delta", "flick", "totem", "wooer", "front", "shrub", "parry", "biome", "lapel", "start", "greet", "goner", "golem", "lusty", "loopy", "round", "audit", "lying", "gamma", "labor", "islet", "civic", "forge", "corny", "moult", "basic", "salad", "agate", "spicy", "spray", "essay", "fjord", "spend", "kebab", "guild", "aback", "motor", "alone", "hatch", "hyper", "thumb", "dowry", "ought", "belch", "dutch", "pilot", "tweed", "comet", "jaunt", "enema", "steed", "abyss", "growl", "fling", "dozen", "boozy", "erode", "world", "gouge", "click", "briar", "great", "altar", "pulpy", "blurt", "coast", "duchy", "groin", "fixer", "group", "rogue", "badly", "smart", "pithy", "gaudy", "chill", "heron", "vodka", "finer", "surer", "radio", "rouge", "perch", "retch", "wrote", "clock", "tilde", "store", "prove", "bring", "solve", "cheat", "grime", "exult", "usher", "epoch", "triad", "break", "rhino", "viral", "conic", "masse", "sonic", "vital", "trace", "using", "peach", "champ", "baton", "brake", "pluck", "craze", "gripe", "weary", "picky", "acute", "ferry", "aside", "tapir", "troll", "unify", "rebus", "boost", "truss", "siege", "tiger", "banal", "slump", "crank", "gorge", "query", "drink", "favor", "abbey", "tangy", "panic", "solar", "shire", "proxy", "point", "robot", "prick", "wince", "crimp", "knoll", "sugar", "whack", "mount", "perky", "could", "wrung", "light", "those", "moist", "shard", "pleat", "aloft", "skill", "elder", "frame", "humor", "pause", "ulcer", "ultra", "robin", "cynic", "aroma", "caulk", "shake", "dodge", "swill", "tacit", "other", "thorn", "trove", "bloke", "vivid", "spill", "chant", "choke", "rupee", "nasty", "mourn", "ahead", "brine", "cloth", "hoard", "sweet", "month", "lapse", "watch", "today", "focus", "smelt", "tease", "cater", "movie", "saute", "allow", "renew", "their", "slosh", "purge", "chest", "depot", "epoxy", "nymph", "found", "shall", "harry", "stove", "lowly", "snout", "trope", "fewer", "shawl", "natal", "comma", "foray", "scare", "stair", "black", "squad", "royal", "chunk", "mince", "shame", "cheek", "ample", "flair", "foyer", "cargo", "oxide", "plant", "olive", "inert", "askew", "heist", "shown", "zesty", "hasty", "trash", "fella", "larva", "forgo", "story", "hairy", "train", "homer", "badge", "midst", "canny", "fetus", "butch", "farce", "slung", "tipsy", "metal", "yield", "delve", "being", "scour", "glass", "gamer", "scrap", "money", "hinge", "album", "vouch", "asset", "tiara", "crept", "bayou", "atoll", "manor", "creak", "showy", "phase", "froth", "depth", "gloom", "flood", "trait", "girth", "piety", "payer", "goose", "float", "donor", "atone", "primo", "apron", "blown", "cacao", "loser", "input", "gloat", "awful", "brink", "smite", "beady", "rusty", "retro", "droll", "gawky", "hutch", "pinto", "gaily", "egret", "lilac", "sever", "field", "fluff", "hydro", "flack", "agape", "voice", "stead", "stalk", "berth", "madam", "night", "bland", "liver", "wedge", "augur", "roomy", "wacky", "flock", "angry", "bobby", "trite", "aphid", "tryst", "midge", "power", "elope", "cinch", "motto", "stomp", "upset", "bluff", "cramp", "quart", "coyly", "youth", "rhyme", "buggy", "alien", "smear", "unfit", "patty", "cling", "glean", "label", "hunky", "khaki", "poker", "gruel", "twice", "twang", "shrug", "treat", "unlit", "waste", "merit", "woven", "octal", "needy", "clown", "widow", "irony", "ruder", "gauze", "chief", "onset", "prize", "fungi", "charm", "gully", "inter", "whoop", "taunt", "leery", "class", "theme", "lofty", "tibia", "booze", "alpha", "thyme", "eclat", "doubt", "parer", "chute", "stick", "trice", "alike", "sooth", "recap", "saint", "liege", "glory", "grate", "admit", "brisk", "soggy", "usurp", "scald", "scorn", "leave", "twine", "sting", "bough", "marsh", "sloth", "dandy", "vigor", "howdy", "enjoy", "valid", "ionic", "equal", "unset", "floor", "catch", "spade", "stein", "exist", "quirk", "denim", "grove", "spiel", "mummy", "fault", "foggy", "flout", "carry", "sneak", "libel", "waltz", "aptly", "piney", "inept", "aloud", "photo", "dream", "stale", "vomit", "ombre", "fanny", "unite", "snarl", "baker", "there", "glyph", "pooch", "hippy", "spell", "folly", "louse", "gulch", "vault", "godly", "threw", "fleet", "grave", "inane", "shock", "crave", "spite", "valve", "skimp", "claim", "rainy", "musty", "pique", "daddy", "quasi", "arise", "aging", "valet", "opium", "avert", "stuck", "recut", "mulch", "genre", "plume", "rifle", "count", "incur", "total", "wrest", "mocha", "deter", "study", "lover", "safer", "rivet", "funny", "smoke", "mound", "undue", "sedan", "pagan", "swine", "guile", "gusty", "equip", "tough", "canoe", "chaos", "covet", "human", "udder", "lunch", "blast", "stray", "manga", "melee", "lefty", "quick", "paste", "given", "octet", "risen", "groan", "leaky", "grind", "carve", "loose", "sadly", "spilt", "apple", "slack", "honey", "final", "sheen", "eerie", "minty", "slick", "derby", "wharf", "spelt", "coach", "erupt", "singe", "price", "spawn", "fairy", "jiffy", "filmy", "stack", "chose", "sleep", "ardor", "nanny", "niece", "woozy", "handy", "grace", "ditto", "stank", "cream", "usual", "diode", "valor", "angle", "ninja", "muddy", "chase", "reply", "prone", "spoil", "heart", "shade", "diner", "arson", "onion", "sleet", "dowel", "couch", "palsy", "bowel", "smile", "evoke", "creek", "lance", "eagle", "idiot", "siren", "built", "embed", "award", "dross", "annul", "goody", "frown", "patio", "laden", "humid", "elite", "lymph", "edify", "might", "reset", "visit", "gusto", "purse", "vapor", "crock", "write", "sunny", "loath", "chaff", "slide", "queer", "venom", "stamp", "sorry", "still", "acorn", "aping", "pushy", "tamer", "hater", "mania", "awoke", "brawn", "swift", "exile", "birch", "lucky", "freer", "risky", "ghost", "plier", "lunar", "winch", "snare", "nurse", "house", "borax", "nicer", "lurch", "exalt", "about", "savvy", "toxin", "tunic", "pried", "inlay", "chump", "lanky", "cress", "eater", "elude", "cycle", "kitty", "boule", "moron", "tenet", "place", "lobby", "plush", "vigil", "index", "blink", "clung", "qualm", "croup", "clink", "juicy", "stage", "decay", "nerve", "flier", "shaft", "crook", "clean", "china", "ridge", "vowel", "gnome", "snuck", "icing", "spiny", "rigor", "snail", "flown", "rabid", "prose", "thank", "poppy", "budge", "fiber", "moldy", "dowdy", "kneel", "track", "caddy", "quell", "dumpy", "paler", "swore", "rebar", "scuba", "splat", "flyer", "horny", "mason", "doing", "ozone", "amply", "molar", "ovary", "beset", "queue", "cliff", "magic", "truce", "sport", "fritz", "edict", "twirl", "verse", "llama", "eaten", "range", "whisk", "hovel", "rehab", "macaw", "sigma", "spout", "verve", "sushi", "dying", "fetid", "brain", "buddy", "thump", "scion", "candy", "chord", "basin", "march", "crowd", "arbor", "gayly", "musky", "stain", "dally", "bless", "bravo", "stung", "title", "ruler", "kiosk", "blond", "ennui", "layer", "fluid", "tatty", "score", "cutie", "zebra", "barge", "matey", "bluer", "aider", "shook", "river", "privy", "betel", "frisk", "bongo", "begun", "azure", "weave", "genie", "sound", "glove", "braid", "scope", "wryly", "rover", "assay", "ocean", "bloom", "irate", "later", "woken", "silky", "wreck", "dwelt", "slate", "smack", "solid", "amaze", "hazel", "wrist", "jolly", "globe", "flint", "rouse", "civil", "vista", "relax", "cover", "alive", "beech", "jetty", "bliss", "vocal", "often", "dolly", "eight", "joker", "since", "event", "ensue", "shunt", "diver", "poser", "worst", "sweep", "alley", "creed", "anime", "leafy", "bosom", "dunce", "stare", "pudgy", "waive", "choir", "stood", "spoke", "outgo", "delay", "bilge", "ideal", "clasp", "seize", "hotly", "laugh", "sieve", "block", "meant", "grape", "noose", "hardy", "shied", "drawl", "daisy", "putty", "strut", "burnt", "tulip", "crick", "idyll", "vixen", "furor", "geeky", "cough", "naive", "shoal", "stork", "bathe", "aunty", "check", "prime", "brass", "outer", "furry", "razor", "elect", "evict", "imply", "demur", "quota", "haven", "cavil", "swear", "crump", "dough", "gavel", "wagon", "salon", "nudge", "harem", "pitch", "sworn", "pupil", "excel", "stony", "cabin", "unzip", "queen", "trout", "polyp", "earth", "storm", "until", "taper", "enter", "child", "adopt", "minor", "fatty", "husky", "brave", "filet", "slime", "glint", "tread", "steal", "regal", "guest", "every", "murky", "share", "spore", "hoist", "buxom", "inner", "otter", "dimly", "level", "sumac", "donut", "stilt", "arena", "sheet", "scrub", "fancy", "slimy", "pearl", "silly", "porch", "dingo", "sepia", "amble", "shady", "bread", "friar", "reign", "dairy", "quill", "cross", "brood", "tuber", "shear", "posit", "blank", "villa", "shank", "piggy", "freak", "which", "among", "fecal", "shell", "would", "algae", "large", "rabbi", "agony", "amuse", "bushy", "copse", "swoon", "knife", "pouch", "ascot", "plane", "crown", "urban", "snide", "relay", "abide", "viola", "rajah", "straw", "dilly", "crash", "amass", "third", "trick", "tutor", "woody", "blurb", "grief", "disco", "where", "sassy", "beach", "sauna", "comic", "clued", "creep", "caste", "graze", "snuff", "frock", "gonad", "drunk", "prong", "lurid", "steel", "halve", "buyer", "vinyl", "utile", "smell", "adage", "worry", "tasty", "local", "trade", "finch", "ashen", "modal", "gaunt", "clove", "enact", "adorn", "roast", "speck", "sheik", "missy", "grunt", "snoop", "party", "touch", "mafia", "emcee", "array", "south", "vapid", "jelly", "skulk", "angst", "tubal", "lower", "crest", "sweat", "cyber", "adore", "tardy", "swami", "notch", "groom", "roach", "hitch", "young", "align", "ready", "frond", "strap", "puree", "realm", "venue", "swarm", "offer", "seven", "dryer", "diary", "dryly", "drank", "acrid", "heady", "theta", "junto", "pixie", "quoth", "bonus", "shalt", "penne", "amend", "datum", "build", "piano", "shelf", "lodge", "suing", "rearm", "coral", "ramen", "worth", "psalm", "infer", "overt", "mayor", "ovoid", "glide", "usage", "poise", "randy", "chuck", "prank", "fishy", "tooth", "ether", "drove", "idler", "swath", "stint", "while", "begat", "apply", "slang", "tarot", "radar", "credo", "aware", "canon", "shift", "timer", "bylaw", "serum", "three", "steak", "iliac", "shirk", "blunt", "puppy", "penal", "joist", "bunny", "shape", "beget", "wheel", "adept", "stunt", "stole", "topaz", "chore", "fluke", "afoot", "bloat", "bully", "dense", "caper", "sneer", "boxer", "jumbo", "lunge", "space", "avail", "short", "slurp", "loyal", "flirt", "pizza", "conch", "tempo", "droop", "plate", "bible", "plunk", "afoul", "savoy", "steep", "agile", "stake", "dwell", "knave", "beard", "arose", "motif", "smash", "broil", "glare", "shove", "baggy", "mammy", "swamp", "along", "rugby", "wager", "quack", "squat", "snaky", "debit", "mange", "skate", "ninth", "joust", "tramp", "spurn", "medal", "micro", "rebel", "flank", "learn", "nadir", "maple", "comfy", "remit", "gruff", "ester", "least", "mogul", "fetch", "cause", "oaken", "aglow", "meaty", "gaffe", "shyly", "racer", "prowl", "thief", "stern", "poesy", "rocky", "tweet", "waist", "spire", "grope", "havoc", "patsy", "truly", "forty", "deity", "uncle", "swish", "giver", "preen", "bevel", "lemur", "draft", "slope", "annoy", "lingo", "bleak", "ditty", "curly", "cedar", "dirge", "grown", "horde", "drool", "shuck", "crypt", "cumin", "stock", "gravy", "locus", "wider", "breed", "quite", "chafe", "cache", "blimp", "deign", "fiend", "logic", "cheap", "elide", "rigid", "false", "renal", "pence", "rowdy", "shoot", "blaze", "envoy", "posse", "brief", "never", "abort", "mouse", "mucky", "sulky", "fiery", "media", "trunk", "yeast", "clear", "skunk", "scalp", "bitty", "cider", "koala", "duvet", "segue", "creme", "super", "grill", "after", "owner", "ember", "reach", "nobly", "empty", "speed", "gipsy", "recur", "smock", "dread", "merge", "burst", "kappa", "amity", "shaky", "hover", "carol", "snort", "synod", "faint", "haunt", "flour", "chair", "detox", "shrew", "tense", "plied", "quark", "burly", "novel", "waxen", "stoic", "jerky", "blitz", "beefy", "lyric", "hussy", "towel", "quilt", "below", "bingo", "wispy", "brash", "scone", "toast", "easel", "saucy", "value", "spice", "honor", "route", "sharp", "bawdy", "radii", "skull", "phony", "issue", "lager", "swell", "urine", "gassy", "trial", "flora", "upper", "latch", "wight", "brick", "retry", "holly", "decal", "grass", "shack", "dogma", "mover", "defer", "sober", "optic", "crier", "vying", "nomad", "flute", "hippo", "shark", "drier", "obese", "bugle", "tawny", "chalk", "feast", "ruddy", "pedal", "scarf", "cruel", "bleat", "tidal", "slush", "semen", "windy", "dusty", "sally", "igloo", "nerdy", "jewel", "shone", "whale", "hymen", "abuse", "fugue", "elbow", "crumb", "pansy", "welsh", "syrup", "terse", "suave", "gamut", "swung", "drake", "freed", "afire", "shirt", "grout", "oddly", "tithe", "plaid", "dummy", "broom", "blind", "torch", "enemy", "again", "tying", "pesky", "alter", "gazer", "noble", "ethos", "bride", "extol", "decor", "hobby", "beast", "idiom", "utter", "these", "sixth", "alarm", "erase", "elegy", "spunk", "piper", "scaly", "scold", "hefty", "chick", "sooty", "canal", "whiny", "slash", "quake", "joint", "swept", "prude", "heavy", "wield", "femme", "lasso", "maize", "shale", "screw", "spree", "smoky", "whiff", "scent", "glade", "spent", "prism", "stoke", "riper", "orbit", "cocoa", "guilt", "humus", "shush", "table", "smirk", "wrong", "noisy", "alert", "shiny", "elate", "resin", "whole", "hunch", "pixel", "polar", "hotel", "sword", "cleat", "mango", "rumba", "puffy", "filly", "billy", "leash", "clout", "dance", "ovate", "facet", "chili", "paint", "liner", "curio", "salty", "audio", "snake", "fable", "cloak", "navel", "spurt", "pesto", "balmy", "flash", "unwed", "early", "churn", "weedy", "stump", "lease", "witty", "wimpy", "spoof", "saner", "blend", "salsa", "thick", "warty", "manic", "blare", "squib", "spoon", "probe", "crepe", "knack", "force", "debut", "order", "haste", "teeth", "agent", "widen", "icily", "slice", "ingot", "clash", "juror", "blood", "abode", "throw", "unity", "pivot", "slept", "troop", "spare", "sewer", "parse", "morph", "cacti", "tacky", "spool", "demon", "moody", "annex", "begin", "fuzzy", "patch", "water", "lumpy", "admin", "omega", "limit", "tabby", "macho", "aisle", "skiff", "basis", "plank", "verge", "botch", "crawl", "lousy", "slain", "cubic", "raise", "wrack", "guide", "foist", "cameo", "under", "actor", "revue", "fraud", "harpy", "scoop", "climb", "refer", "olden", "clerk", "debar", "tally", "ethic", "cairn", "tulle", "ghoul", "hilly", "crude", "apart", "scale", "older", "plain", "sperm", "briny", "abbot", "rerun", "quest", "crisp", "bound", "befit", "drawn", "suite", "itchy", "cheer", "bagel", "guess", "broad", "axiom", "chard", "caput", "leant", "harsh", "curse", "proud", "swing", "opine", "taste", "lupus", "gumbo", "miner", "green", "chasm", "lipid", "topic", "armor", "brush", "crane", "mural", "abled", "habit", "bossy", "maker", "dusky", "dizzy", "lithe", "brook", "jazzy", "fifty", "sense", "giant", "surly", "legal", "fatal", "flunk", "began", "prune", "small", "slant", "scoff", "torus", "ninny", "covey", "viper", "taken", "moral", "vogue", "owing", "token", "entry", "booth", "voter", "chide", "elfin", "ebony", "neigh", "minim", "melon", "kneed", "decoy", "voila", "ankle", "arrow", "mushy", "tribe", "cease", "eager", "birth", "graph", "odder", "terra", "weird", "tried", "clack", "color", "rough", "weigh", "uncut", "ladle", "strip", "craft", "minus", "dicey", "titan", "lucid", "vicar", "dress", "ditch", "gypsy", "pasta", "taffy", "flame", "swoop", "aloof", "sight", "broke", "teary", "chart", "sixty", "wordy", "sheer", "leper", "nosey", "bulge", "savor", "clamp", "funky", "foamy", "toxic", "brand", "plumb", "dingy", "butte", "drill", "tripe", "bicep", "tenor", "krill", "worse", "drama", "hyena", "think", "ratio", "cobra", "basil", "scrum", "bused", "phone", "court", "camel", "proof", "heard", "angel", "petal", "pouty", "throb", "maybe", "fetal", "sprig", "spine", "shout", "cadet", "macro", "dodgy", "satyr", "rarer", "binge", "trend", "nutty", "leapt", "amiss", "split", "myrrh", "width", "sonar", "tower", "baron", "fever", "waver", "spark", "belie", "sloop", "expel", "smote", "baler", "above", "north", "wafer", "scant", "frill", "awash", "snack", "scowl", "frail", "drift", "limbo", "fence", "motel", "ounce", "wreak", "revel", "talon", "prior", "knelt", "cello", "flake", "debug", "anode", "crime", "salve", "scout", "imbue", "pinky", "stave", "vague", "chock", "fight", "video", "stone", "teach", "cleft", "frost", "prawn", "booty", "twist", "apnea", "stiff", "plaza", "ledge", "tweak", "board", "grant", "medic", "bacon", "cable", "brawl", "slunk", "raspy", "forum", "drone", "women", "mucus", "boast", "toddy", "coven", "tumor", "truer", "wrath", "stall", "steam", "axial", "purer", "daily", "trail", "niche", "mealy", "juice", "nylon", "plump", "merry", "flail", "papal", "wheat", "berry", "cower", "erect", "brute", "leggy", "snipe", "sinew", "skier", "penny", "jumpy", "rally", "umbra", "scary", "modem", "gross", "avian", "greed", "satin", "tonic", "parka", "sniff", "livid", "stark", "trump", "giddy", "reuse", "taboo", "avoid", "quote", "devil", "liken", "gloss", "gayer", "beret", "noise", "gland", "dealt", "sling", "rumor", "opera", "thigh", "tonga", "flare", "wound", "white", "bulky", "etude", "horse", "circa", "paddy", "inbox", "fizzy", "grain", "exert", "surge", "gleam", "belle", "salvo", "crush", "fruit", "sappy", "taker", "tract", "ovine", "spiky", "frank", "reedy", "filth", "spasm", "heave", "mambo", "right", "clank", "trust", "lumen", "borne", "spook", "sauce", "amber", "lathe", "carat", "corer", "dirty", "slyly", "affix", "alloy", "taint", "sheep", "kinky", "wooly", "mauve", "flung", "yacht", "fried", "quail", "brunt", "grimy", "curvy", "cagey", "rinse", "deuce", "state", "grasp", "milky", "bison", "graft", "sandy", "baste", "flask", "hedge", "girly", "swash", "boney", "coupe", "endow", "abhor", "welch", "blade", "tight", "geese", "miser", "mirth", "cloud", "cabal", "leech", "close", "tenth", "pecan", "droit", "grail", "clone", "guise", "ralph", "tango", "biddy", "smith", "mower", "payee", "serif", "drape", "fifth", "spank", "glaze", "allot", "truck", "kayak", "virus", "testy", "tepee", "fully", "zonal", "metro", "curry", "grand", "banjo", "axion", "bezel", "occur", "chain", "nasal", "gooey", "filer", "brace", "allay", "pubic", "raven", "plead", "gnash", "flaky", "munch", "dully", "eking", "thing", "slink", "hurry", "theft", "shorn", "pygmy", "ranch", "wring", "lemon", "shore", "mamma", "froze", "newer", "style", "moose", "antic", "drown", "vegan", "chess", "guppy", "union", "lever", "lorry", "image", "cabby", "druid", "exact", "truth", "dopey", "spear", "cried", "chime", "crony", "stunk", "timid", "batch", "gauge", "rotor", "crack", "curve", "latte", "witch", "bunch", "repel", "anvil", "soapy", "meter", "broth", "madly", "dried", "scene", "known", "magma", "roost", "woman", "thong", "punch", "pasty", "downy", "knead", "whirl", "rapid", "clang", "anger", "drive", "goofy", "email", "music", "stuff", "bleep", "rider", "mecca", "folio", "setup", "verso", "quash", "fauna", "gummy", "happy", "newly", "fussy", "relic", "guava", "ratty", "fudge", "femur", "chirp", "forte", "alibi", "whine", "petty", "golly", "plait", "fleck", "felon", "gourd", "brown", "thrum", "ficus", "stash", "decry", "wiser", "junta", "visor", "daunt", "scree", "impel", "await", "press", "whose", "turbo", "stoop", "speak", "mangy", "eying", "inlet", "crone", "pulse", "mossy", "staid", "hence", "pinch", "teddy", "sully", "snore", "ripen", "snowy", "attic", "going", "leach", "mouth", "hound", "clump", "tonal", "bigot", "peril", "piece", "blame", "haute", "spied", "undid", "intro", "basal", "shine", "gecko", "rodeo", "guard", "steer", "loamy", "scamp", "scram", "manly", "hello", "vaunt", "organ", "feral", "knock", "extra", "condo", "adapt", "willy", "polka", "rayon", "skirt", "faith", "torso", "match", "mercy", "tepid", "sleek", "riser", "twixt", "peace", "flush", "catty", "login", "eject", "roger", "rival", "untie", "refit", "aorta", "adult", "judge", "rower", "artsy", "rural", "shave"];
     
+    let customWords = [];
+    try {
+        const storedCustom = localStorage.getItem('wordle_custom_words');
+        if (storedCustom) {
+            customWords = JSON.parse(storedCustom);
+            customWords.forEach(word => {
+                if (!wordList.includes(word)) {
+                    wordList.push(word);
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Failed to load custom words from localStorage', e);
+    }
+
+    let extendedWordList = [];
+    async function loadExtendedDictionary() {
+        try {
+            const response = await fetch('https://cdn.jsdelivr.net/gh/tabatkins/wordle-list@main/words');
+            if (response.ok) {
+                const text = await response.text();
+                extendedWordList = text.split('\n')
+                    .map(w => w.trim().toLowerCase())
+                    .filter(w => w.length === 5);
+                if (state.isChallengeMode && state.challengeWord && !extendedWordList.includes(state.challengeWord)) {
+                    extendedWordList.push(state.challengeWord);
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load extended dictionary from CDN.', e);
+        }
+    }
+    loadExtendedDictionary();
+
     const gameBoard = document.getElementById('game-board');
     const submitButton = document.getElementById('submit-button');
     const restartButton = document.getElementById('restart-button');
@@ -139,6 +56,81 @@ document.addEventListener('DOMContentLoaded', () => {
     const howToPlayButton = document.getElementById('how-to-play-button');
     const closeModalButton = document.getElementById('close-modal-button');
 
+    const insightsPanel = document.getElementById('insights-panel');
+    const remainingCount = document.getElementById('remaining-count');
+    const topSuggestions = document.getElementById('top-suggestions');
+    const dictionaryBadge = document.getElementById('dictionary-badge');
+    const headerRow = document.getElementById('header-row');
+    const headerTitle = document.getElementById('header-title');
+    const difficultySelector = document.getElementById('difficulty-selector');
+    const headerControlsContainer = document.getElementById('header-controls-container');
+
+    // Challenge Mode DOM Selectors
+    const challengeButton = document.getElementById('challenge-button');
+    const gameOverChallengeButton = document.getElementById('game-over-challenge-button');
+    const challengeModal = document.getElementById('challenge-modal');
+    const closeChallengeModalButton = document.getElementById('close-challenge-modal-button');
+    const challengeWordInput = document.getElementById('challenge-word-input');
+    const challengeStatus = document.getElementById('challenge-status');
+    const generateChallengeButton = document.getElementById('generate-challenge-button');
+    const challengeLinkContainer = document.getElementById('challenge-link-container');
+    const challengeLinkInput = document.getElementById('challenge-link-input');
+    const copyChallengeLinkButton = document.getElementById('copy-challenge-link-button');
+    const challengeBanner = document.getElementById('challenge-banner');
+    const exitChallengeButton = document.getElementById('exit-challenge-button');
+    const feedbackSubtext = document.getElementById('feedback-subtext');
+
+    // Challenge Landing & Dictionary Modal Selectors
+    const challengeLandingOverlay = document.getElementById('challenge-landing-overlay');
+    const acceptChallengeBtn = document.getElementById('accept-challenge-btn');
+    const definitionModal = document.getElementById('definition-modal');
+    const defWord = document.getElementById('def-word');
+    const defPhonetic = document.getElementById('def-phonetic');
+    const defContent = document.getElementById('def-content');
+    const closeDefBtn = document.getElementById('close-def-btn');
+    const shareImageButton = document.getElementById('share-image-button');
+    const newGameButton = document.getElementById('new-game-button');
+    const statsButton = document.getElementById('stats-button');
+    const statsModal = document.getElementById('stats-modal');
+    const closeStatsModal = document.getElementById('close-stats-modal');
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+    // Mode Selection & Pass 'n Play DOM Selectors
+    const modeSelectionOverlay = document.getElementById('mode-selection-overlay');
+    const modeAiBtn = document.getElementById('mode-ai-btn');
+    const modeChallengeBtn = document.getElementById('mode-challenge-btn');
+    const modePassPlayBtn = document.getElementById('mode-pass-play-btn');
+    const modeDailyBtn = document.getElementById('mode-daily-btn');
+    const dailyBanner = document.getElementById('daily-banner');
+    const dailyBannerDate = document.getElementById('daily-banner-date');
+    const exitDailyButton = document.getElementById('exit-daily-button');
+    const dailyResultOverlay = document.getElementById('daily-result-overlay');
+    const dailyModeBadge = document.getElementById('daily-mode-badge');
+    const keyboardContainer = document.getElementById('keyboard-container');
+
+    const passPlaySetupOverlay = document.getElementById('pass-play-setup-overlay');
+    const passPlayScreenWord = document.getElementById('pass-play-screen-word');
+    const passPlayScreenHandover = document.getElementById('pass-play-screen-handover');
+    const passPlayWordInput = document.getElementById('pass-play-word-input');
+    const passPlayToggleVisibility = document.getElementById('pass-play-toggle-visibility');
+    const passPlayEyeIcon = document.getElementById('pass-play-eye-icon');
+    const passPlayStatus = document.getElementById('pass-play-status');
+    const passPlaySubmitWordBtn = document.getElementById('pass-play-submit-word-btn');
+    const passPlayCancelBtn = document.getElementById('pass-play-cancel-btn');
+    const passPlayStartBtn = document.getElementById('pass-play-start-btn');
+    const passPlayBanner = document.getElementById('pass-play-banner');
+    const exitPassPlayButton = document.getElementById('exit-pass-play-button');
+
+    // Mode Info Explanation DOM Selectors
+    const modeInfoModal = document.getElementById('mode-info-modal');
+    const modeInfoTitle = document.getElementById('mode-info-title');
+    const modeInfoIcon = document.getElementById('mode-info-icon');
+    const modeInfoIconContainer = document.getElementById('mode-info-icon-container');
+    const modeInfoTagline = document.getElementById('mode-info-tagline');
+    const modeInfoGraphics = document.getElementById('mode-info-graphics');
+    const modeInfoActionBtn = document.getElementById('mode-info-action-btn');
+    const modeInfoBackBtn = document.getElementById('mode-info-back-btn');
+
     let state = {};
     let confettiParticles = [];
     const colorMap = { g: 'correct', y: 'present', b: 'absent' };
@@ -152,7 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
             win: new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'fatsawtooth' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.2, release: 0.2 } }).toDestination(),
             lose: new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'fatsquare' }, envelope: { attack: 0.01, decay: 0.5, sustain: 0.1, release: 0.5 } }).toDestination(),
             invalid: new Tone.Synth({ oscillator: { type: 'triangle' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.2 } }).toDestination(),
+            type: new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.001, decay: 0.02, sustain: 0.05, release: 0.02 } }).toDestination(),
         };
+        sounds.type.volume.value = -12; // soft click
     };
     document.body.addEventListener('click', async () => {
         await Tone.start();
@@ -161,9 +155,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function resetState() {
+        const isChallenge = state.isChallengeMode || false;
+        const challengeW = state.challengeWord || null;
+        const isPassPlay = state.isPassAndPlayMode || false;
+        const passPlayW = state.passAndPlayWord || null;
+        const isDaily = state.isDailyMode || false;
+        const dailyW = state.dailyWord || null;
+
         state = {
             possibleWords: [...wordList],
             guesses: [],
+            guessWords: [],
             absentLetters: new Set(),
             presentLetters: new Set(),
             correctLetters: Array(5).fill(null),
@@ -172,8 +174,26 @@ document.addEventListener('DOMContentLoaded', () => {
             isAnimating: false,
             guessCount: 0,
             currentGuessWord: '',
-            difficulty: 'normal'
+            difficulty: 'normal',
+            usedExtendedDictionary: false,
+            isChallengeMode: isChallenge,
+            challengeWord: challengeW,
+            isPassAndPlayMode: isPassPlay,
+            passAndPlayWord: passPlayW,
+            isDailyMode: isDaily,
+            dailyWord: dailyW,
+            currentTypedGuess: ''
         };
+
+        if (isChallenge && challengeW && !state.possibleWords.includes(challengeW)) {
+            state.possibleWords.push(challengeW);
+        }
+        if (isPassPlay && passPlayW && !state.possibleWords.includes(passPlayW)) {
+            state.possibleWords.push(passPlayW);
+        }
+        if (isDaily && dailyW && !state.possibleWords.includes(dailyW)) {
+            state.possibleWords.push(dailyW);
+        }
     }
 
     function startGame() {
@@ -186,27 +206,142 @@ document.addEventListener('DOMContentLoaded', () => {
             row.id = `row-${i}`;
             for(let j=0; j<5; j++) {
                 const tileContainer = document.createElement('div');
-                tileContainer.className = 'tile-container w-14 h-14 sm:w-16 sm:h-16 bg-gray-200 rounded-md shadow-inner';
+                tileContainer.className = 'tile-container border-2 border-gray-200 rounded-md';
                 row.appendChild(tileContainer);
             }
             gameBoard.appendChild(row);
         }
         
-        actionArea.classList.remove('hidden');
+        if (state.isChallengeMode) {
+            actionArea.classList.add('hidden');
+            challengeBanner.classList.remove('hidden');
+            passPlayBanner.classList.add('hidden');
+            feedbackInput.placeholder = 'GUESS';
+            submitButton.textContent = 'Submit Guess';
+            if (feedbackSubtext) {
+                feedbackSubtext.textContent = 'Enter a 5-letter word guess';
+            }
+            feedbackInput.disabled = true;
+            submitButton.disabled = true;
+            if (challengeLandingOverlay) {
+                challengeLandingOverlay.classList.remove('hidden');
+            }
+            if (challengeButton) {
+                challengeButton.classList.add('hidden');
+            }
+            
+            // Center and align header to match the Wordle card width
+            if (headerRow) {
+                headerRow.classList.remove('max-w-[896px]', 'md:flex-row', 'gap-8');
+                headerRow.classList.add('max-w-[432px]', 'flex-col', 'gap-2');
+            }
+            if (headerTitle) {
+                headerTitle.textContent = 'Wordle Challenge';
+            }
+            if (headerControlsContainer) {
+                headerControlsContainer.classList.remove('md:flex-row');
+                headerControlsContainer.classList.add('flex-col');
+            }
+        } else if (state.isPassAndPlayMode) {
+            actionArea.classList.add('hidden');
+            challengeBanner.classList.add('hidden');
+            passPlayBanner.classList.remove('hidden');
+            feedbackInput.placeholder = 'GUESS';
+            submitButton.textContent = 'Submit Guess';
+            if (feedbackSubtext) {
+                feedbackSubtext.textContent = 'Enter a 5-letter word guess';
+            }
+            feedbackInput.disabled = false; // Enabled for Player 2
+            submitButton.disabled = false;
+            if (challengeButton) {
+                challengeButton.classList.add('hidden');
+            }
+            
+            // Center and align header to match the Wordle card width
+            if (headerRow) {
+                headerRow.classList.remove('max-w-[896px]', 'md:flex-row', 'gap-8');
+                headerRow.classList.add('max-w-[432px]', 'flex-col', 'gap-2');
+            }
+            if (headerTitle) {
+                headerTitle.textContent = 'Wordle 2-Player';
+            }
+            if (headerControlsContainer) {
+                headerControlsContainer.classList.remove('md:flex-row');
+                headerControlsContainer.classList.add('flex-col');
+            }
+        } else if (state.isDailyMode) {
+            actionArea.classList.add('hidden');
+            challengeBanner.classList.add('hidden');
+            passPlayBanner.classList.add('hidden');
+            if (dailyBanner) dailyBanner.classList.remove('hidden');
+            if (dailyBannerDate) {
+                dailyBannerDate.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            }
+            feedbackInput.placeholder = 'GUESS';
+            submitButton.textContent = 'Submit Guess';
+            if (feedbackSubtext) feedbackSubtext.textContent = 'Enter a 5-letter word guess';
+            feedbackInput.disabled = false;
+            submitButton.disabled = false;
+            if (challengeButton) challengeButton.classList.add('hidden');
+            if (headerRow) { headerRow.classList.remove('max-w-[896px]', 'md:flex-row', 'gap-8'); headerRow.classList.add('max-w-[432px]', 'flex-col', 'gap-2'); }
+            if (headerTitle) headerTitle.textContent = 'Daily Challenge';
+        } else {
+            actionArea.classList.remove('hidden');
+            challengeBanner.classList.add('hidden');
+            passPlayBanner.classList.add('hidden');
+            feedbackInput.placeholder = '*****';
+            submitButton.textContent = 'Submit Clues';
+            if (feedbackSubtext) {
+                feedbackSubtext.textContent = 'Enter Clue Pattern (G = Green, Y = Yellow, B = Gray)';
+            }
+            feedbackInput.disabled = true;
+            submitButton.disabled = true;
+            if (challengeButton) {
+                challengeButton.classList.remove('hidden');
+            }
+            
+            // Restore default header layout
+            if (headerRow) {
+                headerRow.classList.remove('max-w-[432px]', 'flex-col', 'gap-2');
+                headerRow.classList.add('max-w-[896px]', 'md:flex-row', 'gap-8');
+            }
+            if (headerTitle) {
+                headerTitle.textContent = 'AI Wordle Guesser';
+            }
+            if (headerControlsContainer) {
+                headerControlsContainer.classList.remove('flex-col');
+            }
+        }
+        
         gameOverContainer.classList.add('hidden');
         statusMessage.textContent = '';
-        statusMessage.className = 'text-center h-12 flex items-center justify-center font-semibold text-xl mt-4';
-        submitButton.disabled = true;
+        statusMessage.className = 'text-center h-8 flex items-center justify-center font-semibold text-lg mt-2';
         feedbackInput.value = '';
-        feedbackInput.disabled = true;
         
-        setTimeout(() => {
-            makeGuess('crane');
-        }, 500);
+        if (state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode) {
+            insightsPanel.classList.add('hidden');
+            if (keyboardContainer) keyboardContainer.classList.remove('hidden');
+            updateKeyboardColors();
+        } else {
+            insightsPanel.classList.remove('hidden');
+            if (keyboardContainer) keyboardContainer.classList.add('hidden');
+            if (dictionaryBadge) {
+                dictionaryBadge.textContent = 'Default Dictionary';
+                dictionaryBadge.className = 'text-[10px] text-gray-400 font-semibold uppercase tracking-wider';
+            }
+            updateInsightsPanel();
+        }
+        
+        if (!state.isChallengeMode && !state.isPassAndPlayMode && !state.isDailyMode) {
+            setTimeout(() => {
+                makeGuess(computeOpeningGuess());
+            }, 500);
+        }
     }
 
     function makeGuess(word) {
         state.currentGuessWord = word;
+        state.guessWords[state.guessCount] = word;
         const row = document.getElementById(`row-${state.guessCount}`);
         row.innerHTML = ''; 
 
@@ -227,31 +362,15 @@ document.addEventListener('DOMContentLoaded', () => {
             row.appendChild(tileContainer);
         });
         
+        feedbackInput.value = '';
+        state.isAnimating = false;
         submitButton.disabled = false;
         feedbackInput.disabled = false;
         feedbackInput.focus();
     }
 
-    async function handleFeedback() {
-        if (state.isGameOver || state.isAnimating) return;
-        
-        const feedbackStr = feedbackInput.value.toLowerCase();
-        if (!/^[gyb]{5}$/.test(feedbackStr)) {
-            setStatusMessage('Please enter a 5-letter pattern using G, Y, or B.', 'shake', 'text-red-600');
-            sounds?.invalid.triggerAttackRelease("C3", "0.2");
-            return;
-        }
-
-        const feedback = feedbackStr.split('').map(char => colorMap[char]);
+    async function submitFeedbackAndAdvance(feedback) {
         state.guesses.push(feedback);
-        
-        if (!validateFeedback(state.currentGuessWord, feedback)) {
-             setStatusMessage('Contradictory feedback. (e.g., a letter is Green but also Grey)', 'shake', 'text-red-600');
-             sounds?.invalid.triggerAttackRelease("C3", "0.2");
-             state.guesses.pop();
-             return;
-        }
-
         state.isAnimating = true;
         submitButton.disabled = true;
         feedbackInput.disabled = true;
@@ -277,16 +396,125 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (state.guessCount === 6) {
-            endGameNoSolution("I've run out of guesses!");
+            if (state.isChallengeMode) {
+                endGameNoSolution(`You ran out of guesses! The word was "${state.challengeWord.toUpperCase()}".`);
+            } else if (state.isPassAndPlayMode) {
+                endGameNoSolution(`Player 2 ran out of guesses! The word was "${state.passAndPlayWord.toUpperCase()}".`);
+            } else if (state.isDailyMode) {
+                endGameNoSolution(`Out of guesses! The word was "${state.dailyWord.toUpperCase()}".`);
+            } else {
+                endGameNoSolution("I've run out of guesses!");
+            }
             return;
         }
 
         processFeedback(state.currentGuessWord, feedback);
-        generateNextGuess();
         
-        feedbackInput.value = '';
-        state.isAnimating = false;
+        if (state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode) {
+            updateCandidatesAndInsights();
+            feedbackInput.value = '';
+            state.isAnimating = false;
+            submitButton.disabled = false;
+            feedbackInput.disabled = false;
+            feedbackInput.focus();
+            updateKeyboardColors();
+        } else {
+            generateNextGuess();
+        }
     }
+
+    async function handleFeedback() {
+        if (state.isGameOver || state.isAnimating) return;
+        
+        const isManual = state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode;
+        const inputVal = isManual
+            ? (state.currentTypedGuess || '').toLowerCase().trim()
+            : feedbackInput.value.toLowerCase().trim();
+        
+        if (isManual) {
+            if (inputVal.length !== 5 || !/^[a-z]{5}$/.test(inputVal)) {
+                showToast('Please enter a valid 5-letter word.');
+                sounds?.invalid.triggerAttackRelease("C3", "0.2");
+                return;
+            }
+            
+            if (!wordList.includes(inputVal) && (!extendedWordList || !extendedWordList.includes(inputVal))) {
+                showToast('Hmm, not a valid word. Try again!');
+                sounds?.invalid.triggerAttackRelease("C3", "0.2");
+                return;
+            }
+            
+            makeGuess(inputVal);
+            state.currentTypedGuess = '';
+            const targetWord = state.isChallengeMode ? state.challengeWord
+                : state.isPassAndPlayMode ? state.passAndPlayWord
+                : state.dailyWord;
+            const feedback = calculateFeedback(inputVal, targetWord);
+            await submitFeedbackAndAdvance(feedback);
+            
+        } else {
+            if (!/^[gyb]{5}$/.test(inputVal)) {
+                showToast('Enter a 5-letter pattern using G, Y, or B.');
+                sounds?.invalid.triggerAttackRelease("C3", "0.2");
+                return;
+            }
+
+            const feedback = inputVal.split('').map(char => colorMap[char]);
+            
+            if (!validateFeedback(state.currentGuessWord, feedback)) {
+                showToast('Contradictory clues — a letter can\'t be both Green and Grey.');
+                sounds?.invalid.triggerAttackRelease("C3", "0.2");
+                return;
+            }
+
+            await submitFeedbackAndAdvance(feedback);
+        }
+    }
+
+    function updateCandidatesAndInsights() {
+        state.possibleWords = state.possibleWords.filter(word => {
+            return checkWordAgainstClues(word, state);
+        });
+        
+        if (state.possibleWords.length === 0 && extendedWordList.length > 0 && !state.usedExtendedDictionary) {
+            state.usedExtendedDictionary = true;
+            if (dictionaryBadge) {
+                dictionaryBadge.textContent = 'Extended Dictionary';
+                dictionaryBadge.className = 'text-[10px] text-indigo-600 font-bold uppercase tracking-wider animate-pulse';
+            }
+            state.possibleWords = extendedWordList.filter(word => {
+                return checkWordAgainstClues(word, state);
+            });
+        }
+        
+        updateInsightsPanel();
+    }
+
+    function calculateFeedback(guess, secret) {
+        const feedback = Array(5).fill('absent');
+        const secretLetters = secret.split('');
+        const guessLetters = guess.split('');
+        
+        for (let i = 0; i < 5; i++) {
+            if (guessLetters[i] === secretLetters[i]) {
+                feedback[i] = 'correct';
+                secretLetters[i] = null;
+                guessLetters[i] = null;
+            }
+        }
+        for (let i = 0; i < 5; i++) {
+            if (guessLetters[i] !== null) {
+                const index = secretLetters.indexOf(guessLetters[i]);
+                if (index !== -1) {
+                    feedback[i] = 'present';
+                    secretLetters[index] = null;
+                }
+            }
+        }
+        return feedback;
+    }
+
+
     
     function validateFeedback(word, feedback) {
         const knownCorrect = new Set();
@@ -323,17 +551,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function generateNextGuess() {
-        setStatusMessage('Thinking...', '', 'text-gray-500');
+        showThinkingIndicator();
         
         setTimeout(() => {
             state.possibleWords = state.possibleWords.filter(word => {
                 return checkWordAgainstClues(word, state);
             });
             
+            updateInsightsPanel();
+            
             setStatusMessage(`${state.possibleWords.length} words remaining...`, '', 'text-gray-500');
 
             let bestGuess = '';
             if (state.possibleWords.length === 0) {
+                if (extendedWordList.length > 0 && !state.usedExtendedDictionary) {
+                    state.usedExtendedDictionary = true;
+                    setStatusMessage('Expanding dictionary search...', '', 'text-indigo-600 font-bold animate-pulse');
+                    if (dictionaryBadge) {
+                        dictionaryBadge.textContent = 'Extended Dictionary';
+                        dictionaryBadge.className = 'text-[10px] text-indigo-600 font-bold uppercase tracking-wider animate-pulse';
+                    }
+                    
+                    setTimeout(() => {
+                        state.possibleWords = extendedWordList.filter(word => {
+                            return checkWordAgainstClues(word, state);
+                        });
+                        
+                        updateInsightsPanel();
+                        
+                        if (state.possibleWords.length > 0) {
+                            setStatusMessage(`Found ${state.possibleWords.length} candidates in extended list!`, '', 'text-green-600 font-bold');
+                            
+                            if (state.possibleWords.length <= 2 || state.difficulty === 'normal') {
+                                bestGuess = state.possibleWords[0];
+                            } else {
+                                bestGuess = findOptimalGuess();
+                            }
+                            
+                            setTimeout(() => {
+                                statusMessage.textContent = '';
+                                makeGuess(bestGuess);
+                            }, 1200);
+                        } else {
+                            endGameNoSolution("I'm stumped! My dictionary might not have your word.");
+                        }
+                    }, 1200);
+                    return;
+                }
+                
                 endGameNoSolution("I'm stumped! My dictionary might not have your word.");
                 return;
             } else if (state.possibleWords.length <= 2 || state.difficulty === 'normal') {
@@ -344,35 +609,89 @@ document.addEventListener('DOMContentLoaded', () => {
             
             setTimeout(() => {
                 statusMessage.textContent = '';
+                statusMessage.className = 'text-center h-8 flex items-center justify-center font-semibold text-lg';
                 makeGuess(bestGuess);
             }, 800)
         }, 700);
     }
 
-    function findOptimalGuess() {
-        const letterFrequency = {};
-        for(const word of state.possibleWords) {
-            const uniqueLetters = new Set(word.split(''));
-            for(const letter of uniqueLetters) {
-                letterFrequency[letter] = (letterFrequency[letter] || 0) + 1;
+    // Computes the Wordle feedback pattern between a guess and a secret as a string key
+    function getPatternKey(guess, secret) {
+        const result = [0, 0, 0, 0, 0];
+        const s = secret.split('');
+        const g = guess.split('');
+        for (let i = 0; i < 5; i++) {
+            if (g[i] === s[i]) { result[i] = 2; s[i] = null; g[i] = null; }
+        }
+        for (let i = 0; i < 5; i++) {
+            if (g[i] !== null) {
+                const idx = s.indexOf(g[i]);
+                if (idx !== -1) { result[i] = 1; s[idx] = null; }
+            }
+        }
+        return result.join('');
+    }
+
+    // Entropy-based guess: picks the word that maximally partitions the remaining candidates.
+    // Used when remaining candidates are small enough to be fast (<= 150 words).
+    function findEntropyGuess() {
+        const remaining = state.possibleWords;
+        const n = remaining.length;
+        let bestScore = -1;
+        let bestWord = remaining[0];
+        for (const guess of wordList) {
+            const groups = {};
+            for (const secret of remaining) {
+                const key = getPatternKey(guess, secret);
+                groups[key] = (groups[key] || 0) + 1;
+            }
+            let entropy = 0;
+            for (const count of Object.values(groups)) {
+                const p = count / n;
+                entropy -= p * Math.log2(p);
+            }
+            // Small bonus for guesses that are themselves candidates (could be the answer)
+            const score = entropy + (remaining.includes(guess) ? 0.01 : 0);
+            if (score > bestScore) { bestScore = score; bestWord = guess; }
+        }
+        return bestWord;
+    }
+
+    // Positional-frequency heuristic: scores words by how well they cover
+    // the most common letters at each position in the remaining candidates.
+    // Used as a fast approximation when candidate count is large.
+    function findPositionalFrequencyGuess() {
+        const remaining = state.possibleWords;
+        const posFreq = Array.from({ length: 5 }, () => ({}));
+        for (const word of remaining) {
+            for (let i = 0; i < 5; i++) {
+                const l = word[i];
+                posFreq[i][l] = (posFreq[i][l] || 0) + 1;
             }
         }
         let bestScore = -1;
-        let bestWord = state.possibleWords[0];
-        for(const word of wordList) {
-            const uniqueLetters = new Set(word.split(''));
+        let bestWord = remaining[0];
+        for (const word of wordList) {
+            const seen = new Set();
             let score = 0;
-            for(const letter of uniqueLetters) {
-                if(!state.presentLetters.has(letter) && !state.absentLetters.has(letter) && !state.correctLetters.includes(letter)) {
-                   score += (letterFrequency[letter] || 0);
+            for (let i = 0; i < 5; i++) {
+                const l = word[i];
+                if (!state.absentLetters.has(l) && !seen.has(l)) {
+                    score += (posFreq[i][l] || 0);
+                    seen.add(l);
                 }
             }
-            if (score > bestScore) {
-                bestScore = score;
-                bestWord = word;
-            }
+            if (score > bestScore) { bestScore = score; bestWord = word; }
         }
         return bestWord;
+    }
+
+    function findOptimalGuess() {
+        const remaining = state.possibleWords;
+        if (remaining.length <= 2) return remaining[0];
+        // Use full entropy analysis for small candidate pools (fast enough);
+        // fall back to positional-frequency heuristic for larger pools.
+        return remaining.length <= 150 ? findEntropyGuess() : findPositionalFrequencyGuess();
     }
 
     function checkWordAgainstClues(word, currentState) {
@@ -395,9 +714,135 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    async function showWordDefinition(word) {
+        if (!word) return;
+        word = word.toLowerCase().trim();
+        if (word.length !== 5) return;
+
+        defWord.textContent = word;
+        defPhonetic.textContent = '';
+        defContent.innerHTML = '<p class="text-slate-400 italic">Loading definition...</p>';
+        definitionModal.classList.remove('hidden');
+
+        try {
+            const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+            if (response.ok) {
+                const data = await response.json();
+                const firstEntry = data[0];
+                const phonetic = firstEntry.phonetic || (firstEntry.phonetics && firstEntry.phonetics.find(p => p.text)?.text) || '';
+                defPhonetic.textContent = phonetic;
+
+                let contentHtml = '';
+                if (firstEntry.meanings && firstEntry.meanings.length > 0) {
+                    firstEntry.meanings.forEach(meaning => {
+                        const partOfSpeech = meaning.partOfSpeech;
+                        const definition = meaning.definitions[0]?.definition || 'No definition text available.';
+                        contentHtml += `
+                            <div class="mb-3">
+                                <span class="text-[10px] bg-indigo-50 text-indigo-700 font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">${partOfSpeech}</span>
+                                <p class="text-xs text-slate-700 mt-1 leading-relaxed">${definition}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    contentHtml = '<p class="text-xs text-slate-500">No definitions found for this word.</p>';
+                }
+                defContent.innerHTML = contentHtml;
+            } else {
+                defContent.innerHTML = '<p class="text-xs text-slate-500">Definition not found in dictionary.</p>';
+            }
+        } catch (e) {
+            console.error('Error fetching word definition:', e);
+            defContent.innerHTML = '<p class="text-xs text-red-500">Failed to fetch definition.</p>';
+        }
+    }
+
+    function updateInsightsPanel() {
+        if (state.possibleWords.length === 0) {
+            remainingCount.textContent = '0';
+            topSuggestions.innerHTML = '<span class="text-xs text-gray-400">None</span>';
+            return;
+        }
+
+        remainingCount.textContent = state.possibleWords.length.toLocaleString();
+
+        // Calculate character frequency count in remaining possible words
+        const letterFrequency = {};
+        state.possibleWords.forEach(word => {
+            const uniqueLetters = new Set(word.split(''));
+            uniqueLetters.forEach(letter => {
+                letterFrequency[letter] = (letterFrequency[letter] || 0) + 1;
+            });
+        });
+
+        // Score each possible word based on remaining letters' frequencies
+        const scoredWords = state.possibleWords.map(word => {
+            const uniqueLetters = new Set(word.split(''));
+            let score = 0;
+            uniqueLetters.forEach(letter => {
+                score += letterFrequency[letter] || 0;
+            });
+            return { word, score };
+        });
+
+        // Sort descending by score, then alphabetically
+        scoredWords.sort((a, b) => b.score - a.score || a.word.localeCompare(b.word));
+
+        // Take top 5 candidates
+        const top5 = scoredWords.slice(0, 5);
+
+        topSuggestions.innerHTML = '';
+
+        // Render matching candidate words as tile rows with confidence bars
+        const maxScore = top5.length > 0 ? top5[0].score : 1;
+        top5.forEach((item, idx) => {
+            const wordWrapper = document.createElement('div');
+            wordWrapper.className = 'flex flex-col w-full cursor-pointer';
+            wordWrapper.addEventListener('click', () => showWordDefinition(item.word));
+
+            const row = document.createElement('div');
+            row.className = 'flex justify-center gap-1.5';
+            item.word.split('').forEach(letter => {
+                const tile = document.createElement('div');
+                tile.className = 'suggestion-tile flex items-center justify-center font-bold text-xl sm:text-2xl uppercase rounded-md border-2 border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm transition-transform duration-300 hover:scale-105';
+                tile.textContent = letter;
+                row.appendChild(tile);
+            });
+            wordWrapper.appendChild(row);
+
+            // Confidence bar
+            const pct = maxScore > 0 ? Math.round((item.score / maxScore) * 100) : 100;
+            const track = document.createElement('div');
+            track.className = 'confidence-bar-track';
+            const fill = document.createElement('div');
+            fill.className = 'confidence-bar-fill';
+            fill.style.width = '0%';
+            track.appendChild(fill);
+            wordWrapper.appendChild(track);
+            setTimeout(() => { fill.style.width = `${pct}%`; }, 60 + idx * 70);
+
+            topSuggestions.appendChild(wordWrapper);
+        });
+
+        // Pad remaining slots up to 5 with empty dashed placeholder rows
+        for (let i = top5.length; i < 5; i++) {
+            const row = document.createElement('div');
+            row.className = 'flex justify-center gap-1.5 w-full opacity-40';
+            
+            for (let j = 0; j < 5; j++) {
+                const tile = document.createElement('div');
+                tile.className = 'suggestion-tile flex items-center justify-center font-bold text-xl sm:text-2xl uppercase rounded-md border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400';
+                tile.textContent = '•';
+                row.appendChild(tile);
+            }
+            
+            topSuggestions.appendChild(row);
+        }
+    }
+
     function setStatusMessage(msg, animationClass = '', textClass = '') {
         statusMessage.textContent = msg;
-        statusMessage.className = `text-center h-12 flex items-center justify-center font-semibold text-lg ${textClass}`;
+        statusMessage.className = `text-center h-8 flex items-center justify-center font-semibold text-lg ${textClass}`;
         if (animationClass) {
             const elementToShake = addWordContainer.classList.contains('hidden') ? feedbackInput : addWordInput;
             elementToShake.classList.add(animationClass);
@@ -408,40 +853,130 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function setGameOverButtons(isChallengeOrPassPlay) {
+        if (isChallengeOrPassPlay) {
+            if (newGameButton) newGameButton.classList.remove('hidden');
+            if (gameOverChallengeButton) gameOverChallengeButton.classList.add('hidden');
+        } else {
+            if (newGameButton) newGameButton.classList.add('hidden');
+            if (gameOverChallengeButton) gameOverChallengeButton.classList.remove('hidden');
+        }
+    }
+
     async function winGame(tiles) {
         endGame();
-        gameOverTitle.textContent = 'I Won!';
-        gameOverText.textContent = `I guessed your word "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries.`;
+        const emojiEl = document.getElementById('game-over-emoji');
+        if (state.isDailyMode) {
+            gameOverTitle.textContent = 'Daily Complete!';
+            gameOverText.textContent = `You solved today's word in ${state.guessCount} tries!`;
+            if (emojiEl) { emojiEl.textContent = '📅'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
+            restartButton.classList.add('hidden');
+            setGameOverButtons(false);
+            addWordContainer.classList.add('hidden');
+            const streak = saveDailyRecord(true);
+            updateDailyBadge();
+            sounds?.win.triggerAttackRelease(["C4", "E4", "G4", "C5"], 0.4);
+            launchConfetti();
+            for (let i = 0; i < tiles.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 80));
+                tiles[i].classList.add('victory-bounce');
+            }
+            animateWordReveal(state.currentGuessWord, state.guesses[state.guesses.length - 1]);
+            setTimeout(() => showDailyResultOverlay(getDailyRecord(), streak), 1400);
+            return;
+        } else if (state.isChallengeMode) {
+            if (emojiEl) { emojiEl.textContent = '⚔️'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
+            gameOverTitle.textContent = 'You Won!';
+            gameOverText.textContent = `Cracked "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries!`;
+            restartButton.classList.add('hidden');
+            setGameOverButtons(true);
+        } else if (state.isPassAndPlayMode) {
+            if (emojiEl) { emojiEl.textContent = '🏆'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
+            gameOverTitle.textContent = 'Player 2 Wins!';
+            gameOverText.textContent = `Guessed "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries!`;
+            restartButton.textContent = 'Play Again';
+            restartButton.classList.remove('hidden');
+            setGameOverButtons(true);
+        } else {
+            if (emojiEl) { emojiEl.textContent = '🎉'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
+            gameOverTitle.textContent = 'I Won!';
+            gameOverText.textContent = `Solved "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries!`;
+            restartButton.textContent = 'Play Again';
+            restartButton.classList.remove('hidden');
+            setGameOverButtons(false);
+        }
         addWordContainer.classList.add('hidden');
         sounds?.win.triggerAttackRelease(["C4", "E4", "G4", "C5"], 0.4);
         launchConfetti();
         for (let i = 0; i < tiles.length; i++) {
             await new Promise(resolve => setTimeout(resolve, 80));
-            tiles[i].classList.add('jump');
+            tiles[i].classList.add('victory-bounce');
         }
+        animateWordReveal(state.currentGuessWord, state.guesses[state.guesses.length - 1]);
     }
 
     function endGameNoSolution(message) {
         endGame();
-        gameOverTitle.textContent = 'You Stumped Me!';
-        gameOverText.textContent = message;
-        addWordContainer.classList.remove('hidden');
+        const emojiEl = document.getElementById('game-over-emoji');
+        const wordReveal = document.getElementById('game-over-word-reveal');
+        if (wordReveal) wordReveal.classList.add('hidden');
+        if (emojiEl) { emojiEl.textContent = '😔'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
+        if (state.isDailyMode) {
+            gameOverTitle.textContent = 'Daily Failed!';
+            gameOverText.textContent = message;
+            addWordContainer.classList.add('hidden');
+            restartButton.classList.add('hidden');
+            setGameOverButtons(false);
+            const streak = saveDailyRecord(false);
+            updateDailyBadge();
+            setTimeout(() => showDailyResultOverlay(getDailyRecord(), streak), 1200);
+        } else if (state.isChallengeMode) {
+            gameOverTitle.textContent = 'Game Over!';
+            gameOverText.textContent = message;
+            addWordContainer.classList.add('hidden');
+            restartButton.classList.add('hidden');
+            setGameOverButtons(true);
+        } else if (state.isPassAndPlayMode) {
+            gameOverTitle.textContent = 'Game Over!';
+            gameOverText.textContent = message;
+            addWordContainer.classList.add('hidden');
+            restartButton.textContent = 'Play Again';
+            restartButton.classList.remove('hidden');
+            setGameOverButtons(true);
+        } else {
+            gameOverTitle.textContent = 'You Stumped Me!';
+            gameOverText.textContent = message;
+            addWordContainer.classList.remove('hidden');
+            restartButton.textContent = 'Play Again';
+            restartButton.classList.remove('hidden');
+            setGameOverButtons(false);
+        }
         sounds?.lose.triggerAttackRelease(["C4", "A3", "F3", "D3"], 0.8);
     }
 
     function handleAddWord() {
         const userWord = addWordInput.value.toLowerCase();
         if (userWord.length !== 5) {
-            setStatusMessage("The word must be 5 letters long.", 'shake', 'text-red-600');
+            showToast('The word must be 5 letters long.');
             return;
         }
 
         if (checkWordAgainstClues(userWord, state)) {
-            wordList.push(userWord);
+            if (!wordList.includes(userWord)) {
+                wordList.push(userWord);
+            }
+            if (!customWords.includes(userWord)) {
+                customWords.push(userWord);
+                try {
+                    localStorage.setItem('wordle_custom_words', JSON.stringify(customWords));
+                } catch (e) {
+                    console.error('Failed to save custom word to localStorage', e);
+                }
+            }
             gameOverText.textContent = "Thanks for teaching me! My dictionary is updated for next time.";
             addWordContainer.classList.add('hidden');
         } else {
-            setStatusMessage("That word doesn't match the clues you gave.", 'shake', 'text-red-600');
+            showToast("That word doesn't match the clues you gave.");
         }
     }
 
@@ -451,6 +986,7 @@ document.addEventListener('DOMContentLoaded', () => {
         actionArea.classList.add('hidden');
         statusMessage.classList.add('hidden');
         gameOverContainer.classList.remove('hidden');
+        insightsPanel.classList.add('hidden');
     }
 
     function launchConfetti() {
@@ -502,10 +1038,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function handleShare() {
         const emojiMap = { correct: '🟩', present: '🟨', absent: '⬛' };
-        let shareText = `AI Wordle Guesser ${state.guessCount}/6 (${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)})\n\n`;
+        let shareText = '';
+        if (state.isChallengeMode) {
+            const hasWon = state.guesses[state.guesses.length - 1].every(f => f === 'correct');
+            const score = hasWon ? `${state.guessCount}/6` : 'X/6';
+            shareText = `⚔️ I played my friend's Wordle Challenge!\nResult: ${score}\n\n`;
+        } else {
+            shareText = `AI Wordle Guesser ${state.guessCount}/6 (${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)})\n\n`;
+        }
+        
         state.guesses.forEach(guess => {
             shareText += guess.map(result => emojiMap[result]).join('') + '\n';
         });
+        
+        if (state.isChallengeMode) {
+            shareText += `\nPlay this challenge: ${window.location.href}`;
+        } else {
+            shareText += `\nPlay here: ${window.location.origin}${window.location.pathname}`;
+        }
 
         const textArea = document.createElement('textarea');
         textArea.value = shareText;
@@ -524,22 +1074,379 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(textArea);
     }
 
+    function downloadBoardImage() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const tileSize = 60;
+        const gap = 8;
+        const padding = 24;
+        const headerHeight = 80;
+        
+        const width = (tileSize * 5) + (gap * 4) + (padding * 2);
+        const height = (tileSize * 6) + (gap * 5) + (padding * 2) + headerHeight;
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Background: clean white
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+        
+        // Draw title
+        ctx.fillStyle = '#1e293b'; // slate-800
+        ctx.font = 'bold 22px sans-serif';
+        ctx.textAlign = 'center';
+        const titleText = state.isChallengeMode ? 'Wordle Challenge' : 'AI Wordle Solver';
+        ctx.fillText(titleText, width / 2, padding + 22);
+        
+        // Draw score/attempts
+        ctx.fillStyle = '#64748b'; // slate-500
+        ctx.font = 'bold 15px sans-serif';
+        const lastGuess = state.guesses[state.guesses.length - 1];
+        const hasWon = lastGuess && lastGuess.every(f => f === 'correct');
+        const scoreText = hasWon ? `${state.guessCount}/6` : 'X/6';
+        ctx.fillText(scoreText, width / 2, padding + 48);
+        
+        // Define colors
+        const colorHex = {
+            correct: '#6aaa64', // green
+            present: '#c9b458', // yellow
+            absent: '#787c7e',  // gray
+            empty: '#f1f5f9'    // slate-100
+        };
+        
+        // Draw each grid tile
+        for (let r = 0; r < 6; r++) {
+            const y = padding + headerHeight + r * (tileSize + gap);
+            const feedback = state.guesses[r];
+            const word = state.guessWords[r];
+            
+            for (let c = 0; c < 5; c++) {
+                const x = padding + c * (tileSize + gap);
+                
+                let tileColor = colorHex.empty;
+                let strokeColor = '#cbd5e1'; // slate-300
+                if (feedback) {
+                    tileColor = colorHex[feedback[c]] || colorHex.absent;
+                    strokeColor = tileColor;
+                }
+                
+                // Draw rounded tile
+                ctx.fillStyle = tileColor;
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                const radius = 6;
+                if (ctx.roundRect) {
+                    ctx.roundRect(x, y, tileSize, tileSize, radius);
+                } else {
+                    ctx.rect(x, y, tileSize, tileSize);
+                }
+                ctx.fill();
+                ctx.stroke();
+                
+                // Draw letter text
+                if (word && word[c]) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 24px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(word[c].toUpperCase(), x + tileSize / 2, y + tileSize / 2);
+                }
+            }
+        }
+        
+        // Generate download
+        const link = document.createElement('a');
+        link.download = `wordle-challenge-result.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    const modeDetails = {
+        ai: {
+            title: 'AI Solver Mode',
+            tagline: 'I make the guesses, you input the color clues.',
+            icon: '🤖',
+            themeClass: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+            buttonClass: 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30',
+            buttonText: "Let's Play",
+            action: () => {
+                modeInfoModal.classList.add('hidden');
+                startGame();
+            },
+            graphics: `
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold mt-0.5">1</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Choose Secret Word</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Think of any 5-letter word in your head (e.g., <span class="font-mono bg-slate-200 px-1 rounded">SWEET</span>). Keep it hidden!</p>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-indigo-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold mt-0.5">2</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">AI Makes a Guess</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">The AI engine automatically outputs its best guess on the board.</p>
+                        <div class="flex gap-1 mt-1.5">
+                            <span class="w-6 h-6 bg-slate-800 text-white font-bold text-xs flex items-center justify-center rounded">C</span>
+                            <span class="w-6 h-6 bg-slate-800 text-white font-bold text-xs flex items-center justify-center rounded">R</span>
+                            <span class="w-6 h-6 bg-slate-800 text-white font-bold text-xs flex items-center justify-center rounded">A</span>
+                            <span class="w-6 h-6 bg-slate-800 text-white font-bold text-xs flex items-center justify-center rounded">N</span>
+                            <span class="w-6 h-6 bg-slate-800 text-white font-bold text-xs flex items-center justify-center rounded">E</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-indigo-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold mt-0.5">3</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Input Color Clues</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Enter letters corresponding to the colors of each tile on standard Wordle:</p>
+                        <div class="grid grid-cols-3 gap-2 mt-2">
+                            <div class="flex items-center gap-1.5 bg-green-50 p-1.5 rounded border border-green-200">
+                                <span class="w-5 h-5 bg-green-600 text-white text-[10px] font-bold flex items-center justify-center rounded">G</span>
+                                <span class="text-[10px] text-green-800 font-semibold">Green</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-yellow-50 p-1.5 rounded border border-yellow-200">
+                                <span class="w-5 h-5 bg-yellow-500 text-white text-[10px] font-bold flex items-center justify-center rounded">Y</span>
+                                <span class="text-[10px] text-yellow-800 font-semibold">Yellow</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-gray-100 p-1.5 rounded border border-gray-200">
+                                <span class="w-5 h-5 bg-gray-500 text-white text-[10px] font-bold flex items-center justify-center rounded">B</span>
+                                <span class="text-[10px] text-gray-700 font-semibold">Gray</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-indigo-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold mt-0.5">4</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">AI Iterates & Solves</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">The AI filters the remaining dictionary based on your feedback and calculates the optimal next guess until solved!</p>
+                    </div>
+                </div>
+            `
+        },
+        challenge: {
+            title: 'Challenge Mode',
+            tagline: 'Create a custom word and challenge others.',
+            icon: '⚔️',
+            themeClass: 'bg-purple-100 text-purple-700 border-purple-200',
+            buttonClass: 'bg-purple-600 hover:bg-purple-700 shadow-purple-600/30',
+            buttonText: 'Setup Challenge',
+            action: () => {
+                modeInfoModal.classList.add('hidden');
+                openChallengeModal();
+            },
+            graphics: `
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold mt-0.5">1</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Set Secret Word</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Type any valid 5-letter word you want your friend to guess.</p>
+                        <div class="mt-1.5 flex gap-1 font-mono text-xs">
+                            <span class="px-2 py-1 bg-purple-50 border border-purple-200 text-purple-700 rounded font-semibold tracking-wider font-bold">G</span>
+                            <span class="px-2 py-1 bg-purple-50 border border-purple-200 text-purple-700 rounded font-semibold tracking-wider font-bold">H</span>
+                            <span class="px-2 py-1 bg-purple-50 border border-purple-200 text-purple-700 rounded font-semibold tracking-wider font-bold">O</span>
+                            <span class="px-2 py-1 bg-purple-50 border border-purple-200 text-purple-700 rounded font-semibold tracking-wider font-bold">S</span>
+                            <span class="px-2 py-1 bg-purple-50 border border-purple-200 text-purple-700 rounded font-semibold tracking-wider font-bold">T</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-purple-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold mt-0.5">2</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Generate & Copy Link</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">The app encrypts the word and compiles a unique sharing link.</p>
+                        <div class="mt-1.5 flex items-center gap-1 bg-slate-100 p-1.5 rounded border border-slate-200 text-[10px] text-slate-500 select-all overflow-hidden truncate">
+                            https://wordle-hub.app/?challenge=Z2hvc3Q=
+                        </div>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-purple-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold mt-0.5">3</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Share with a Friend</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Send the generated link to a friend to challenge their spelling skills.</p>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-purple-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold mt-0.5">4</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">They Play Locally</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Your friend opens the link and tries to guess the word, or lets the AI assist them!</p>
+                    </div>
+                </div>
+            `
+        },
+        passplay: {
+            title: 'Pass \'n Play Mode',
+            tagline: 'Local 2-player mode on the same device.',
+            icon: '👥',
+            themeClass: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+            buttonClass: 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30',
+            buttonText: 'Start Setup',
+            action: () => {
+                modeInfoModal.classList.add('hidden');
+                passPlaySetupOverlay.classList.remove('hidden');
+                passPlayScreenWord.classList.remove('hidden');
+                passPlayScreenHandover.classList.add('hidden');
+                passPlayWordInput.value = '';
+                passPlayWordInput.type = 'password';
+                passPlayStatus.textContent = '';
+                passPlayWordInput.focus();
+            },
+            graphics: `
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold mt-0.5">1</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Player 1 Sets Word</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Type a secret 5-letter word. It will be hidden behind a secure password field.</p>
+                        <div class="mt-1.5 flex gap-1 font-mono text-xs">
+                            <span class="w-6 h-6 bg-slate-100 border rounded flex items-center justify-center text-slate-600 font-bold">•</span>
+                            <span class="w-6 h-6 bg-slate-100 border rounded flex items-center justify-center text-slate-600 font-bold">•</span>
+                            <span class="w-6 h-6 bg-slate-100 border rounded flex items-center justify-center text-slate-600 font-bold">•</span>
+                            <span class="w-6 h-6 bg-slate-100 border rounded flex items-center justify-center text-slate-600 font-bold">•</span>
+                            <span class="w-6 h-6 bg-slate-100 border rounded flex items-center justify-center text-slate-600 font-bold">•</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-emerald-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold mt-0.5">2</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Pass the Device</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Hand the device over to Player 2. The secret word is hidden so they can't peek.</p>
+                        <div class="mt-1.5 flex items-center gap-1.5 text-xs text-emerald-800 font-semibold bg-emerald-50 border border-emerald-100 p-1.5 rounded max-w-xs">
+                            <span>👥</span> Pass to Player 2!
+                        </div>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-emerald-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold mt-0.5">3</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Player 2 Guesses</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Player 2 makes guesses on the board to figure out the word in 6 attempts.</p>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-emerald-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold mt-0.5">4</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Result Summary</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">See if Player 2 beats the challenge or runs out of guesses!</p>
+                    </div>
+                </div>
+            `
+        }
+    };
+
+    let currentModeAction = null;
+
+    function showModeExplanation(modeKey) {
+        const details = modeDetails[modeKey];
+        if (!details) return;
+
+        // Hide main mode selection overlay
+        modeSelectionOverlay.classList.add('hidden');
+
+        // Set content
+        modeInfoTitle.textContent = details.title;
+        modeInfoTagline.textContent = details.tagline;
+        modeInfoIcon.textContent = details.icon;
+        modeInfoGraphics.innerHTML = details.graphics;
+        modeInfoActionBtn.textContent = details.buttonText;
+
+        // Setup theme specific classes on icon container and action button
+        modeInfoIconContainer.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto text-3xl shadow-sm transition-all duration-300 " + details.themeClass;
+        modeInfoActionBtn.className = "w-full text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 " + details.buttonClass;
+
+        // Set action callback
+        currentModeAction = details.action;
+
+        // Show/hide difficulty selector (only for AI mode)
+        if (difficultySelector) {
+            difficultySelector.classList.toggle('hidden', modeKey !== 'ai');
+        }
+
+        // Show modal
+        modeInfoModal.classList.remove('hidden');
+    }
+
     submitButton.addEventListener('click', handleFeedback);
-    restartButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', () => {
+        if (state.isChallengeMode) {
+            startGame();
+        } else {
+            openModeSelection();
+        }
+    });
     addWordButton.addEventListener('click', handleAddWord);
     shareButton.addEventListener('click', handleShare);
+    shareImageButton.addEventListener('click', downloadBoardImage);
+    newGameButton?.addEventListener('click', () => {
+        state.isChallengeMode = false;
+        state.challengeWord = null;
+        state.isPassAndPlayMode = false;
+        state.passAndPlayWord = null;
+        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+        window.history.replaceState({}, document.title, cleanUrl);
+        openModeSelection();
+    });
+
+    acceptChallengeBtn?.addEventListener('click', () => {
+        if (challengeLandingOverlay) {
+            challengeLandingOverlay.classList.add('hidden');
+        }
+        feedbackInput.disabled = false;
+        submitButton.disabled = false;
+        feedbackInput.focus();
+    });
+
+    closeDefBtn?.addEventListener('click', () => {
+        if (definitionModal) {
+            definitionModal.classList.add('hidden');
+        }
+    });
+
+    definitionModal?.addEventListener('click', (e) => {
+        if (e.target === definitionModal) {
+            definitionModal.classList.add('hidden');
+        }
+    });
+
+    gameBoard.addEventListener('click', (e) => {
+        const row = e.target.closest('[id^="row-"]');
+        if (row) {
+            const rowIdx = parseInt(row.id.split('-')[1]);
+            const word = state.guessWords[rowIdx];
+            if (word) {
+                showWordDefinition(word);
+            }
+        }
+    });
     
     difficultyNormalBtn.addEventListener('click', () => {
+        state.difficulty = 'normal';
         difficultyNormalBtn.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-500', 'text-white');
+        difficultyNormalBtn.classList.remove('bg-gray-200', 'text-gray-700');
         difficultyHardBtn.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-500', 'text-white');
         difficultyHardBtn.classList.add('bg-gray-200', 'text-gray-700');
-        startGame();
     });
     difficultyHardBtn.addEventListener('click', () => {
+        state.difficulty = 'hard';
         difficultyHardBtn.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-500', 'text-white');
+        difficultyHardBtn.classList.remove('bg-gray-200', 'text-gray-700');
         difficultyNormalBtn.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-500', 'text-white');
         difficultyNormalBtn.classList.add('bg-gray-200', 'text-gray-700');
-        startGame();
     });
 
     feedbackInput.addEventListener('keyup', (e) => {
@@ -567,5 +1474,710 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    startGame();
+    // Challenge Mode Event Listeners
+    const openChallengeModal = () => {
+        challengeWordInput.value = '';
+        challengeStatus.textContent = '';
+        challengeLinkContainer.classList.add('hidden');
+        challengeModal.classList.remove('opacity-0', 'pointer-events-none');
+        challengeWordInput.focus();
+    };
+
+    challengeButton?.addEventListener('click', openChallengeModal);
+    gameOverChallengeButton?.addEventListener('click', openChallengeModal);
+
+    closeChallengeModalButton?.addEventListener('click', () => {
+        challengeModal.classList.add('opacity-0', 'pointer-events-none');
+    });
+
+    challengeModal?.addEventListener('click', (e) => {
+        if (e.target === challengeModal) {
+            challengeModal.classList.add('opacity-0', 'pointer-events-none');
+        }
+    });
+
+    generateChallengeButton?.addEventListener('click', () => {
+        const word = challengeWordInput.value.trim().toLowerCase();
+        if (word.length !== 5) {
+            challengeStatus.textContent = 'Word must be exactly 5 letters long!';
+            challengeWordInput.classList.add('shake');
+            setTimeout(() => challengeWordInput.classList.remove('shake'), 600);
+            return;
+        }
+
+        if (!/^[a-z]{5}$/.test(word)) {
+            challengeStatus.textContent = 'Word must contain only letters!';
+            challengeWordInput.classList.add('shake');
+            setTimeout(() => challengeWordInput.classList.remove('shake'), 600);
+            return;
+        }
+
+        // Validate against dictionary — must be a real Wordle word
+        const inBase = wordList.includes(word);
+        const inExtended = extendedWordList.length > 0 && extendedWordList.includes(word);
+        if (!inBase && !inExtended) {
+            challengeStatus.textContent = extendedWordList.length === 0
+                ? 'Dictionary still loading — try again in a moment!'
+                : 'Nope. Try something your English teacher would approve of.';
+            challengeWordInput.classList.add('shake');
+            setTimeout(() => challengeWordInput.classList.remove('shake'), 600);
+            return;
+        }
+
+        challengeStatus.textContent = '';
+        const challengeCode = btoa(word);
+        const challengeUrl = `${window.location.origin}${window.location.pathname}?challenge=${challengeCode}`;
+        challengeLinkInput.value = challengeUrl;
+        challengeLinkContainer.classList.remove('hidden');
+    });
+
+    copyChallengeLinkButton?.addEventListener('click', () => {
+        challengeLinkInput.select();
+        try {
+            document.execCommand('copy');
+            const originalText = copyChallengeLinkButton.textContent;
+            copyChallengeLinkButton.textContent = 'Copied!';
+            copyChallengeLinkButton.classList.replace('bg-green-500', 'bg-indigo-600');
+            setTimeout(() => {
+                copyChallengeLinkButton.textContent = originalText;
+                copyChallengeLinkButton.classList.replace('bg-indigo-600', 'bg-green-500');
+            }, 2000);
+        } catch (err) {
+            challengeStatus.textContent = 'Could not copy link.';
+        }
+    });
+
+    exitChallengeButton?.addEventListener('click', () => {
+        state.isChallengeMode = false;
+        state.challengeWord = null;
+        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+        window.history.replaceState({}, document.title, cleanUrl);
+        openModeSelection();
+    });
+
+    // Pass 'n Play & Mode Selection Event Listeners
+    modeAiBtn?.addEventListener('click', () => {
+        showModeExplanation('ai');
+    });
+
+    modeChallengeBtn?.addEventListener('click', () => {
+        showModeExplanation('challenge');
+    });
+
+    modePassPlayBtn?.addEventListener('click', () => {
+        showModeExplanation('passplay');
+    });
+
+    modeDailyBtn?.addEventListener('click', () => {
+        const record = getDailyRecord();
+        if (record && record.completed) {
+            // Already played today — show results overlay directly
+            const streak = getDailyStreakData();
+            showDailyResultOverlay(record, streak);
+        } else {
+            // Fresh game — start daily mode
+            state.isDailyMode = true;
+            state.dailyWord = getDailyWord();
+            modeSelectionOverlay.classList.add('hidden');
+            startGame();
+        }
+    });
+
+    exitDailyButton?.addEventListener('click', () => openModeSelection());
+
+    document.getElementById('daily-share-btn')?.addEventListener('click', () => {
+        const record = getDailyRecord();
+        const emojiMap = { correct: '🟩', present: '🟨', absent: '⬛' };
+        const grid = record.guesses.map(g => g.map(f => emojiMap[f]).join('')).join('\n');
+        const scoreStr = record.won ? `${record.guessCount}/6` : 'X/6';
+        const text = `Wordle Hub Daily - ${new Date().toLocaleDateString('en-US', {month:'short',day:'numeric'})}\n${scoreStr}\n\n${grid}`;
+        navigator.clipboard?.writeText(text).then(() => {
+            const btn = document.getElementById('daily-share-btn');
+            const orig = btn.textContent; btn.textContent = 'Copied! ✓';
+            setTimeout(() => btn.textContent = orig, 2000);
+        }).catch(() => { alert(text); });
+    });
+
+    document.getElementById('daily-close-btn')?.addEventListener('click', () => {
+        dailyResultOverlay.classList.add('hidden');
+        if (state.isDailyMode && state.isGameOver) openModeSelection();
+    });
+
+    // Explanation Modal Actions
+    modeInfoActionBtn?.addEventListener('click', () => {
+        if (currentModeAction) {
+            currentModeAction();
+        }
+    });
+
+    modeInfoBackBtn?.addEventListener('click', () => {
+        modeInfoModal.classList.add('hidden');
+        openModeSelection();
+    });
+
+    passPlayToggleVisibility?.addEventListener('click', () => {
+        if (passPlayWordInput.type === 'password') {
+            passPlayWordInput.type = 'text';
+            passPlayToggleVisibility.innerHTML = `
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="pass-play-eye-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                </svg>
+            `;
+        } else {
+            passPlayWordInput.type = 'password';
+            passPlayToggleVisibility.innerHTML = `
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="pass-play-eye-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+            `;
+        }
+    });
+
+    passPlayCancelBtn?.addEventListener('click', () => {
+        passPlaySetupOverlay.classList.add('hidden');
+        openModeSelection();
+    });
+
+    passPlaySubmitWordBtn?.addEventListener('click', () => {
+        const word = passPlayWordInput.value.trim().toLowerCase();
+        if (word.length !== 5) {
+            passPlayStatus.textContent = 'Word must be exactly 5 letters long!';
+            passPlayWordInput.classList.add('shake');
+            sounds?.invalid.triggerAttackRelease("C3", "0.2");
+            setTimeout(() => passPlayWordInput.classList.remove('shake'), 600);
+            return;
+        }
+        if (!/^[a-z]{5}$/.test(word)) {
+            passPlayStatus.textContent = 'Word must contain only letters!';
+            passPlayWordInput.classList.add('shake');
+            sounds?.invalid.triggerAttackRelease("C3", "0.2");
+            setTimeout(() => passPlayWordInput.classList.remove('shake'), 600);
+            return;
+        }
+        if (!wordList.includes(word) && (!extendedWordList || !extendedWordList.includes(word))) {
+            passPlayStatus.textContent = 'Not in word list!';
+            passPlayWordInput.classList.add('shake');
+            sounds?.invalid.triggerAttackRelease("C3", "0.2");
+            setTimeout(() => passPlayWordInput.classList.remove('shake'), 600);
+            return;
+        }
+
+        state.passAndPlayWord = word;
+        state.isPassAndPlayMode = true;
+        
+        // Clear input value so player 2 cannot inspect it or see it by accident
+        passPlayWordInput.value = '';
+        passPlayStatus.textContent = '';
+
+        passPlayScreenWord.classList.add('hidden');
+        passPlayScreenHandover.classList.remove('hidden');
+        passPlayStartBtn.focus();
+    });
+
+    passPlayWordInput?.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            passPlaySubmitWordBtn.click();
+        }
+    });
+
+    passPlayStartBtn?.addEventListener('click', () => {
+        passPlaySetupOverlay.classList.add('hidden');
+        startGame();
+    });
+
+    exitPassPlayButton?.addEventListener('click', () => {
+        openModeSelection();
+    });
+
+    // ── Daily Challenge Utilities ──────────────────────────────────────────
+    function getDailyDateKey() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function getDailyWord() {
+        const epoch = new Date('2024-01-01'); epoch.setHours(0,0,0,0);
+        const today = new Date(); today.setHours(0,0,0,0);
+        const idx = Math.floor((today - epoch) / 86400000);
+        return wordList[idx % wordList.length];
+    }
+    function getDailyRecord() {
+        try { const d = localStorage.getItem(`wordle_daily_${getDailyDateKey()}`); return d ? JSON.parse(d) : null; } catch { return null; }
+    }
+    function getDailyStreakData() {
+        try { const d = localStorage.getItem('wordle_daily_streak'); return d ? JSON.parse(d) : { current: 0, max: 0, lastDate: null }; } catch { return { current: 0, max: 0, lastDate: null }; }
+    }
+    function updateDailyStreak(won) {
+        const streak = getDailyStreakData();
+        const today = getDailyDateKey();
+        const d = new Date(); d.setDate(d.getDate()-1);
+        const yesterday = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        if (won) {
+            streak.current = (streak.lastDate === yesterday || streak.lastDate === today) ? streak.current + (streak.lastDate === today ? 0 : 1) : 1;
+            streak.max = Math.max(streak.current, streak.max);
+        } else { streak.current = 0; }
+        streak.lastDate = today;
+        try { localStorage.setItem('wordle_daily_streak', JSON.stringify(streak)); } catch {}
+        return streak;
+    }
+    function saveDailyRecord(won) {
+        const streak = updateDailyStreak(won);
+        updateDailyGlobalStats(won, state.guessCount);
+        try { localStorage.setItem(`wordle_daily_${getDailyDateKey()}`, JSON.stringify({ completed: true, won, guessWords: state.guessWords, guesses: state.guesses, guessCount: state.guessCount })); } catch {}
+        return streak;
+    }
+    function getDailyEmojis() {
+        const m = { correct: '🟩', present: '🟨', absent: '⬛' };
+        return state.guesses.map(g => g.map(f => m[f]).join('')).join('\n');
+    }
+    function formatCountdown() {
+        const now = new Date(), tom = new Date(now); tom.setDate(tom.getDate()+1); tom.setHours(0,0,0,0);
+        const diff = tom - now;
+        return [Math.floor(diff/3600000), Math.floor((diff%3600000)/60000), Math.floor((diff%60000)/1000)].map(n=>String(n).padStart(2,'0')).join(':');
+    }
+    let dailyCountdownTimer = null;
+    function showDailyResultOverlay(record, streak) {
+        const emojiMap = { correct: '🟩', present: '🟨', absent: '⬛' };
+        document.getElementById('daily-result-emoji-icon').textContent = record.won ? '🎉' : '😔';
+        document.getElementById('daily-result-title').textContent = record.won ? '🎉 Solved It!' : 'Better luck tomorrow!';
+        document.getElementById('daily-result-word').textContent = `The word was: ${getDailyWord().toUpperCase()}`;
+        document.getElementById('daily-result-grid').innerHTML = record.guesses.map(g => `<div>${g.map(f=>emojiMap[f]).join('')}</div>`).join('');
+        document.getElementById('daily-streak-count').textContent = streak.current;
+        document.getElementById('daily-max-streak-count').textContent = streak.max;
+        const countdown = document.getElementById('daily-countdown');
+        countdown.textContent = formatCountdown();
+        if (dailyCountdownTimer) clearInterval(dailyCountdownTimer);
+        dailyCountdownTimer = setInterval(() => { if (!dailyResultOverlay.classList.contains('hidden')) countdown.textContent = formatCountdown(); else clearInterval(dailyCountdownTimer); }, 1000);
+        dailyResultOverlay.classList.remove('hidden');
+        // Auto-fetch word definition
+        const defContent = document.getElementById('daily-def-content');
+        if (defContent) {
+            defContent.innerHTML = '<span class="italic">Fetching definition…</span>';
+            fetchWordDefinitionInline(getDailyWord(), defContent);
+        }
+    }
+    function updateDailyBadge() {
+        if (!dailyModeBadge) return;
+        const record = getDailyRecord();
+        if (record && record.completed) { dailyModeBadge.textContent = record.won ? 'Done ✓' : 'Done'; dailyModeBadge.className = dailyModeBadge.className.replace('bg-green-100 text-green-700', 'bg-slate-100 text-slate-500'); }
+    }
+
+    function openModeSelection() {
+        state.isChallengeMode = false;
+        state.challengeWord = null;
+        state.isPassAndPlayMode = false;
+        state.passAndPlayWord = null;
+        state.isDailyMode = false;
+        state.dailyWord = null;
+        gameOverContainer.classList.add('hidden');
+        actionArea.classList.add('hidden');
+        challengeBanner.classList.add('hidden');
+        passPlayBanner.classList.add('hidden');
+        if (dailyBanner) dailyBanner.classList.add('hidden');
+        insightsPanel.classList.add('hidden');
+        if (keyboardContainer) keyboardContainer.classList.add('hidden');
+        
+        // Hide explanation modal if open
+        if (modeInfoModal) {
+            modeInfoModal.classList.add('hidden');
+        }
+
+        // Show selection overlay
+        if (modeSelectionOverlay) {
+            modeSelectionOverlay.classList.remove('hidden');
+        }
+    }
+
+    function initKeyboard() {
+        const rows = [
+            ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+            ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+            ['enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'backspace']
+        ];
+        
+        if (!keyboardContainer) return;
+        keyboardContainer.innerHTML = '';
+        keyboardContainer.className = 'mt-2 sm:mt-4 select-none max-w-sm mx-auto space-y-1 px-1 sm:px-2';
+
+        rows.forEach(row => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'flex justify-center gap-1 sm:gap-1.5 w-full';
+
+            row.forEach(key => {
+                const button = document.createElement('button');
+                button.className = 'keyboard-key flex-1 h-10 sm:h-12 flex items-center justify-center font-bold text-xs sm:text-sm uppercase rounded bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-700 transition-all focus:outline-none';
+                button.dataset.key = key;
+
+                if (key === 'enter') {
+                    button.textContent = 'Enter';
+                    button.classList.add('px-1.5', 'text-[10px]', 'sm:text-xs');
+                    button.style.flexGrow = '1.5';
+                } else if (key === 'backspace') {
+                    button.textContent = '⌫';
+                    button.classList.add('px-1.5');
+                    button.style.flexGrow = '1.5';
+                } else {
+                    button.textContent = key;
+                }
+
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleVirtualKeyPress(key);
+                });
+
+                rowDiv.appendChild(button);
+            });
+
+            keyboardContainer.appendChild(rowDiv);
+        });
+    }
+
+    function handleVirtualKeyPress(key) {
+        if (state.isGameOver || state.isAnimating) return;
+
+        const isManual = state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode;
+
+        // Visual and auditory feedback
+        if (sounds && sounds.type) {
+            const toneFreq = key === 'enter' ? 'G5' : key === 'backspace' ? 'E5' : 'C6';
+            sounds.type.triggerAttackRelease(toneFreq, '0.01');
+        }
+        if (navigator.vibrate) {
+            navigator.vibrate(10); // 10ms click vibration on mobile
+        }
+
+        if (key === 'backspace') {
+            if (isManual) {
+                state.currentTypedGuess = (state.currentTypedGuess || '').slice(0, -1);
+                updateActiveRowTiles();
+            } else {
+                feedbackInput.value = feedbackInput.value.slice(0, -1);
+            }
+        } else if (key === 'enter') {
+            if (isManual) {
+                handleFeedback();
+            } else {
+                submitButton.click();
+            }
+        } else {
+            if (isManual) {
+                if ((state.currentTypedGuess || '').length < 5) {
+                    state.currentTypedGuess = (state.currentTypedGuess || '') + key;
+                    updateActiveRowTiles();
+                }
+            } else {
+                if (feedbackInput.value.length < 5) {
+                    feedbackInput.value += key;
+                }
+            }
+        }
+        if (!isManual) {
+            feedbackInput.focus();
+        }
+    }
+
+    function updateActiveRowTiles() {
+        const row = document.getElementById(`row-${state.guessCount}`);
+        if (!row) return;
+
+        row.innerHTML = '';
+        const word = state.currentTypedGuess || '';
+
+        for (let i = 0; i < 5; i++) {
+            const letter = word[i] || '';
+            const tileContainer = document.createElement('div');
+            
+            if (letter) {
+                tileContainer.className = 'tile-container';
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                const front = document.createElement('div');
+                front.className = 'tile-front border-2 border-gray-500 pop-in';
+                front.textContent = letter.toUpperCase();
+                tile.appendChild(front);
+                tileContainer.appendChild(tile);
+            } else {
+                tileContainer.className = 'tile-container border-2 border-gray-200 rounded-md';
+            }
+            row.appendChild(tileContainer);
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (state.isGameOver || state.isAnimating) return;
+        const isManual = state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode;
+        if (!isManual) return;
+
+        if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+            if (document.activeElement !== feedbackInput) {
+                return;
+            }
+        }
+
+        const key = e.key;
+        if (key === 'Enter') {
+            e.preventDefault();
+            handleVirtualKeyPress('enter');
+        } else if (key === 'Backspace') {
+            e.preventDefault();
+            handleVirtualKeyPress('backspace');
+        } else if (/^[a-zA-Z]$/.test(key)) {
+            e.preventDefault();
+            handleVirtualKeyPress(key.toLowerCase());
+        }
+    });
+
+    function updateKeyboardColors() {
+        const keyElements = document.querySelectorAll('.keyboard-key');
+        if (!keyElements.length) return;
+
+        // Reset key styling
+        keyElements.forEach(key => {
+            key.classList.remove('bg-correct', 'bg-present', 'bg-absent', 'text-white');
+            key.classList.add('bg-slate-200', 'text-slate-700');
+        });
+
+        if (state.guesses && state.guessWords) {
+            const letterStatuses = {};
+
+            for (let gIdx = 0; gIdx < state.guesses.length; gIdx++) {
+                const guessWord = state.guessWords[gIdx];
+                const feedback = state.guesses[gIdx];
+                if (!guessWord || !feedback) continue;
+
+                for (let i = 0; i < 5; i++) {
+                    const char = guessWord[i].toLowerCase();
+                    const status = feedback[i];
+
+                    if (status === 'correct') {
+                        letterStatuses[char] = 'correct';
+                    } else if (status === 'present') {
+                        if (letterStatuses[char] !== 'correct') {
+                            letterStatuses[char] = 'present';
+                        }
+                    } else if (status === 'absent') {
+                        if (letterStatuses[char] !== 'correct' && letterStatuses[char] !== 'present') {
+                            letterStatuses[char] = 'absent';
+                        }
+                    }
+                }
+            }
+
+            keyElements.forEach(key => {
+                const char = key.dataset.key;
+                if (char && letterStatuses[char]) {
+                    const status = letterStatuses[char];
+                    key.classList.remove('bg-slate-200', 'text-slate-700');
+                    key.classList.add('text-white');
+                    if (status === 'correct') {
+                        key.classList.add('bg-correct');
+                    } else if (status === 'present') {
+                        key.classList.add('bg-present');
+                    } else if (status === 'absent') {
+                        key.classList.add('bg-absent');
+                    }
+                }
+            });
+        }
+    }
+
+    function parseURLParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const challengeCode = urlParams.get('challenge');
+        if (challengeCode) {
+            try {
+                const decoded = atob(challengeCode).toLowerCase();
+                if (decoded.length === 5 && /^[a-z]{5}$/.test(decoded)) {
+                    state.challengeWord = decoded;
+                    state.isChallengeMode = true;
+                    if (!wordList.includes(decoded)) {
+                        wordList.push(decoded);
+                    }
+                    if (extendedWordList && !extendedWordList.includes(decoded)) {
+                        extendedWordList.push(decoded);
+                    }
+                }
+            } catch (e) {
+                console.error('Invalid challenge code in URL', e);
+            }
+        }
+    }
+
+    // ── Dark Mode ──────────────────────────────────────────────────────────
+
+    const sunSvg = `
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+        </svg>
+    `;
+    const moonSvg = `
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+        </svg>
+    `;
+
+    function applyDarkMode(dark) {
+        document.body.classList.toggle('dark', dark);
+        if (darkModeToggle) darkModeToggle.innerHTML = dark ? sunSvg : moonSvg;
+    }
+
+    // Init from localStorage
+    applyDarkMode(localStorage.getItem('wordle_dark_mode') === 'true');
+
+    darkModeToggle?.addEventListener('click', () => {
+        const isDark = document.body.classList.toggle('dark');
+        localStorage.setItem('wordle_dark_mode', isDark);
+        applyDarkMode(isDark);
+    });
+
+    // ── Word Definition (inline, for daily result) ─────────────────────────
+
+    async function fetchWordDefinitionInline(word, targetEl) {
+        if (!word || !targetEl) return;
+        try {
+            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+            if (!res.ok) { targetEl.textContent = 'Definition not available.'; return; }
+            const data = await res.json();
+            const entry = data[0];
+            if (entry && entry.meanings && entry.meanings.length > 0) {
+                const meaning = entry.meanings[0];
+                const pos = meaning.partOfSpeech;
+                const def = meaning.definitions[0]?.definition || 'No definition text available.';
+                const example = meaning.definitions[0]?.example;
+                targetEl.innerHTML =
+                    `<span class="inline-block text-[10px] bg-indigo-100 text-indigo-700 font-bold px-1.5 py-0.5 rounded uppercase tracking-wider mr-1.5 not-italic">${pos}</span>` +
+                    `<span class="not-italic text-slate-700">${def}</span>` +
+                    (example ? `<div class="mt-1 text-slate-400 italic">“${example}”</div>` : '');
+            } else {
+                targetEl.textContent = 'No definition found.';
+            }
+        } catch {
+            targetEl.textContent = 'Could not load definition.';
+        }
+    }
+
+    // ── Utility helpers ────────────────────────────────────────────────────
+
+    function showToast(msg) {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = msg;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('slide-out');
+            toast.addEventListener('animationend', () => toast.remove(), { once: true });
+        }, 2200);
+    }
+
+    function showThinkingIndicator() {
+        statusMessage.innerHTML = `<span class="text-indigo-500 font-semibold text-base flex items-center gap-1">🤖 Thinking<span class="thinking-dots"><span></span><span></span><span></span></span></span>`;
+        statusMessage.className = 'text-center h-8 flex items-center justify-center';
+    }
+
+    function animateWordReveal(word, feedbackColors) {
+        const container = document.getElementById('game-over-word-reveal');
+        if (!container || !word) return;
+        container.innerHTML = '';
+        container.classList.remove('hidden');
+        word.split('').forEach((letter, i) => {
+            const colorClass = feedbackColors ? colorClasses[feedbackColors[i]] : 'bg-correct';
+            const tile = document.createElement('div');
+            tile.className = `game-over-letter w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center font-bold text-lg sm:text-xl uppercase rounded-md text-white ${colorClass}`;
+            tile.textContent = letter;
+            tile.style.animationDelay = `${i * 80}ms`;
+            container.appendChild(tile);
+        });
+    }
+
+    function computeOpeningGuess() {
+        const openers = ['crane', 'slate', 'trace', 'raise', 'stare', 'arise'];
+        const posFreq = Array.from({ length: 5 }, () => ({}));
+        for (const word of wordList) {
+            for (let i = 0; i < 5; i++) {
+                const l = word[i];
+                posFreq[i][l] = (posFreq[i][l] || 0) + 1;
+            }
+        }
+        const scored = openers.map(word => {
+            let score = 0;
+            const seen = new Set();
+            for (let i = 0; i < 5; i++) {
+                const l = word[i];
+                if (!seen.has(l)) { score += (posFreq[i][l] || 0); seen.add(l); }
+            }
+            return { word, score };
+        }).sort((a, b) => b.score - a.score);
+        const top3 = scored.slice(0, 3);
+        return top3[Math.floor(Math.random() * top3.length)].word;
+    }
+
+    // ── Daily Global Stats ────────────────────────────────────────────────
+
+    function getDailyGlobalStats() {
+        try {
+            const d = localStorage.getItem('wordle_daily_global_stats');
+            return d ? JSON.parse(d) : { played: 0, wins: 0, distribution: [0,0,0,0,0,0] };
+        } catch { return { played: 0, wins: 0, distribution: [0,0,0,0,0,0] }; }
+    }
+
+    function updateDailyGlobalStats(won, guessCount) {
+        const stats = getDailyGlobalStats();
+        stats.played++;
+        if (won) {
+            stats.wins++;
+            const idx = Math.max(0, Math.min(5, guessCount - 1));
+            stats.distribution[idx]++;
+        }
+        try { localStorage.setItem('wordle_daily_global_stats', JSON.stringify(stats)); } catch {}
+    }
+
+    function renderStatsModal() {
+        const stats = getDailyGlobalStats();
+        const streak = getDailyStreakData();
+        document.getElementById('stat-played').textContent = stats.played;
+        document.getElementById('stat-win-pct').textContent = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0;
+        document.getElementById('stat-streak').textContent = streak.current;
+        document.getElementById('stat-max-streak').textContent = streak.max;
+
+        const dist = document.getElementById('guess-distribution');
+        if (!dist) return;
+        dist.innerHTML = '';
+        const maxVal = Math.max(...stats.distribution, 1);
+        stats.distribution.forEach((count, i) => {
+            const pct = Math.round((count / maxVal) * 100);
+            const isHighlight = count > 0 && stats.distribution.indexOf(Math.max(...stats.distribution)) === i;
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-2 h-7';
+            row.innerHTML = `
+                <span class="w-4 text-xs font-bold text-slate-500 text-right">${i + 1}</span>
+                <div class="flex-1 bg-slate-100 rounded-sm h-full overflow-hidden">
+                    <div class="stat-bar-fill ${isHighlight ? 'bg-indigo-600' : 'bg-slate-400'}" style="width:0%">
+                        <span class="text-white text-xs font-bold">${count > 0 ? count : ''}</span>
+                    </div>
+                </div>`;
+            dist.appendChild(row);
+            setTimeout(() => {
+                const bar = row.querySelector('.stat-bar-fill');
+                if (bar) bar.style.width = `${count > 0 ? Math.max(pct, 8) : 0}%`;
+            }, 60 + i * 80);
+        });
+    }
+
+    statsButton?.addEventListener('click', () => {
+        renderStatsModal();
+        statsModal?.classList.remove('hidden');
+    });
+    closeStatsModal?.addEventListener('click', () => statsModal?.classList.add('hidden'));
+    statsModal?.addEventListener('click', (e) => { if (e.target === statsModal) statsModal.classList.add('hidden'); });
+
+    initKeyboard();
+    parseURLParams();
+    updateDailyBadge();
+    if (state.isChallengeMode) {
+        startGame();
+    } else {
+        openModeSelection();
+    }
 });

@@ -1,94 +1,94 @@
-# 🤖 AI Wordle Guesser
+# 🤖 AI Wordle Guesser & Solver
 
-A sophisticated, interactive web game where you challenge an intelligent AI to guess your secret 5-letter word. Built with modern web technologies and a focus on a clean, polished user experience.
+A sophisticated, highly interactive Wordle companion and gameplay platform. Featuring an intelligent AI solver, multiple game modes, statistics tracking, and a premium modern interface with system-wide dark mode support.
 
+![AI Wordle Guesser Banner](images/dashboard_light.png)
 
 ---
 
 ## 📖 Table of Contents
 
--   [Key Features](#-key-features)
--   [Technologies Used](#-technologies-used)
--   [Local Setup & Installation](#-local-setup--installation)
--   [Deployment to GitHub Pages](#-deployment-to-github-pages)
--   [How to Contribute](#-how-to-contribute)
--   [License](#-license)
+- [✨ Key Features](#-key-features)
+- [🎮 Game Modes](#-game-modes)
+- [🛠️ Technologies Used](#️-technologies-used)
+- [🚀 Local Setup & Installation](#-local-setup--installation)
+- [🌐 Hosting & Deployment](#-hosting--deployment)
+- [🤝 How to Contribute](#-how-to-contribute)
+- [📄 License](#-license)
 
 ---
 
 ## ✨ Key Features
 
--   **Intelligent AI Opponent:** The AI uses a sophisticated algorithm to make the most informative guess possible, narrowing down the word list with each turn.
--   **Selectable Difficulty:** Choose between **Normal** mode for a standard challenge or **Hard** mode, where the AI employs a more strategic guessing algorithm to solve the puzzle faster.
--   **Interactive Feedback System:** A simple and intuitive input system (`G` `Y` `B`) for providing clues to the AI.
--   **Dynamic UI & Animations:** Smooth tile-flipping animations, celebratory confetti on a win, and subtle sound effects create an engaging and polished user experience.
--   **"Teach Me" Feature:** If your word isn't in the AI's dictionary, the game allows you to add it, making the AI smarter for the next game.
--   **Shareable Results:** Easily copy your game's results as a classic emoji grid to share with friends.
--   **Fully Responsive:** A clean and modern interface that works seamlessly on desktops, tablets, and mobile devices.
+- **Side-by-Side UI Layout:** Real-time feedback dashboard splitting the main Wordle board and the active AI engine panel side-by-side on desktop displays.
+- **AI Thought Process & Confidence Bars:** Visualizes the AI's search space reduction. Each suggestion displays a gradient confidence meter reflecting entropy calculations.
+- **Interactive Feedback System:** Easily submit clues to the AI using standard color patterns (`G` for Green, `Y` for Yellow, and `B` for Gray).
+- **System-Wide Dark Mode:** Fully immersive slate dark mode theme, automatically persistent using `localStorage`.
+- **Game-Over Modal Overlays:** Backdrop-blurred, springy modal overlay announcing win/loss states, streak metrics, and inline dictionary definitions.
+- **Word Definitions on Demand:** Click any historical word on the board to query the dictionary API and display definitions inline.
+- **Shareable Results:** Instantly copy game-ending results as shareable emoji grids.
+
+| Light Mode Dashboard | Dark Mode Dashboard |
+| :---: | :---: |
+| ![Light Mode](images/dashboard_light.png) | ![Dark Mode](images/dark_mode.png) |
+
+---
+
+## 🎮 Game Modes
+
+1. **AI Solver Mode:** Set a secret word in your mind, then guide the AI to guess it by inputting the color feedback. Select between **Normal** and **Hard** difficulty levels inside the mode details modal.
+2. **Daily Challenge:** Play the word of the day with persistent win-streak tracking and guess distribution histograms.
+3. **Challenge Mode:** Generate a encrypted custom link containing a secret 5-letter word to challenge a friend!
+4. **Pass 'n Play:** Classic two-player mode where Player 1 sets the word and Player 2 tries to solve it.
+
+| Daily Statistics Modal | Game Over Modal |
+| :---: | :---: |
+| ![Stats Modal](images/stats_modal.png) | ![Game Over](images/game_over_modal.png) |
 
 ---
 
 ## 🛠️ Technologies Used
 
--   **Frontend:** HTML5, CSS3, JavaScript (ES6+)
--   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
--   **Audio:** [Tone.js](https://tonejs.github.io/) for web audio effects.
--   **Deployment:** [GitHub Pages](https://pages.github.com/)
+- **Frontend:** HTML5, CSS3, JavaScript (ES6+), Tailwind CSS
+- **Audio Processing:** [Tone.js](https://tonejs.github.io/) for synthesised UI audio feedback.
+- **Icons & Theme:** Fully customized SVG outline iconography.
+- **API Integration:** [Free Dictionary API](https://dictionaryapi.dev/) for real-time word lookup.
 
 ---
 
 ## 🚀 Local Setup & Installation
 
-To run this project on your local machine, follow these steps:
+To run this project on your local machine:
 
-1.  **Download the project files:**
-    Make sure you have `index.html`, `style.css`, and `script.js` in the same folder.
-
-2.  **Open `index.html` in your browser:**
-    You can simply double-click the `index.html` file. For the best experience, it's recommended to use a local server. If you have VS Code, the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension is an excellent choice.
-
----
-
-## 🌐 Deployment to GitHub Pages
-
-You can easily deploy your own version of this game for free using GitHub Pages.
-
-1.  **Create a new repository** on GitHub (e.g., `Wordle-Guesser`).
-
-2.  **Initialize Git** in your local project folder, add the files, commit them, and push them to your new repository:
-    ```bash
-    # Make sure you are in your project folder
-    git init
-    git add .
-    git commit -m "Initial commit"
-    git branch -M main
-    git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
-    git push -u origin main
-    ```
-    *(Remember to replace the URL with your actual repository URL)*
-
-3.  **Enable GitHub Pages:**
-    -   In your repository on GitHub, go to **Settings**.
-    -   In the left sidebar, click on **Pages**.
-    -   Under "Build and deployment", set the **Source** to `Deploy from a branch`.
-    -   Under "Branch", select `main` and `/ (root)`, then click **Save**.
-
-4.  Your site will be live in a few minutes at 'https://YOUR_USERNAME.github.io/YOUR_REPOSITORY_NAME.
+1. Clone or download the repository files:
+   ```bash
+   git clone https://github.com/aarabahmad/Wordle-Guesser-AI.git
+   cd Wordle-Guesser-AI
+   ```
+2. Launch a local web server (e.g., using Python, Node.js, or VS Code Live Server):
+   - **Node.js:** `npx serve .`
+   - **Python:** `python -m http.server 8000`
+3. Open your browser and navigate to the local address (e.g., `http://localhost:8000`).
 
 ---
 
-## 🤝 How to Contribute
+## 🌐 Hosting & Deployment
 
-Contributions are welcome! If you have ideas for new features, improvements, or bug fixes, please feel free to:
+Since this application compiles into static client-side files, you can deploy it for free:
 
-1.  **Fork the repository.**
-2.  **Create a new branch** (`git checkout -b feature/AmazingFeature`).
-3.  **Make your changes** and commit them (`git commit -m 'Add some AmazingFeature'`).
-4.  **Push to the branch** (`git push origin feature/AmazingFeature`).
-5.  **Open a Pull Request.**
+### Vercel CLI
+```bash
+npx vercel
+```
+Follow the interactive CLI prompts to deploy to Vercel instantly.
+
+### GitHub Pages
+1. Go to **Settings** -> **Pages** in your GitHub repository.
+2. Under **Build and deployment**, set the source to **Deploy from a branch**.
+3. Choose the `master` or `main` branch and click **Save**.
 
 ---
 
 ## 📄 License
 
-This project is distributed under the MIT License. See the `LICENSE` file for more information.
+Distributed under the MIT License. See `LICENSE` for more information.
