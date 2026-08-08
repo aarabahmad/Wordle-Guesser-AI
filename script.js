@@ -35,6 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadExtendedDictionary();
 
+    function trackEvent(name, data = {}) {
+        if (window.umami && typeof window.umami.track === 'function') {
+            window.umami.track(name, data);
+        }
+    }
+
     const gameBoard = document.getElementById('game-board');
     const submitButton = document.getElementById('submit-button');
     const restartButton = document.getElementById('restart-button');
@@ -200,6 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function startGame() {
         resetState();
         state.difficulty = difficultyNormalBtn.classList.contains('bg-indigo-500') ? 'normal' : 'hard';
+        trackEvent('game_started', {
+            mode: state.isDailyMode ? 'daily' : (state.isChallengeMode ? 'challenge' : (state.isPassAndPlayMode ? 'pass_play' : 'ai_solver')),
+            difficulty: state.difficulty
+        });
         gameBoard.innerHTML = '';
         for(let i = 0; i < 6; i++) {
             const row = document.createElement('div');
@@ -860,6 +870,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function winGame(tiles) {
         endGame();
+        trackEvent('game_won', {
+            mode: state.isDailyMode ? 'daily' : (state.isChallengeMode ? 'challenge' : (state.isPassAndPlayMode ? 'pass_play' : 'ai_solver')),
+            guesses: state.guessCount,
+            difficulty: state.difficulty
+        });
         const emojiEl = document.getElementById('game-over-emoji');
         if (state.isDailyMode) {
             gameOverTitle.textContent = 'Daily Complete!';
@@ -912,6 +927,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function endGameNoSolution(message) {
         endGame();
+        trackEvent('game_lost', {
+            mode: state.isDailyMode ? 'daily' : (state.isChallengeMode ? 'challenge' : (state.isPassAndPlayMode ? 'pass_play' : 'ai_solver')),
+            guesses: state.guessCount,
+            difficulty: state.difficulty
+        });
         const emojiEl = document.getElementById('game-over-emoji');
         const wordReveal = document.getElementById('game-over-word-reveal');
         if (wordReveal) wordReveal.classList.add('hidden');
