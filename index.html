@@ -310,15 +310,17 @@
                 </button>
 
                 <!-- Option 2: Challenge a Friend -->
-                <button id="mode-challenge-btn"
-                    class="w-full flex items-center gap-4 p-4 bg-purple-50/50 hover:bg-purple-50 border border-purple-100 rounded-xl transition-all transform hover:scale-[1.02] text-left">
-                    <span class="text-3xl p-2 bg-purple-100 rounded-lg">⚔️</span>
-                    <div>
+                <div id="mode-challenge-btn"
+                    class="w-full flex items-center gap-4 p-4 bg-purple-50/50 hover:bg-purple-50 border border-purple-100 rounded-xl transition-all transform hover:scale-[1.02] text-left cursor-pointer">
+                    <span class="text-3xl p-2 bg-purple-100 rounded-lg select-none">⚔️</span>
+                    <div class="flex-1">
                         <h4 class="font-bold text-slate-800 text-sm">Challenge a Friend</h4>
-                        <p class="text-xs text-slate-500">Set a secret word and generate a link to challenge someone.
-                        </p>
+                        <p class="text-xs text-slate-500 mb-1">Set a secret word and generate a link to challenge someone.</p>
+                        <span id="hub-view-challenges-btn" class="inline-flex items-center gap-1 text-[11px] font-bold text-purple-600 hover:text-purple-800 transition-colors cursor-pointer">
+                            📋 View Active Challenges
+                        </span>
                     </div>
-                </button>
+                </div>
 
                 <!-- Option 3: Pass 'n Play -->
                 <button id="mode-pass-play-btn"

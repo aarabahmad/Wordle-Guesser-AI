@@ -262,6 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeSelectionOverlay = document.getElementById('mode-selection-overlay');
     const modeAiBtn = document.getElementById('mode-ai-btn');
     const modeChallengeBtn = document.getElementById('mode-challenge-btn');
+    const hubViewChallengesBtn = document.getElementById('hub-view-challenges-btn');
     const modePassPlayBtn = document.getElementById('mode-pass-play-btn');
     const modeDailyBtn = document.getElementById('mode-daily-btn');
     const dailyBanner = document.getElementById('daily-banner');
@@ -2172,6 +2173,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     modeChallengeBtn?.addEventListener('click', () => {
         showModeExplanation('challenge');
+    });
+
+    hubViewChallengesBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (modeSelectionOverlay) {
+            modeSelectionOverlay.classList.add('hidden');
+        }
+        openChallengeModal();
     });
 
     modePassPlayBtn?.addEventListener('click', () => {
