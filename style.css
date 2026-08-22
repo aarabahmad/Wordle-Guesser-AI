@@ -363,3 +363,52 @@ body.dark #daily-def-section { background-color: #0f172a !important; border-colo
 
 /* Difficulty inactive button */
 body.dark .difficulty-btn.bg-gray-200 { background-color: #334155 !important; color: #e2e8f0 !important; }
+
+/* ── Challenge Leaderboards ────────────────────────── */
+
+/* Rank badges */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 0.8rem;
+}
+.rank-badge-1 { background-color: #fef3c7; color: #d97706; border: 1px solid #fcd34d; } /* Gold */
+.rank-badge-2 { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; } /* Silver */
+.rank-badge-3 { background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } /* Bronze */
+.rank-badge-other { background-color: #f3f4f6; color: #6b7280; }
+
+/* Leaderboard rows */
+.leaderboard-row {
+    transition: background-color 0.2s, transform 0.2s;
+}
+.leaderboard-row:hover {
+    background-color: #f8fafc;
+}
+.leaderboard-row.highlight-self {
+    background-color: #faf5ff;
+    border: 1px solid #e9d5ff;
+}
+
+/* Creator Challenges List Items */
+.creator-challenge-item {
+    transition: all 0.2s;
+}
+.creator-challenge-item:hover {
+    background-color: #f8fafc;
+}
+
+/* Dark mode additions */
+body.dark .rank-badge-1 { background-color: rgba(217, 119, 6, 0.2) !important; color: #f59e0b !important; border-color: rgba(217, 119, 6, 0.4) !important; }
+body.dark .rank-badge-2 { background-color: rgba(71, 85, 105, 0.2) !important; color: #94a3b8 !important; border-color: rgba(71, 85, 105, 0.4) !important; }
+body.dark .rank-badge-3 { background-color: rgba(194, 65, 12, 0.2) !important; color: #f97316 !important; border-color: rgba(194, 65, 12, 0.4) !important; }
+body.dark .rank-badge-other { background-color: #1e293b !important; color: #94a3b8 !important; }
+body.dark .leaderboard-row:hover { background-color: #1e293b !important; }
+body.dark .leaderboard-row.highlight-self { background-color: rgba(147, 51, 234, 0.1) !important; border-color: rgba(147, 51, 234, 0.3) !important; }
+body.dark .creator-challenge-item { background-color: #0f172a !important; border-color: #334155 !important; }
+body.dark .creator-challenge-item:hover { background-color: #1e293b !important; }
+

@@ -136,6 +136,59 @@ Follow the interactive CLI prompts to deploy to Vercel instantly.
 
 ---
 
+## 🏆 Shared Competitive Leaderboards (Supabase Setup)
+
+By default, Challenge Mode leaderboards store and fetch scores locally on the user's device using `localStorage`. If you want to enable global, cross-device multiplayer leaderboards where users can compete online:
+
+### 1. Create a Supabase Project
+1. Go to [Supabase](https://supabase.com/) and sign up for a free account.
+2. Click **New Project** and configure your project name, password, and region.
+
+### 2. Create the Database Table
+Run the following SQL query in the **SQL Editor** of your Supabase dashboard to create the `wordle_leaderboard` table:
+
+```sql
+create table wordle_leaderboard (
+  id bigint generated always as identity primary key,
+  challenge_id text not null,
+  challenge_word text not null,
+  player_name text not null,
+  guesses integer not null,
+  time_seconds integer not null,
+  won boolean not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable Row Level Security (RLS)
+alter table wordle_leaderboard enable row level security;
+
+-- Create a policy allowing anyone to read scores
+create policy "Allow public read access"
+on wordle_leaderboard for select
+to public
+using (true);
+
+-- Create a policy allowing anyone to submit a score
+create policy "Allow public insert access"
+on wordle_leaderboard for insert
+to public
+with check (true);
+```
+
+### 3. Connect to the Wordle Application
+1. Copy your project's API credentials from your Supabase dashboard under **Settings** -> **API**.
+   - **Project URL** (under Project API keys)
+   - **anon/public API key**
+2. Open `script.js` and update the `supabaseConfig` constant near the top:
+   ```javascript
+   const supabaseConfig = {
+       url: 'https://your-project.supabase.co',
+       anonKey: 'your-anon-public-key'
+   };
+   ```
+
+---
+
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.

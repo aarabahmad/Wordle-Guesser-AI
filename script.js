@@ -35,6 +35,146 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadExtendedDictionary();
 
+    // Supabase Configuration for Shared Competitive Leaderboards
+    // Replace with your own Supabase project details to enable online multiplayer leaderboards!
+    const supabaseConfig = {
+        url: '', // e.g. 'https://your-project.supabase.co'
+        anonKey: '' // e.g. 'your-anon-public-key'
+    };
+
+    // Challenge Mode Database Manager (Supabase REST API + Local Storage fallback)
+    const ChallengeDb = {
+        supabaseUrl: supabaseConfig.url || '',
+        supabaseKey: supabaseConfig.anonKey || '',
+
+        isConfigured() {
+            return this.supabaseUrl && !this.supabaseUrl.includes('YOUR_') && this.supabaseUrl !== '' && 
+                   this.supabaseKey && !this.supabaseKey.includes('YOUR_') && this.supabaseKey !== '';
+        },
+
+        async submitScore(challengeId, word, playerName, guesses, timeSeconds, won) {
+            const score = {
+                challenge_id: challengeId.toLowerCase(),
+                challenge_word: word.toLowerCase(),
+                player_name: playerName.trim(),
+                guesses: parseInt(guesses, 10),
+                time_seconds: parseInt(timeSeconds, 10),
+                won: !!won,
+                created_at: new Date().toISOString()
+            };
+
+            // 1. Save to local storage (always do this as a personal log/local history)
+            try {
+                const localData = JSON.parse(localStorage.getItem('wordle_challenge_leaderboards') || '{}');
+                if (!localData[challengeId]) {
+                    localData[challengeId] = [];
+                }
+                const exists = localData[challengeId].some(s => s.player_name.toLowerCase() === score.player_name.toLowerCase() && s.guesses === score.guesses && s.time_seconds === score.time_seconds);
+                if (!exists) {
+                    localData[challengeId].push(score);
+                    localStorage.setItem('wordle_challenge_leaderboards', JSON.stringify(localData));
+                }
+            } catch (e) {
+                console.error('Failed to write to local leaderboard storage', e);
+            }
+
+            // 2. Submit to Supabase if configured
+            if (this.isConfigured()) {
+                try {
+                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': this.supabaseKey,
+                            'Authorization': `Bearer ${this.supabaseKey}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=representation'
+                        },
+                        body: JSON.stringify(score)
+                    });
+                    if (response.ok) {
+                        return true;
+                    } else {
+                        console.error('Supabase response error:', await response.text());
+                        return false;
+                    }
+                } catch (e) {
+                    console.error('Failed to submit score to Supabase:', e);
+                    return false;
+                }
+            }
+            return true;
+        },
+
+        async getScores(challengeId) {
+            // 1. Try to fetch from Supabase if configured
+            if (this.isConfigured()) {
+                try {
+                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&order=won.desc,guesses.asc,time_seconds.asc`, {
+                        method: 'GET',
+                        headers: {
+                            'apikey': this.supabaseKey,
+                            'Authorization': `Bearer ${this.supabaseKey}`
+                        }
+                    });
+                    if (response.ok) {
+                        return await response.json();
+                    } else {
+                        console.error('Supabase getScores response error:', await response.text());
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch scores from Supabase:', e);
+                }
+            }
+
+            // 2. Fall back to local storage
+            try {
+                const localData = JSON.parse(localStorage.getItem('wordle_challenge_leaderboards') || '{}');
+                const scores = localData[challengeId] || [];
+                // Sort scores: wins first, then fewer guesses, then faster time
+                return scores.sort((a, b) => {
+                    if (a.won !== b.won) return a.won ? -1 : 1;
+                    if (a.guesses !== b.guesses) return a.guesses - b.guesses;
+                    return a.time_seconds - b.time_seconds;
+                });
+            } catch (e) {
+                console.error('Failed to read from local leaderboard storage', e);
+                return [];
+            }
+        }
+    };
+
+    // Creator Challenges Local History Dashboard Helper
+    const CreatorHistory = {
+        saveChallenge(word, timestamp) {
+            try {
+                const history = JSON.parse(localStorage.getItem('wordle_creator_challenges') || '[]');
+                const exists = history.some(item => item.word === word && item.timestamp === timestamp);
+                if (!exists) {
+                    history.push({ word, timestamp });
+                    if (history.length > 50) history.shift();
+                    localStorage.setItem('wordle_creator_challenges', JSON.stringify(history));
+                }
+            } catch (e) {
+                console.error('Failed to save challenge to creator history', e);
+            }
+        },
+
+        getChallenges() {
+            try {
+                const history = JSON.parse(localStorage.getItem('wordle_creator_challenges') || '[]');
+                const now = Date.now();
+                const filtered = history.filter(item => (now - item.timestamp) < 24 * 60 * 60 * 1000);
+                if (filtered.length !== history.length) {
+                    localStorage.setItem('wordle_creator_challenges', JSON.stringify(filtered));
+                }
+                return filtered.reverse(); // Newest first
+            } catch (e) {
+                console.error('Failed to read challenge history', e);
+                return [];
+            }
+        }
+    };
+
     function trackEvent(name, data = {}) {
         if (window.umami && typeof window.umami.track === 'function') {
             window.umami.track(name, data);
@@ -85,6 +225,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const challengeBanner = document.getElementById('challenge-banner');
     const exitChallengeButton = document.getElementById('exit-challenge-button');
     const feedbackSubtext = document.getElementById('feedback-subtext');
+
+    // Challenge Leaderboards Selectors
+    const leaderboardModal = document.getElementById('leaderboard-modal');
+    const closeLeaderboardModal = document.getElementById('close-leaderboard-modal');
+    const leaderboardWordDisplay = document.getElementById('leaderboard-word-display');
+    const leaderboardListContainer = document.getElementById('leaderboard-list-container');
+    const leaderboardRefreshBtn = document.getElementById('leaderboard-refresh-btn');
+    const leaderboardShareBtn = document.getElementById('leaderboard-share-btn');
+    const challengeLeaderboardSubmitContainer = document.getElementById('challenge-leaderboard-submit-container');
+    const leaderboardPlayerName = document.getElementById('leaderboard-player-name');
+    const submitLeaderboardBtn = document.getElementById('submit-leaderboard-btn');
+    const gameOverLeaderboardBtn = document.getElementById('game-over-leaderboard-btn');
+    const creatorChallengesContainer = document.getElementById('creator-challenges-container');
+    const creatorChallengesList = document.getElementById('creator-challenges-list');
+    const creatorViewLeaderboardBtn = document.getElementById('creator-view-leaderboard-btn');
+    const landingLeaderboardBtn = document.getElementById('landing-leaderboard-btn');
 
     // Challenge Landing & Dictionary Modal Selectors
     const challengeLandingOverlay = document.getElementById('challenge-landing-overlay');
@@ -164,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetState() {
         const isChallenge = state.isChallengeMode || false;
         const challengeW = state.challengeWord || null;
+        const challengeT = state.challengeTimestamp || null;
         const isPassPlay = state.isPassAndPlayMode || false;
         const passPlayW = state.passAndPlayWord || null;
         const isDaily = state.isDailyMode || false;
@@ -177,6 +334,8 @@ document.addEventListener('DOMContentLoaded', () => {
             presentLetters: new Set(),
             correctLetters: Array(5).fill(null),
             yellowPositions: {},
+            minLetterCounts: {},
+            exactLetterCounts: {},
             isGameOver: false,
             isAnimating: false,
             guessCount: 0,
@@ -185,6 +344,9 @@ document.addEventListener('DOMContentLoaded', () => {
             usedExtendedDictionary: false,
             isChallengeMode: isChallenge,
             challengeWord: challengeW,
+            challengeTimestamp: challengeT,
+            scoreSubmitted: false,
+            startTime: null,
             isPassAndPlayMode: isPassPlay,
             passAndPlayWord: passPlayW,
             isDailyMode: isDaily,
@@ -234,6 +396,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             feedbackInput.disabled = true;
             submitButton.disabled = true;
+
+            // Check challenge expiration
+            let isExpired = false;
+            if (state.challengeTimestamp) {
+                const elapsed = Date.now() - state.challengeTimestamp;
+                isExpired = elapsed > 24 * 60 * 60 * 1000;
+            }
+
+            const landingTitle = document.getElementById('challenge-landing-title');
+            const landingText = document.getElementById('challenge-landing-text');
+            const landingIcon = document.getElementById('challenge-landing-icon');
+            
+            if (isExpired) {
+                if (landingTitle) landingTitle.textContent = 'Challenge Closed!';
+                if (landingText) landingText.textContent = 'This challenge was created more than 24 hours ago and has expired. You can no longer submit guesses, but you can view the final leaderboard below.';
+                if (landingIcon) landingIcon.textContent = '🔒';
+                if (acceptChallengeBtn) acceptChallengeBtn.classList.add('hidden');
+            } else {
+                if (landingTitle) landingTitle.textContent = 'You Are Challenged!';
+                if (landingText) landingText.textContent = 'A friend has created a secret 5-letter word for you to guess. Can you solve it in 6 tries?';
+                if (landingIcon) landingIcon.textContent = '⚔️';
+                if (acceptChallengeBtn) acceptChallengeBtn.classList.remove('hidden');
+            }
+
             if (challengeLandingOverlay) {
                 challengeLandingOverlay.classList.remove('hidden');
             }
@@ -528,35 +714,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
     function validateFeedback(word, feedback) {
-        const knownCorrect = new Set();
-        const knownPresent = new Set();
-        for(let i=0; i<5; i++) {
-            if(feedback[i] === 'correct') knownCorrect.add(word[i]);
-            if(feedback[i] === 'present') knownPresent.add(word[i]);
-        }
-        for(let i=0; i<5; i++) {
-            if(feedback[i] === 'absent' && (knownCorrect.has(word[i]) || knownPresent.has(word[i]))) {
-                return false;
-            }
-        }
+        // Any 5-letter clue pattern is theoretically valid for some word,
+        // and duplicate letter feedback (e.g. one correct, one absent) is perfectly valid.
         return true;
     }
 
     function processFeedback(word, feedback) {
-         for (let i = 0; i < 5; i++) {
+        // First, track correct positions and collect present/correct letters
+        for (let i = 0; i < 5; i++) {
             const letter = word[i];
             const result = feedback[i];
             if (result === 'correct') {
                 state.correctLetters[i] = letter;
                 state.presentLetters.add(letter);
+                state.absentLetters.delete(letter);
             } else if (result === 'present') {
                 state.presentLetters.add(letter);
                 if (!state.yellowPositions[letter]) state.yellowPositions[letter] = [];
                 state.yellowPositions[letter].push(i);
-            } else if (result === 'absent') {
+                state.absentLetters.delete(letter);
+            }
+        }
+
+        // Handle completely absent letters (only added to absentLetters if the letter is never correct or present)
+        for (let i = 0; i < 5; i++) {
+            const letter = word[i];
+            const result = feedback[i];
+            if (result === 'absent') {
                 if (!state.presentLetters.has(letter) && !state.correctLetters.includes(letter)) {
                     state.absentLetters.add(letter);
                 }
+            }
+        }
+
+        // Count occurrences of each letter in the guess to update min/exact letter count constraints
+        const guessLetterCounts = {};
+        for (let i = 0; i < 5; i++) {
+            const letter = word[i];
+            guessLetterCounts[letter] = (guessLetterCounts[letter] || 0) + 1;
+        }
+
+        for (const letter in guessLetterCounts) {
+            let nonAbsentCount = 0;
+            let absentCount = 0;
+            for (let i = 0; i < 5; i++) {
+                if (word[i] === letter) {
+                    if (feedback[i] === 'correct' || feedback[i] === 'present') {
+                        nonAbsentCount++;
+                    } else if (feedback[i] === 'absent') {
+                        absentCount++;
+                    }
+                }
+            }
+
+            if (absentCount > 0) {
+                // If a letter was marked absent, we know exactly how many copies exist in the secret word
+                state.exactLetterCounts[letter] = nonAbsentCount;
+            } else {
+                // Otherwise, the secret word has at least this many copies of the letter
+                state.minLetterCounts[letter] = Math.max(state.minLetterCounts[letter] || 0, nonAbsentCount);
             }
         }
     }
@@ -722,6 +938,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (word[pos] === letter) return false;
             }
         }
+
+        // Count frequencies of each letter in the candidate word
+        const candidateCounts = {};
+        for (let i = 0; i < 5; i++) {
+            const letter = word[i];
+            candidateCounts[letter] = (candidateCounts[letter] || 0) + 1;
+        }
+
+        // Enforce exact letter count constraints
+        for (const letter in currentState.exactLetterCounts) {
+            const expected = currentState.exactLetterCounts[letter];
+            const actual = candidateCounts[letter] || 0;
+            if (actual !== expected) return false;
+        }
+
+        // Enforce minimum letter count constraints
+        for (const letter in currentState.minLetterCounts) {
+            const expected = currentState.minLetterCounts[letter];
+            const actual = candidateCounts[letter] || 0;
+            if (actual < expected) return false;
+        }
+
         return true;
     }
 
@@ -900,6 +1138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameOverText.textContent = `Cracked "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries!`;
             restartButton.classList.add('hidden');
             setGameOverButtons(true);
+            handleChallengeGameOver(true);
         } else if (state.isPassAndPlayMode) {
             if (emojiEl) { emojiEl.textContent = '🏆'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
             gameOverTitle.textContent = 'Player 2 Wins!';
@@ -951,6 +1190,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addWordContainer.classList.add('hidden');
             restartButton.classList.add('hidden');
             setGameOverButtons(true);
+            handleChallengeGameOver(false);
         } else if (state.isPassAndPlayMode) {
             gameOverTitle.textContent = 'Game Over!';
             gameOverText.textContent = message;
@@ -1438,6 +1678,7 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackInput.disabled = false;
         submitButton.disabled = false;
         feedbackInput.focus();
+        state.startTime = Date.now();
     });
 
     closeDefBtn?.addEventListener('click', () => {
@@ -1510,6 +1751,7 @@ document.addEventListener('DOMContentLoaded', () => {
         challengeLinkContainer.classList.add('hidden');
         challengeModal.classList.remove('opacity-0', 'pointer-events-none');
         challengeWordInput.focus();
+        loadCreatorChallenges();
     };
 
     challengeButton?.addEventListener('click', openChallengeModal);
@@ -1554,10 +1796,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         challengeStatus.textContent = '';
-        const challengeCode = btoa(word);
+        const timestamp = Date.now();
+        const challengeCode = btoa(word + '|' + timestamp);
         const challengeUrl = `${window.location.origin}${window.location.pathname}?challenge=${challengeCode}`;
         challengeLinkInput.value = challengeUrl;
         challengeLinkContainer.classList.remove('hidden');
+
+        CreatorHistory.saveChallenge(word, timestamp);
+        loadCreatorChallenges();
     });
 
     copyChallengeLinkButton?.addEventListener('click', () => {
@@ -1582,6 +1828,341 @@ document.addEventListener('DOMContentLoaded', () => {
         const cleanUrl = `${window.location.origin}${window.location.pathname}`;
         window.history.replaceState({}, document.title, cleanUrl);
         openModeSelection();
+    });
+
+    // ── Challenge Leaderboards Controller & Listeners ──
+
+    function getChallengeId() {
+        if (!state.isChallengeMode) return '';
+        if (state.challengeWord && state.challengeTimestamp) {
+            return `${state.challengeWord}|${state.challengeTimestamp}`;
+        }
+        return state.challengeWord || '';
+    }
+
+    function handleChallengeGameOver(won) {
+        if (!state.isChallengeMode) return;
+        
+        // 1. Calculate time
+        const endTime = Date.now();
+        const elapsedMs = state.startTime ? (endTime - state.startTime) : 0;
+        const timeSeconds = Math.max(1, Math.floor(elapsedMs / 1000));
+        
+        state.completionTime = timeSeconds;
+        state.completionWon = won;
+        
+        // 2. Show View Leaderboard button
+        if (gameOverLeaderboardBtn) {
+            gameOverLeaderboardBtn.classList.remove('hidden');
+        }
+        
+        // 3. Show name input if not submitted yet
+        if (!state.scoreSubmitted) {
+            if (challengeLeaderboardSubmitContainer) {
+                challengeLeaderboardSubmitContainer.classList.remove('hidden');
+            }
+            if (leaderboardPlayerName) {
+                const savedName = localStorage.getItem('wordle_leaderboard_player_name') || '';
+                leaderboardPlayerName.value = savedName;
+                setTimeout(() => leaderboardPlayerName.focus(), 500);
+            }
+        } else {
+            if (challengeLeaderboardSubmitContainer) {
+                challengeLeaderboardSubmitContainer.classList.add('hidden');
+            }
+        }
+    }
+
+    async function renderLeaderboard(challengeId, word) {
+        if (!leaderboardModal || !leaderboardWordDisplay || !leaderboardListContainer) return;
+        
+        leaderboardWordDisplay.textContent = word.toUpperCase();
+        leaderboardModal.classList.remove('hidden');
+        
+        leaderboardListContainer.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-12 text-slate-400">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-2"></div>
+                <span>Fetching scores...</span>
+            </div>
+        `;
+        
+        const scores = await ChallengeDb.getScores(challengeId);
+        
+        leaderboardListContainer.innerHTML = '';
+        
+        if (scores.length === 0) {
+            leaderboardListContainer.innerHTML = `
+                <div class="text-center py-8 text-slate-400 italic">
+                    No scores yet. Be the first to solve it!
+                </div>
+            `;
+            return;
+        }
+        
+        const currentName = leaderboardPlayerName ? leaderboardPlayerName.value.trim().toLowerCase() : '';
+        
+        scores.forEach((score, index) => {
+            const rank = index + 1;
+            const row = document.createElement('div');
+            
+            const isSelf = state.scoreSubmitted && 
+                           score.player_name.toLowerCase() === currentName && 
+                           score.guesses === state.guessCount &&
+                           score.won === state.completionWon;
+            
+            row.className = `leaderboard-row flex items-center px-3 py-2.5 rounded-xl border border-transparent text-sm ${isSelf ? 'highlight-self bg-purple-50 border-purple-200 dark:bg-purple-950/20 dark:border-purple-800' : 'bg-slate-50/50 dark:bg-slate-800/20'}`;
+            
+            const rankCol = document.createElement('div');
+            rankCol.className = 'w-12 flex justify-center';
+            const badge = document.createElement('span');
+            badge.className = `rank-badge ${rank === 1 ? 'rank-badge-1' : rank === 2 ? 'rank-badge-2' : rank === 3 ? 'rank-badge-3' : 'rank-badge-other'}`;
+            badge.textContent = rank;
+            rankCol.appendChild(badge);
+            
+            const nameCol = document.createElement('div');
+            nameCol.className = `flex-1 pl-2 truncate font-medium text-slate-700 dark:text-slate-200 ${isSelf ? 'font-bold text-purple-900 dark:text-purple-300' : ''}`;
+            nameCol.textContent = score.player_name;
+            if (isSelf) {
+                const youTag = document.createElement('span');
+                youTag.className = 'ml-1.5 text-[10px] bg-purple-600 text-white font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider';
+                youTag.textContent = 'YOU';
+                nameCol.appendChild(youTag);
+            }
+            
+            const guessesCol = document.createElement('div');
+            guessesCol.className = 'w-16 text-center font-semibold text-slate-700 dark:text-slate-300';
+            guessesCol.textContent = score.won ? `${score.guesses}/6` : 'X/6';
+            if (!score.won) {
+                guessesCol.className += ' text-red-500 dark:text-red-400';
+            }
+            
+            const timeCol = document.createElement('div');
+            timeCol.className = 'w-16 text-center text-slate-500 dark:text-slate-400 font-mono text-xs';
+            
+            const timeSec = score.time_seconds;
+            if (timeSec < 60) {
+                timeCol.textContent = `${timeSec}s`;
+            } else {
+                const mins = Math.floor(timeSec / 60);
+                const secs = timeSec % 60;
+                timeCol.textContent = `${mins}m ${secs}s`;
+            }
+            
+            row.appendChild(rankCol);
+            row.appendChild(nameCol);
+            row.appendChild(guessesCol);
+            row.appendChild(timeCol);
+            
+            leaderboardListContainer.appendChild(row);
+        });
+    }
+
+    function loadCreatorChallenges() {
+        if (!creatorChallengesList || !creatorChallengesContainer) return;
+        const challenges = CreatorHistory.getChallenges();
+        if (challenges.length === 0) {
+            creatorChallengesContainer.classList.add('hidden');
+            return;
+        }
+
+        creatorChallengesContainer.classList.remove('hidden');
+        creatorChallengesList.innerHTML = '';
+        
+        challenges.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'creator-challenge-item flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 text-xs';
+            
+            const info = document.createElement('div');
+            info.className = 'flex flex-col';
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'font-bold uppercase text-purple-600 dark:text-purple-400 font-mono tracking-wider';
+            wordSpan.textContent = item.word;
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'text-[10px] text-slate-400';
+            
+            const hoursLeft = 24 - (Date.now() - item.timestamp) / (1000 * 60 * 60);
+            if (hoursLeft > 1) {
+                timeSpan.textContent = `${Math.floor(hoursLeft)}h left`;
+            } else if (hoursLeft > 0) {
+                timeSpan.textContent = `${Math.floor(hoursLeft * 60)}m left`;
+            } else {
+                timeSpan.textContent = `Expired`;
+            }
+            
+            info.appendChild(wordSpan);
+            info.appendChild(timeSpan);
+            
+            const actions = document.createElement('div');
+            actions.className = 'flex gap-1.5';
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 font-bold px-2 py-1 rounded text-[10px] transition-colors';
+            copyBtn.textContent = 'Link';
+            copyBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const code = btoa(item.word + '|' + item.timestamp);
+                const url = `${window.location.origin}${window.location.pathname}?challenge=${code}`;
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('Challenge link copied!');
+                }).catch(err => {
+                    console.error('Failed to copy', err);
+                });
+            });
+            
+            const viewBtn = document.createElement('button');
+            viewBtn.className = 'bg-purple-600 hover:bg-purple-700 text-white font-bold px-2 py-1 rounded text-[10px] transition-colors';
+            viewBtn.textContent = 'View';
+            viewBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (challengeModal) {
+                    challengeModal.classList.add('opacity-0', 'pointer-events-none');
+                }
+                const challengeId = `${item.word}|${item.timestamp}`;
+                renderLeaderboard(challengeId, item.word);
+            });
+            
+            actions.appendChild(copyBtn);
+            actions.appendChild(viewBtn);
+            
+            row.appendChild(info);
+            row.appendChild(actions);
+            creatorChallengesList.appendChild(row);
+        });
+    }
+
+    // Leaderboards Event Listeners
+    submitLeaderboardBtn?.addEventListener('click', async () => {
+        const name = leaderboardPlayerName.value.trim();
+        if (name.length < 2) {
+            showToast('Name must be at least 2 characters.');
+            leaderboardPlayerName.classList.add('shake');
+            setTimeout(() => leaderboardPlayerName.classList.remove('shake'), 600);
+            return;
+        }
+        if (name.length > 15) {
+            showToast('Name cannot exceed 15 characters.');
+            leaderboardPlayerName.classList.add('shake');
+            setTimeout(() => leaderboardPlayerName.classList.remove('shake'), 600);
+            return;
+        }
+        if (!/^[a-zA-Z0-9\s_-]+$/.test(name)) {
+            showToast('Name contains invalid characters.');
+            leaderboardPlayerName.classList.add('shake');
+            setTimeout(() => leaderboardPlayerName.classList.remove('shake'), 600);
+            return;
+        }
+
+        localStorage.setItem('wordle_leaderboard_player_name', name);
+        
+        submitLeaderboardBtn.disabled = true;
+        const originalText = submitLeaderboardBtn.textContent;
+        submitLeaderboardBtn.innerHTML = `<span class="animate-pulse">Submitting...</span>`;
+        
+        const challengeId = getChallengeId();
+        const success = await ChallengeDb.submitScore(
+            challengeId, 
+            state.challengeWord, 
+            name, 
+            state.guessCount, 
+            state.completionTime, 
+            state.completionWon
+        );
+        
+        submitLeaderboardBtn.disabled = false;
+        submitLeaderboardBtn.textContent = originalText;
+        
+        if (success) {
+            showToast('Score submitted successfully!');
+            state.scoreSubmitted = true;
+            if (challengeLeaderboardSubmitContainer) {
+                challengeLeaderboardSubmitContainer.classList.add('hidden');
+            }
+            renderLeaderboard(challengeId, state.challengeWord);
+        } else {
+            showToast('Failed to submit score. Try again.');
+        }
+    });
+
+    closeLeaderboardModal?.addEventListener('click', () => {
+        leaderboardModal.classList.add('hidden');
+    });
+
+    leaderboardModal?.addEventListener('click', (e) => {
+        if (e.target === leaderboardModal) {
+            leaderboardModal.classList.add('hidden');
+        }
+    });
+
+    leaderboardRefreshBtn?.addEventListener('click', () => {
+        const challengeId = getChallengeId();
+        const word = state.challengeWord || (leaderboardWordDisplay ? leaderboardWordDisplay.textContent.toLowerCase() : '');
+        if (challengeId && word) {
+            renderLeaderboard(challengeId, word);
+        } else {
+            const activeHeaderWord = leaderboardWordDisplay ? leaderboardWordDisplay.textContent.toLowerCase() : '';
+            const history = CreatorHistory.getChallenges();
+            const match = history.find(h => h.word.toLowerCase() === activeHeaderWord);
+            if (match) {
+                renderLeaderboard(`${match.word}|${match.timestamp}`, match.word);
+            }
+        }
+    });
+
+    leaderboardShareBtn?.addEventListener('click', async () => {
+        const activeHeaderWord = leaderboardWordDisplay ? leaderboardWordDisplay.textContent.toUpperCase() : '';
+        let challengeId = getChallengeId();
+        if (!challengeId && activeHeaderWord) {
+            const history = CreatorHistory.getChallenges();
+            const match = history.find(h => h.word.toUpperCase() === activeHeaderWord);
+            if (match) {
+                challengeId = `${match.word}|${match.timestamp}`;
+            }
+        }
+
+        if (!challengeId) return;
+
+        const scores = await ChallengeDb.getScores(challengeId);
+        if (scores.length === 0) {
+            showToast('Leaderboard is empty — nothing to share.');
+            return;
+        }
+
+        let text = `🏆 Wordle Challenge Leaderboard: "${activeHeaderWord}"\n`;
+        scores.slice(0, 5).forEach((score, index) => {
+            const timeStr = score.time_seconds < 60 
+                ? `${score.time_seconds}s` 
+                : `${Math.floor(score.time_seconds / 60)}m ${score.time_seconds % 60}s`;
+            const scoreStr = score.won ? `${score.guesses}/6` : 'X/6';
+            text += `${index + 1}. ${score.player_name} (${scoreStr}, ${timeStr})\n`;
+        });
+        text += `\nPlay this challenge here: ${window.location.origin}${window.location.pathname}?challenge=${btoa(challengeId)}`;
+
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Leaderboard copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy leaderboard text', err);
+        });
+    });
+
+    gameOverLeaderboardBtn?.addEventListener('click', () => {
+        renderLeaderboard(getChallengeId(), state.challengeWord);
+    });
+
+    creatorViewLeaderboardBtn?.addEventListener('click', () => {
+        const word = challengeWordInput.value.trim().toLowerCase();
+        const history = CreatorHistory.getChallenges();
+        const newest = history.find(h => h.word.toLowerCase() === word);
+        if (newest) {
+            challengeModal.classList.add('opacity-0', 'pointer-events-none');
+            renderLeaderboard(`${newest.word}|${newest.timestamp}`, newest.word);
+        } else {
+            showToast('Could not find active challenge.');
+        }
+    });
+
+    landingLeaderboardBtn?.addEventListener('click', () => {
+        renderLeaderboard(getChallengeId(), state.challengeWord);
     });
 
     // Pass 'n Play & Mode Selection Event Listeners
@@ -2017,14 +2598,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (challengeCode) {
             try {
                 const decoded = atob(challengeCode).toLowerCase();
-                if (decoded.length === 5 && /^[a-z]{5}$/.test(decoded)) {
-                    state.challengeWord = decoded;
+                const parts = decoded.split('|');
+                const word = parts[0];
+                const timestampStr = parts[1];
+
+                if (word && word.length === 5 && /^[a-z]{5}$/.test(word)) {
+                    state.challengeWord = word;
                     state.isChallengeMode = true;
-                    if (!wordList.includes(decoded)) {
-                        wordList.push(decoded);
+
+                    if (timestampStr) {
+                        const timestamp = parseInt(timestampStr, 10);
+                        if (!isNaN(timestamp)) {
+                            state.challengeTimestamp = timestamp;
+                        }
                     }
-                    if (extendedWordList && !extendedWordList.includes(decoded)) {
-                        extendedWordList.push(decoded);
+
+                    if (!wordList.includes(word)) {
+                        wordList.push(word);
+                    }
+                    if (extendedWordList && !extendedWordList.includes(word)) {
+                        extendedWordList.push(word);
                     }
                 }
             } catch (e) {
