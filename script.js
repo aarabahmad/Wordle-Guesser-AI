@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     let wordList = ["cigar", "rebut", "sissy", "humph", "awake", "blush", "focal", "evade", "naval", "serve", "heath", "dwarf", "model", "karma", "stink", "grade", "quiet", "bench", "abate", "feign", "major", "death", "fresh", "crust", "stool", "colon", "abase", "marry", "react", "batty", "pride", "floss", "helix", "croak", "staff", "paper", "unfed", "whelp", "trawl", "outdo", "adobe", "crazy", "sower", "repay", "digit", "crate", "cluck", "spike", "mimic", "pound", "maxim", "linen", "unmet", "flesh", "booby", "forth", "first", "stand", "belly", "ivory", "seedy", "print", "yearn", "drain", "bribe", "stout", "panel", "crass", "flume", "offal", "agree", "error", "swirl", "argue", "bleed", "delta", "flick", "totem", "wooer", "front", "shrub", "parry", "biome", "lapel", "start", "greet", "goner", "golem", "lusty", "loopy", "round", "audit", "lying", "gamma", "labor", "islet", "civic", "forge", "corny", "moult", "basic", "salad", "agate", "spicy", "spray", "essay", "fjord", "spend", "kebab", "guild", "aback", "motor", "alone", "hatch", "hyper", "thumb", "dowry", "ought", "belch", "dutch", "pilot", "tweed", "comet", "jaunt", "enema", "steed", "abyss", "growl", "fling", "dozen", "boozy", "erode", "world", "gouge", "click", "briar", "great", "altar", "pulpy", "blurt", "coast", "duchy", "groin", "fixer", "group", "rogue", "badly", "smart", "pithy", "gaudy", "chill", "heron", "vodka", "finer", "surer", "radio", "rouge", "perch", "retch", "wrote", "clock", "tilde", "store", "prove", "bring", "solve", "cheat", "grime", "exult", "usher", "epoch", "triad", "break", "rhino", "viral", "conic", "masse", "sonic", "vital", "trace", "using", "peach", "champ", "baton", "brake", "pluck", "craze", "gripe", "weary", "picky", "acute", "ferry", "aside", "tapir", "troll", "unify", "rebus", "boost", "truss", "siege", "tiger", "banal", "slump", "crank", "gorge", "query", "drink", "favor", "abbey", "tangy", "panic", "solar", "shire", "proxy", "point", "robot", "prick", "wince", "crimp", "knoll", "sugar", "whack", "mount", "perky", "could", "wrung", "light", "those", "moist", "shard", "pleat", "aloft", "skill", "elder", "frame", "humor", "pause", "ulcer", "ultra", "robin", "cynic", "aroma", "caulk", "shake", "dodge", "swill", "tacit", "other", "thorn", "trove", "bloke", "vivid", "spill", "chant", "choke", "rupee", "nasty", "mourn", "ahead", "brine", "cloth", "hoard", "sweet", "month", "lapse", "watch", "today", "focus", "smelt", "tease", "cater", "movie", "saute", "allow", "renew", "their", "slosh", "purge", "chest", "depot", "epoxy", "nymph", "found", "shall", "harry", "stove", "lowly", "snout", "trope", "fewer", "shawl", "natal", "comma", "foray", "scare", "stair", "black", "squad", "royal", "chunk", "mince", "shame", "cheek", "ample", "flair", "foyer", "cargo", "oxide", "plant", "olive", "inert", "askew", "heist", "shown", "zesty", "hasty", "trash", "fella", "larva", "forgo", "story", "hairy", "train", "homer", "badge", "midst", "canny", "fetus", "butch", "farce", "slung", "tipsy", "metal", "yield", "delve", "being", "scour", "glass", "gamer", "scrap", "money", "hinge", "album", "vouch", "asset", "tiara", "crept", "bayou", "atoll", "manor", "creak", "showy", "phase", "froth", "depth", "gloom", "flood", "trait", "girth", "piety", "payer", "goose", "float", "donor", "atone", "primo", "apron", "blown", "cacao", "loser", "input", "gloat", "awful", "brink", "smite", "beady", "rusty", "retro", "droll", "gawky", "hutch", "pinto", "gaily", "egret", "lilac", "sever", "field", "fluff", "hydro", "flack", "agape", "voice", "stead", "stalk", "berth", "madam", "night", "bland", "liver", "wedge", "augur", "roomy", "wacky", "flock", "angry", "bobby", "trite", "aphid", "tryst", "midge", "power", "elope", "cinch", "motto", "stomp", "upset", "bluff", "cramp", "quart", "coyly", "youth", "rhyme", "buggy", "alien", "smear", "unfit", "patty", "cling", "glean", "label", "hunky", "khaki", "poker", "gruel", "twice", "twang", "shrug", "treat", "unlit", "waste", "merit", "woven", "octal", "needy", "clown", "widow", "irony", "ruder", "gauze", "chief", "onset", "prize", "fungi", "charm", "gully", "inter", "whoop", "taunt", "leery", "class", "theme", "lofty", "tibia", "booze", "alpha", "thyme", "eclat", "doubt", "parer", "chute", "stick", "trice", "alike", "sooth", "recap", "saint", "liege", "glory", "grate", "admit", "brisk", "soggy", "usurp", "scald", "scorn", "leave", "twine", "sting", "bough", "marsh", "sloth", "dandy", "vigor", "howdy", "enjoy", "valid", "ionic", "equal", "unset", "floor", "catch", "spade", "stein", "exist", "quirk", "denim", "grove", "spiel", "mummy", "fault", "foggy", "flout", "carry", "sneak", "libel", "waltz", "aptly", "piney", "inept", "aloud", "photo", "dream", "stale", "vomit", "ombre", "fanny", "unite", "snarl", "baker", "there", "glyph", "pooch", "hippy", "spell", "folly", "louse", "gulch", "vault", "godly", "threw", "fleet", "grave", "inane", "shock", "crave", "spite", "valve", "skimp", "claim", "rainy", "musty", "pique", "daddy", "quasi", "arise", "aging", "valet", "opium", "avert", "stuck", "recut", "mulch", "genre", "plume", "rifle", "count", "incur", "total", "wrest", "mocha", "deter", "study", "lover", "safer", "rivet", "funny", "smoke", "mound", "undue", "sedan", "pagan", "swine", "guile", "gusty", "equip", "tough", "canoe", "chaos", "covet", "human", "udder", "lunch", "blast", "stray", "manga", "melee", "lefty", "quick", "paste", "given", "octet", "risen", "groan", "leaky", "grind", "carve", "loose", "sadly", "spilt", "apple", "slack", "honey", "final", "sheen", "eerie", "minty", "slick", "derby", "wharf", "spelt", "coach", "erupt", "singe", "price", "spawn", "fairy", "jiffy", "filmy", "stack", "chose", "sleep", "ardor", "nanny", "niece", "woozy", "handy", "grace", "ditto", "stank", "cream", "usual", "diode", "valor", "angle", "ninja", "muddy", "chase", "reply", "prone", "spoil", "heart", "shade", "diner", "arson", "onion", "sleet", "dowel", "couch", "palsy", "bowel", "smile", "evoke", "creek", "lance", "eagle", "idiot", "siren", "built", "embed", "award", "dross", "annul", "goody", "frown", "patio", "laden", "humid", "elite", "lymph", "edify", "might", "reset", "visit", "gusto", "purse", "vapor", "crock", "write", "sunny", "loath", "chaff", "slide", "queer", "venom", "stamp", "sorry", "still", "acorn", "aping", "pushy", "tamer", "hater", "mania", "awoke", "brawn", "swift", "exile", "birch", "lucky", "freer", "risky", "ghost", "plier", "lunar", "winch", "snare", "nurse", "house", "borax", "nicer", "lurch", "exalt", "about", "savvy", "toxin", "tunic", "pried", "inlay", "chump", "lanky", "cress", "eater", "elude", "cycle", "kitty", "boule", "moron", "tenet", "place", "lobby", "plush", "vigil", "index", "blink", "clung", "qualm", "croup", "clink", "juicy", "stage", "decay", "nerve", "flier", "shaft", "crook", "clean", "china", "ridge", "vowel", "gnome", "snuck", "icing", "spiny", "rigor", "snail", "flown", "rabid", "prose", "thank", "poppy", "budge", "fiber", "moldy", "dowdy", "kneel", "track", "caddy", "quell", "dumpy", "paler", "swore", "rebar", "scuba", "splat", "flyer", "horny", "mason", "doing", "ozone", "amply", "molar", "ovary", "beset", "queue", "cliff", "magic", "truce", "sport", "fritz", "edict", "twirl", "verse", "llama", "eaten", "range", "whisk", "hovel", "rehab", "macaw", "sigma", "spout", "verve", "sushi", "dying", "fetid", "brain", "buddy", "thump", "scion", "candy", "chord", "basin", "march", "crowd", "arbor", "gayly", "musky", "stain", "dally", "bless", "bravo", "stung", "title", "ruler", "kiosk", "blond", "ennui", "layer", "fluid", "tatty", "score", "cutie", "zebra", "barge", "matey", "bluer", "aider", "shook", "river", "privy", "betel", "frisk", "bongo", "begun", "azure", "weave", "genie", "sound", "glove", "braid", "scope", "wryly", "rover", "assay", "ocean", "bloom", "irate", "later", "woken", "silky", "wreck", "dwelt", "slate", "smack", "solid", "amaze", "hazel", "wrist", "jolly", "globe", "flint", "rouse", "civil", "vista", "relax", "cover", "alive", "beech", "jetty", "bliss", "vocal", "often", "dolly", "eight", "joker", "since", "event", "ensue", "shunt", "diver", "poser", "worst", "sweep", "alley", "creed", "anime", "leafy", "bosom", "dunce", "stare", "pudgy", "waive", "choir", "stood", "spoke", "outgo", "delay", "bilge", "ideal", "clasp", "seize", "hotly", "laugh", "sieve", "block", "meant", "grape", "noose", "hardy", "shied", "drawl", "daisy", "putty", "strut", "burnt", "tulip", "crick", "idyll", "vixen", "furor", "geeky", "cough", "naive", "shoal", "stork", "bathe", "aunty", "check", "prime", "brass", "outer", "furry", "razor", "elect", "evict", "imply", "demur", "quota", "haven", "cavil", "swear", "crump", "dough", "gavel", "wagon", "salon", "nudge", "harem", "pitch", "sworn", "pupil", "excel", "stony", "cabin", "unzip", "queen", "trout", "polyp", "earth", "storm", "until", "taper", "enter", "child", "adopt", "minor", "fatty", "husky", "brave", "filet", "slime", "glint", "tread", "steal", "regal", "guest", "every", "murky", "share", "spore", "hoist", "buxom", "inner", "otter", "dimly", "level", "sumac", "donut", "stilt", "arena", "sheet", "scrub", "fancy", "slimy", "pearl", "silly", "porch", "dingo", "sepia", "amble", "shady", "bread", "friar", "reign", "dairy", "quill", "cross", "brood", "tuber", "shear", "posit", "blank", "villa", "shank", "piggy", "freak", "which", "among", "fecal", "shell", "would", "algae", "large", "rabbi", "agony", "amuse", "bushy", "copse", "swoon", "knife", "pouch", "ascot", "plane", "crown", "urban", "snide", "relay", "abide", "viola", "rajah", "straw", "dilly", "crash", "amass", "third", "trick", "tutor", "woody", "blurb", "grief", "disco", "where", "sassy", "beach", "sauna", "comic", "clued", "creep", "caste", "graze", "snuff", "frock", "gonad", "drunk", "prong", "lurid", "steel", "halve", "buyer", "vinyl", "utile", "smell", "adage", "worry", "tasty", "local", "trade", "finch", "ashen", "modal", "gaunt", "clove", "enact", "adorn", "roast", "speck", "sheik", "missy", "grunt", "snoop", "party", "touch", "mafia", "emcee", "array", "south", "vapid", "jelly", "skulk", "angst", "tubal", "lower", "crest", "sweat", "cyber", "adore", "tardy", "swami", "notch", "groom", "roach", "hitch", "young", "align", "ready", "frond", "strap", "puree", "realm", "venue", "swarm", "offer", "seven", "dryer", "diary", "dryly", "drank", "acrid", "heady", "theta", "junto", "pixie", "quoth", "bonus", "shalt", "penne", "amend", "datum", "build", "piano", "shelf", "lodge", "suing", "rearm", "coral", "ramen", "worth", "psalm", "infer", "overt", "mayor", "ovoid", "glide", "usage", "poise", "randy", "chuck", "prank", "fishy", "tooth", "ether", "drove", "idler", "swath", "stint", "while", "begat", "apply", "slang", "tarot", "radar", "credo", "aware", "canon", "shift", "timer", "bylaw", "serum", "three", "steak", "iliac", "shirk", "blunt", "puppy", "penal", "joist", "bunny", "shape", "beget", "wheel", "adept", "stunt", "stole", "topaz", "chore", "fluke", "afoot", "bloat", "bully", "dense", "caper", "sneer", "boxer", "jumbo", "lunge", "space", "avail", "short", "slurp", "loyal", "flirt", "pizza", "conch", "tempo", "droop", "plate", "bible", "plunk", "afoul", "savoy", "steep", "agile", "stake", "dwell", "knave", "beard", "arose", "motif", "smash", "broil", "glare", "shove", "baggy", "mammy", "swamp", "along", "rugby", "wager", "quack", "squat", "snaky", "debit", "mange", "skate", "ninth", "joust", "tramp", "spurn", "medal", "micro", "rebel", "flank", "learn", "nadir", "maple", "comfy", "remit", "gruff", "ester", "least", "mogul", "fetch", "cause", "oaken", "aglow", "meaty", "gaffe", "shyly", "racer", "prowl", "thief", "stern", "poesy", "rocky", "tweet", "waist", "spire", "grope", "havoc", "patsy", "truly", "forty", "deity", "uncle", "swish", "giver", "preen", "bevel", "lemur", "draft", "slope", "annoy", "lingo", "bleak", "ditty", "curly", "cedar", "dirge", "grown", "horde", "drool", "shuck", "crypt", "cumin", "stock", "gravy", "locus", "wider", "breed", "quite", "chafe", "cache", "blimp", "deign", "fiend", "logic", "cheap", "elide", "rigid", "false", "renal", "pence", "rowdy", "shoot", "blaze", "envoy", "posse", "brief", "never", "abort", "mouse", "mucky", "sulky", "fiery", "media", "trunk", "yeast", "clear", "skunk", "scalp", "bitty", "cider", "koala", "duvet", "segue", "creme", "super", "grill", "after", "owner", "ember", "reach", "nobly", "empty", "speed", "gipsy", "recur", "smock", "dread", "merge", "burst", "kappa", "amity", "shaky", "hover", "carol", "snort", "synod", "faint", "haunt", "flour", "chair", "detox", "shrew", "tense", "plied", "quark", "burly", "novel", "waxen", "stoic", "jerky", "blitz", "beefy", "lyric", "hussy", "towel", "quilt", "below", "bingo", "wispy", "brash", "scone", "toast", "easel", "saucy", "value", "spice", "honor", "route", "sharp", "bawdy", "radii", "skull", "phony", "issue", "lager", "swell", "urine", "gassy", "trial", "flora", "upper", "latch", "wight", "brick", "retry", "holly", "decal", "grass", "shack", "dogma", "mover", "defer", "sober", "optic", "crier", "vying", "nomad", "flute", "hippo", "shark", "drier", "obese", "bugle", "tawny", "chalk", "feast", "ruddy", "pedal", "scarf", "cruel", "bleat", "tidal", "slush", "semen", "windy", "dusty", "sally", "igloo", "nerdy", "jewel", "shone", "whale", "hymen", "abuse", "fugue", "elbow", "crumb", "pansy", "welsh", "syrup", "terse", "suave", "gamut", "swung", "drake", "freed", "afire", "shirt", "grout", "oddly", "tithe", "plaid", "dummy", "broom", "blind", "torch", "enemy", "again", "tying", "pesky", "alter", "gazer", "noble", "ethos", "bride", "extol", "decor", "hobby", "beast", "idiom", "utter", "these", "sixth", "alarm", "erase", "elegy", "spunk", "piper", "scaly", "scold", "hefty", "chick", "sooty", "canal", "whiny", "slash", "quake", "joint", "swept", "prude", "heavy", "wield", "femme", "lasso", "maize", "shale", "screw", "spree", "smoky", "whiff", "scent", "glade", "spent", "prism", "stoke", "riper", "orbit", "cocoa", "guilt", "humus", "shush", "table", "smirk", "wrong", "noisy", "alert", "shiny", "elate", "resin", "whole", "hunch", "pixel", "polar", "hotel", "sword", "cleat", "mango", "rumba", "puffy", "filly", "billy", "leash", "clout", "dance", "ovate", "facet", "chili", "paint", "liner", "curio", "salty", "audio", "snake", "fable", "cloak", "navel", "spurt", "pesto", "balmy", "flash", "unwed", "early", "churn", "weedy", "stump", "lease", "witty", "wimpy", "spoof", "saner", "blend", "salsa", "thick", "warty", "manic", "blare", "squib", "spoon", "probe", "crepe", "knack", "force", "debut", "order", "haste", "teeth", "agent", "widen", "icily", "slice", "ingot", "clash", "juror", "blood", "abode", "throw", "unity", "pivot", "slept", "troop", "spare", "sewer", "parse", "morph", "cacti", "tacky", "spool", "demon", "moody", "annex", "begin", "fuzzy", "patch", "water", "lumpy", "admin", "omega", "limit", "tabby", "macho", "aisle", "skiff", "basis", "plank", "verge", "botch", "crawl", "lousy", "slain", "cubic", "raise", "wrack", "guide", "foist", "cameo", "under", "actor", "revue", "fraud", "harpy", "scoop", "climb", "refer", "olden", "clerk", "debar", "tally", "ethic", "cairn", "tulle", "ghoul", "hilly", "crude", "apart", "scale", "older", "plain", "sperm", "briny", "abbot", "rerun", "quest", "crisp", "bound", "befit", "drawn", "suite", "itchy", "cheer", "bagel", "guess", "broad", "axiom", "chard", "caput", "leant", "harsh", "curse", "proud", "swing", "opine", "taste", "lupus", "gumbo", "miner", "green", "chasm", "lipid", "topic", "armor", "brush", "crane", "mural", "abled", "habit", "bossy", "maker", "dusky", "dizzy", "lithe", "brook", "jazzy", "fifty", "sense", "giant", "surly", "legal", "fatal", "flunk", "began", "prune", "small", "slant", "scoff", "torus", "ninny", "covey", "viper", "taken", "moral", "vogue", "owing", "token", "entry", "booth", "voter", "chide", "elfin", "ebony", "neigh", "minim", "melon", "kneed", "decoy", "voila", "ankle", "arrow", "mushy", "tribe", "cease", "eager", "birth", "graph", "odder", "terra", "weird", "tried", "clack", "color", "rough", "weigh", "uncut", "ladle", "strip", "craft", "minus", "dicey", "titan", "lucid", "vicar", "dress", "ditch", "gypsy", "pasta", "taffy", "flame", "swoop", "aloof", "sight", "broke", "teary", "chart", "sixty", "wordy", "sheer", "leper", "nosey", "bulge", "savor", "clamp", "funky", "foamy", "toxic", "brand", "plumb", "dingy", "butte", "drill", "tripe", "bicep", "tenor", "krill", "worse", "drama", "hyena", "think", "ratio", "cobra", "basil", "scrum", "bused", "phone", "court", "camel", "proof", "heard", "angel", "petal", "pouty", "throb", "maybe", "fetal", "sprig", "spine", "shout", "cadet", "macro", "dodgy", "satyr", "rarer", "binge", "trend", "nutty", "leapt", "amiss", "split", "myrrh", "width", "sonar", "tower", "baron", "fever", "waver", "spark", "belie", "sloop", "expel", "smote", "baler", "above", "north", "wafer", "scant", "frill", "awash", "snack", "scowl", "frail", "drift", "limbo", "fence", "motel", "ounce", "wreak", "revel", "talon", "prior", "knelt", "cello", "flake", "debug", "anode", "crime", "salve", "scout", "imbue", "pinky", "stave", "vague", "chock", "fight", "video", "stone", "teach", "cleft", "frost", "prawn", "booty", "twist", "apnea", "stiff", "plaza", "ledge", "tweak", "board", "grant", "medic", "bacon", "cable", "brawl", "slunk", "raspy", "forum", "drone", "women", "mucus", "boast", "toddy", "coven", "tumor", "truer", "wrath", "stall", "steam", "axial", "purer", "daily", "trail", "niche", "mealy", "juice", "nylon", "plump", "merry", "flail", "papal", "wheat", "berry", "cower", "erect", "brute", "leggy", "snipe", "sinew", "skier", "penny", "jumpy", "rally", "umbra", "scary", "modem", "gross", "avian", "greed", "satin", "tonic", "parka", "sniff", "livid", "stark", "trump", "giddy", "reuse", "taboo", "avoid", "quote", "devil", "liken", "gloss", "gayer", "beret", "noise", "gland", "dealt", "sling", "rumor", "opera", "thigh", "tonga", "flare", "wound", "white", "bulky", "etude", "horse", "circa", "paddy", "inbox", "fizzy", "grain", "exert", "surge", "gleam", "belle", "salvo", "crush", "fruit", "sappy", "taker", "tract", "ovine", "spiky", "frank", "reedy", "filth", "spasm", "heave", "mambo", "right", "clank", "trust", "lumen", "borne", "spook", "sauce", "amber", "lathe", "carat", "corer", "dirty", "slyly", "affix", "alloy", "taint", "sheep", "kinky", "wooly", "mauve", "flung", "yacht", "fried", "quail", "brunt", "grimy", "curvy", "cagey", "rinse", "deuce", "state", "grasp", "milky", "bison", "graft", "sandy", "baste", "flask", "hedge", "girly", "swash", "boney", "coupe", "endow", "abhor", "welch", "blade", "tight", "geese", "miser", "mirth", "cloud", "cabal", "leech", "close", "tenth", "pecan", "droit", "grail", "clone", "guise", "ralph", "tango", "biddy", "smith", "mower", "payee", "serif", "drape", "fifth", "spank", "glaze", "allot", "truck", "kayak", "virus", "testy", "tepee", "fully", "zonal", "metro", "curry", "grand", "banjo", "axion", "bezel", "occur", "chain", "nasal", "gooey", "filer", "brace", "allay", "pubic", "raven", "plead", "gnash", "flaky", "munch", "dully", "eking", "thing", "slink", "hurry", "theft", "shorn", "pygmy", "ranch", "wring", "lemon", "shore", "mamma", "froze", "newer", "style", "moose", "antic", "drown", "vegan", "chess", "guppy", "union", "lever", "lorry", "image", "cabby", "druid", "exact", "truth", "dopey", "spear", "cried", "chime", "crony", "stunk", "timid", "batch", "gauge", "rotor", "crack", "curve", "latte", "witch", "bunch", "repel", "anvil", "soapy", "meter", "broth", "madly", "dried", "scene", "known", "magma", "roost", "woman", "thong", "punch", "pasty", "downy", "knead", "whirl", "rapid", "clang", "anger", "drive", "goofy", "email", "music", "stuff", "bleep", "rider", "mecca", "folio", "setup", "verso", "quash", "fauna", "gummy", "happy", "newly", "fussy", "relic", "guava", "ratty", "fudge", "femur", "chirp", "forte", "alibi", "whine", "petty", "golly", "plait", "fleck", "felon", "gourd", "brown", "thrum", "ficus", "stash", "decry", "wiser", "junta", "visor", "daunt", "scree", "impel", "await", "press", "whose", "turbo", "stoop", "speak", "mangy", "eying", "inlet", "crone", "pulse", "mossy", "staid", "hence", "pinch", "teddy", "sully", "snore", "ripen", "snowy", "attic", "going", "leach", "mouth", "hound", "clump", "tonal", "bigot", "peril", "piece", "blame", "haute", "spied", "undid", "intro", "basal", "shine", "gecko", "rodeo", "guard", "steer", "loamy", "scamp", "scram", "manly", "hello", "vaunt", "organ", "feral", "knock", "extra", "condo", "adapt", "willy", "polka", "rayon", "skirt", "faith", "torso", "match", "mercy", "tepid", "sleek", "riser", "twixt", "peace", "flush", "catty", "login", "eject", "roger", "rival", "untie", "refit", "aorta", "adult", "judge", "rower", "artsy", "rural", "shave"];
-    
+
     let customWords = [];
     try {
         const storedCustom = localStorage.getItem('wordle_custom_words');
@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Supabase Configuration for Shared Competitive Leaderboards
     // Replace with your own Supabase project details to enable online multiplayer leaderboards!
     const supabaseConfig = {
-        url: '', // e.g. 'https://your-project.supabase.co'
-        anonKey: '' // e.g. 'your-anon-public-key'
+        url: 'https://dbahrwaqbqixfslvrhww.supabase.co', // e.g. 'https://your-project.supabase.co'
+        anonKey: 'sb_publishable_hoXt4Igq_bcBBCiPfktXLA_QFT1rsdM' // e.g. 'your-anon-public-key'
     };
 
     // Challenge Mode Database Manager (Supabase REST API + Local Storage fallback)
@@ -48,8 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
         supabaseKey: supabaseConfig.anonKey || '',
 
         isConfigured() {
-            return this.supabaseUrl && !this.supabaseUrl.includes('YOUR_') && this.supabaseUrl !== '' && 
-                   this.supabaseKey && !this.supabaseKey.includes('YOUR_') && this.supabaseKey !== '';
+            return this.supabaseUrl && !this.supabaseUrl.includes('YOUR_') && this.supabaseUrl !== '' &&
+                this.supabaseKey && !this.supabaseKey.includes('YOUR_') && this.supabaseKey !== '';
         },
 
         async submitScore(challengeId, word, playerName, guesses, timeSeconds, won) {
@@ -245,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Challenge Landing & Dictionary Modal Selectors
     const challengeLandingOverlay = document.getElementById('challenge-landing-overlay');
     const acceptChallengeBtn = document.getElementById('accept-challenge-btn');
+    const challengeLandingBackBtn = document.getElementById('challenge-landing-back-btn');
     const definitionModal = document.getElementById('definition-modal');
     const defWord = document.getElementById('def-word');
     const defPhonetic = document.getElementById('def-phonetic');
@@ -317,6 +318,182 @@ document.addEventListener('DOMContentLoaded', () => {
         initSounds();
     }, { once: true });
 
+    function saveChallengeCompletion(challengeId, won, guesses) {
+        if (!challengeId) return;
+        try {
+            const record = {
+                completed: true,
+                won: won,
+                guessCount: guesses,
+                guessWords: state.guessWords,
+                guesses: state.guesses,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(`wordle_challenge_completed_${challengeId}`, JSON.stringify(record));
+            localStorage.removeItem(`wordle_challenge_progress_${challengeId}`);
+        } catch (e) {
+            console.error('Failed to save challenge completion', e);
+        }
+    }
+
+    function getChallengeCompletion(challengeId) {
+        if (!challengeId) return null;
+        try {
+            const saved = localStorage.getItem(`wordle_challenge_completed_${challengeId}`);
+            return saved ? JSON.parse(saved) : null;
+        } catch (e) {
+            console.error('Failed to get challenge completion', e);
+            return null;
+        }
+    }
+
+    function saveGameProgress() {
+        try {
+            if (state.isDailyMode) {
+                const progress = {
+                    date: getDailyDateKey(),
+                    guesses: state.guesses,
+                    guessWords: state.guessWords,
+                    startTime: state.startTime
+                };
+                localStorage.setItem('wordle_daily_progress', JSON.stringify(progress));
+            } else if (state.isChallengeMode) {
+                const challengeId = getChallengeId();
+                if (challengeId) {
+                    const progress = {
+                        guesses: state.guesses,
+                        guessWords: state.guessWords,
+                        startTime: state.startTime
+                    };
+                    localStorage.setItem(`wordle_challenge_progress_${challengeId}`, JSON.stringify(progress));
+                }
+            }
+        } catch (e) {
+            console.error('Failed to save game progress', e);
+        }
+    }
+
+    function renderRowImmediate(rowIdx, word, feedback) {
+        const row = document.getElementById(`row-${rowIdx}`);
+        if (!row || !word || !feedback) return;
+        row.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+            const letter = word[i];
+            const colorClass = colorClasses[feedback[i]];
+            const tileContainer = document.createElement('div');
+            tileContainer.className = 'tile-container';
+            const tile = document.createElement('div');
+            tile.className = 'tile is-flipped';
+            const front = document.createElement('div');
+            front.className = 'tile-front';
+            front.textContent = letter.toUpperCase();
+            const back = document.createElement('div');
+            back.className = `tile-back ${colorClass}`;
+            back.textContent = letter.toUpperCase();
+            tile.appendChild(front);
+            tile.appendChild(back);
+            tileContainer.appendChild(tile);
+            row.appendChild(tileContainer);
+        }
+    }
+
+    function restoreProgress() {
+        let progress = null;
+        let challengeId = '';
+        if (state.isDailyMode) {
+            const saved = localStorage.getItem('wordle_daily_progress');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.date === getDailyDateKey()) {
+                    progress = parsed;
+                } else {
+                    localStorage.removeItem('wordle_daily_progress');
+                }
+            }
+        } else if (state.isChallengeMode) {
+            challengeId = getChallengeId();
+            const saved = localStorage.getItem(`wordle_challenge_progress_${challengeId}`);
+            if (saved) {
+                progress = JSON.parse(saved);
+            }
+        }
+
+        if (progress) {
+            state.guesses = progress.guesses || [];
+            state.guessWords = progress.guessWords || [];
+            state.guessCount = state.guesses.length;
+            state.startTime = progress.startTime || Date.now();
+
+            for (let i = 0; i < state.guessCount; i++) {
+                const word = state.guessWords[i];
+                const feedback = state.guesses[i];
+                renderRowImmediate(i, word, feedback);
+                processFeedback(word, feedback);
+            }
+
+            if (state.isDailyMode || state.isChallengeMode) {
+                updateCandidatesAndInsights();
+                updateKeyboardColors();
+            }
+
+            if (state.guessCount > 0) {
+                state.currentGuessWord = state.guessWords[state.guessCount - 1];
+                const lastFeedback = state.guesses[state.guessCount - 1];
+                if (lastFeedback.every(f => f === 'correct')) {
+                    if (state.isDailyMode) {
+                        saveDailyRecord(true);
+                        localStorage.removeItem('wordle_daily_progress');
+                    } else if (state.isChallengeMode) {
+                        saveChallengeCompletion(challengeId, true, state.guessCount);
+                    }
+
+                    endGame();
+                    if (state.isDailyMode) {
+                        const record = getDailyRecord();
+                        const streak = getDailyStreakData();
+                        showDailyResultOverlay(record, streak);
+                    } else if (state.isChallengeMode) {
+                        const emojiEl = document.getElementById('game-over-emoji');
+                        if (emojiEl) { emojiEl.textContent = '⚔️'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
+                        gameOverTitle.textContent = 'You Won!';
+                        gameOverText.textContent = `Cracked "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries!`;
+                        handleChallengeGameOver(true);
+                    }
+                    return true;
+                } else if (state.guessCount === 6) {
+                    if (state.isDailyMode) {
+                        saveDailyRecord(false);
+                        localStorage.removeItem('wordle_daily_progress');
+                    } else if (state.isChallengeMode) {
+                        saveChallengeCompletion(challengeId, false, state.guessCount);
+                    }
+
+                    endGame();
+                    if (state.isDailyMode) {
+                        const record = getDailyRecord();
+                        const streak = getDailyStreakData();
+                        showDailyResultOverlay(record, streak);
+                    } else if (state.isChallengeMode) {
+                        const emojiEl = document.getElementById('game-over-emoji');
+                        if (emojiEl) { emojiEl.textContent = '😔'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
+                        gameOverTitle.textContent = 'Game Over!';
+                        gameOverText.textContent = `You ran out of guesses! The word was "${state.challengeWord.toUpperCase()}".`;
+                        handleChallengeGameOver(false);
+                    }
+                    return true;
+                }
+            }
+
+            if (state.guessCount < 6) {
+                updateActiveRowTiles();
+                feedbackInput.disabled = false;
+                submitButton.disabled = false;
+                feedbackInput.focus();
+            }
+            return true;
+        }
+        return false;
+    }
 
     function resetState() {
         const isChallenge = state.isChallengeMode || false;
@@ -374,18 +551,18 @@ document.addEventListener('DOMContentLoaded', () => {
             difficulty: state.difficulty
         });
         gameBoard.innerHTML = '';
-        for(let i = 0; i < 6; i++) {
+        for (let i = 0; i < 6; i++) {
             const row = document.createElement('div');
             row.className = 'flex justify-center gap-1.5';
             row.id = `row-${i}`;
-            for(let j=0; j<5; j++) {
+            for (let j = 0; j < 5; j++) {
                 const tileContainer = document.createElement('div');
                 tileContainer.className = 'tile-container border-2 border-gray-200 rounded-md';
                 row.appendChild(tileContainer);
             }
             gameBoard.appendChild(row);
         }
-        
+
         if (state.isChallengeMode) {
             actionArea.classList.add('hidden');
             challengeBanner.classList.remove('hidden');
@@ -405,15 +582,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 isExpired = elapsed > 24 * 60 * 60 * 1000;
             }
 
+            const challengeId = getChallengeId();
+            const completion = getChallengeCompletion(challengeId);
+            const hasProgress = localStorage.getItem(`wordle_challenge_progress_${challengeId}`) !== null;
+
             const landingTitle = document.getElementById('challenge-landing-title');
             const landingText = document.getElementById('challenge-landing-text');
             const landingIcon = document.getElementById('challenge-landing-icon');
-            
-            if (isExpired) {
+
+            if (completion) {
+                if (landingTitle) landingTitle.textContent = 'Challenge Completed!';
+                if (landingText) landingText.textContent = `You have already attempted this challenge on this device. You scored ${completion.won ? completion.guessCount : 'X'}/6.`;
+                if (landingIcon) landingIcon.textContent = '🏆';
+                if (acceptChallengeBtn) acceptChallengeBtn.classList.add('hidden');
+                if (landingLeaderboardBtn) landingLeaderboardBtn.classList.remove('hidden');
+            } else if (isExpired) {
                 if (landingTitle) landingTitle.textContent = 'Challenge Closed!';
                 if (landingText) landingText.textContent = 'This challenge was created more than 24 hours ago and has expired. You can no longer submit guesses, but you can view the final leaderboard below.';
                 if (landingIcon) landingIcon.textContent = '🔒';
                 if (acceptChallengeBtn) acceptChallengeBtn.classList.add('hidden');
+                if (landingLeaderboardBtn) landingLeaderboardBtn.classList.remove('hidden');
             } else {
                 if (landingTitle) landingTitle.textContent = 'You Are Challenged!';
                 if (landingText) landingText.textContent = 'A friend has created a secret 5-letter word for you to guess. Can you solve it in 6 tries?';
@@ -422,12 +610,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (challengeLandingOverlay) {
-                challengeLandingOverlay.classList.remove('hidden');
+                if (hasProgress && !completion && !isExpired) {
+                    challengeLandingOverlay.classList.add('hidden');
+                } else {
+                    challengeLandingOverlay.classList.remove('hidden');
+                }
             }
             if (challengeButton) {
                 challengeButton.classList.add('hidden');
             }
-            
+
             // Center and align header to match the Wordle card width
             if (headerRow) {
                 headerRow.classList.remove('max-w-[896px]', 'md:flex-row', 'gap-8');
@@ -454,7 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (challengeButton) {
                 challengeButton.classList.add('hidden');
             }
-            
+
             // Center and align header to match the Wordle card width
             if (headerRow) {
                 headerRow.classList.remove('max-w-[896px]', 'md:flex-row', 'gap-8');
@@ -497,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (challengeButton) {
                 challengeButton.classList.remove('hidden');
             }
-            
+
             // Restore default header layout
             if (headerRow) {
                 headerRow.classList.remove('max-w-[432px]', 'flex-col', 'gap-2');
@@ -510,12 +702,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 headerControlsContainer.classList.remove('flex-col');
             }
         }
-        
+
         gameOverContainer.classList.add('hidden');
         statusMessage.textContent = '';
         statusMessage.className = 'text-center h-8 flex items-center justify-center font-semibold text-lg mt-2';
         feedbackInput.value = '';
-        
+
         if (state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode) {
             insightsPanel.classList.add('hidden');
             if (keyboardContainer) keyboardContainer.classList.remove('hidden');
@@ -529,8 +721,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             updateInsightsPanel();
         }
-        
-        if (!state.isChallengeMode && !state.isPassAndPlayMode && !state.isDailyMode) {
+
+        let restored = false;
+        if (state.isDailyMode || state.isChallengeMode) {
+            restored = restoreProgress();
+        }
+
+        if (!restored && !state.isChallengeMode && !state.isPassAndPlayMode && !state.isDailyMode) {
             setTimeout(() => {
                 makeGuess(computeOpeningGuess());
             }, 500);
@@ -541,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.currentGuessWord = word;
         state.guessWords[state.guessCount] = word;
         const row = document.getElementById(`row-${state.guessCount}`);
-        row.innerHTML = ''; 
+        row.innerHTML = '';
 
         word.split('').forEach((letter) => {
             const tileContainer = document.createElement('div');
@@ -559,7 +756,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tileContainer.appendChild(tile);
             row.appendChild(tileContainer);
         });
-        
+
         feedbackInput.value = '';
         state.isAnimating = false;
         submitButton.disabled = false;
@@ -607,9 +804,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         processFeedback(state.currentGuessWord, feedback);
-        
+
         if (state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode) {
             updateCandidatesAndInsights();
+            saveGameProgress();
             feedbackInput.value = '';
             state.isAnimating = false;
             submitButton.disabled = false;
@@ -623,33 +821,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleFeedback() {
         if (state.isGameOver || state.isAnimating) return;
-        
+
         const isManual = state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode;
         const inputVal = isManual
             ? (state.currentTypedGuess || '').toLowerCase().trim()
             : feedbackInput.value.toLowerCase().trim();
-        
+
         if (isManual) {
             if (inputVal.length !== 5 || !/^[a-z]{5}$/.test(inputVal)) {
                 showToast('Please enter a valid 5-letter word.');
                 sounds?.invalid.triggerAttackRelease("C3", "0.2");
                 return;
             }
-            
+
             if (!wordList.includes(inputVal) && (!extendedWordList || !extendedWordList.includes(inputVal))) {
                 showToast('Hmm, not a valid word. Try again!');
                 sounds?.invalid.triggerAttackRelease("C3", "0.2");
                 return;
             }
-            
+
             makeGuess(inputVal);
             state.currentTypedGuess = '';
             const targetWord = state.isChallengeMode ? state.challengeWord
                 : state.isPassAndPlayMode ? state.passAndPlayWord
-                : state.dailyWord;
+                    : state.dailyWord;
             const feedback = calculateFeedback(inputVal, targetWord);
             await submitFeedbackAndAdvance(feedback);
-            
+
         } else {
             if (!/^[gyb]{5}$/.test(inputVal)) {
                 showToast('Enter a 5-letter pattern using G, Y, or B.');
@@ -658,7 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const feedback = inputVal.split('').map(char => colorMap[char]);
-            
+
             if (!validateFeedback(state.currentGuessWord, feedback)) {
                 showToast('Contradictory clues — a letter can\'t be both Green and Grey.');
                 sounds?.invalid.triggerAttackRelease("C3", "0.2");
@@ -673,7 +871,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.possibleWords = state.possibleWords.filter(word => {
             return checkWordAgainstClues(word, state);
         });
-        
+
         if (state.possibleWords.length === 0 && extendedWordList.length > 0 && !state.usedExtendedDictionary) {
             state.usedExtendedDictionary = true;
             if (dictionaryBadge) {
@@ -684,7 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return checkWordAgainstClues(word, state);
             });
         }
-        
+
         updateInsightsPanel();
     }
 
@@ -692,7 +890,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const feedback = Array(5).fill('absent');
         const secretLetters = secret.split('');
         const guessLetters = guess.split('');
-        
+
         for (let i = 0; i < 5; i++) {
             if (guessLetters[i] === secretLetters[i]) {
                 feedback[i] = 'correct';
@@ -713,7 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    
+
     function validateFeedback(word, feedback) {
         // Any 5-letter clue pattern is theoretically valid for some word,
         // and duplicate letter feedback (e.g. one correct, one absent) is perfectly valid.
@@ -780,14 +978,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generateNextGuess() {
         showThinkingIndicator();
-        
+
         setTimeout(() => {
             state.possibleWords = state.possibleWords.filter(word => {
                 return checkWordAgainstClues(word, state);
             });
-            
+
             updateInsightsPanel();
-            
+
             setStatusMessage(`${state.possibleWords.length} words remaining...`, '', 'text-gray-500');
 
             let bestGuess = '';
@@ -799,23 +997,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         dictionaryBadge.textContent = 'Extended Dictionary';
                         dictionaryBadge.className = 'text-[10px] text-indigo-600 font-bold uppercase tracking-wider animate-pulse';
                     }
-                    
+
                     setTimeout(() => {
                         state.possibleWords = extendedWordList.filter(word => {
                             return checkWordAgainstClues(word, state);
                         });
-                        
+
                         updateInsightsPanel();
-                        
+
                         if (state.possibleWords.length > 0) {
                             setStatusMessage(`Found ${state.possibleWords.length} candidates in extended list!`, '', 'text-green-600 font-bold');
-                            
+
                             if (state.possibleWords.length <= 2 || state.difficulty === 'normal') {
                                 bestGuess = state.possibleWords[0];
                             } else {
                                 bestGuess = findOptimalGuess();
                             }
-                            
+
                             setTimeout(() => {
                                 statusMessage.textContent = '';
                                 makeGuess(bestGuess);
@@ -826,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 1200);
                     return;
                 }
-                
+
                 endGameNoSolution("I'm stumped! My dictionary might not have your word.");
                 return;
             } else if (state.possibleWords.length <= 2 || state.difficulty === 'normal') {
@@ -834,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 bestGuess = findOptimalGuess();
             }
-            
+
             setTimeout(() => {
                 statusMessage.textContent = '';
                 statusMessage.className = 'text-center h-8 flex items-center justify-center font-semibold text-lg';
@@ -1078,14 +1276,14 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = top5.length; i < 5; i++) {
             const row = document.createElement('div');
             row.className = 'flex justify-center gap-1.5 w-full opacity-40';
-            
+
             for (let j = 0; j < 5; j++) {
                 const tile = document.createElement('div');
                 tile.className = 'suggestion-tile flex items-center justify-center font-bold text-xl sm:text-2xl uppercase rounded-md border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400';
                 tile.textContent = '•';
                 row.appendChild(tile);
             }
-            
+
             topSuggestions.appendChild(row);
         }
     }
@@ -1123,6 +1321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setGameOverButtons(false);
             addWordContainer.classList.add('hidden');
             const streak = saveDailyRecord(true);
+            localStorage.removeItem('wordle_daily_progress');
             updateDailyBadge();
             sounds?.win.triggerAttackRelease(["C4", "E4", "G4", "C5"], 0.4);
             launchConfetti();
@@ -1139,6 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameOverText.textContent = `Cracked "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries!`;
             restartButton.classList.add('hidden');
             setGameOverButtons(true);
+            saveChallengeCompletion(getChallengeId(), true, state.guessCount);
             handleChallengeGameOver(true);
         } else if (state.isPassAndPlayMode) {
             if (emojiEl) { emojiEl.textContent = '🏆'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
@@ -1183,6 +1383,7 @@ document.addEventListener('DOMContentLoaded', () => {
             restartButton.classList.add('hidden');
             setGameOverButtons(false);
             const streak = saveDailyRecord(false);
+            localStorage.removeItem('wordle_daily_progress');
             updateDailyBadge();
             setTimeout(() => showDailyResultOverlay(getDailyRecord(), streak), 1200);
         } else if (state.isChallengeMode) {
@@ -1191,6 +1392,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addWordContainer.classList.add('hidden');
             restartButton.classList.add('hidden');
             setGameOverButtons(true);
+            saveChallengeCompletion(getChallengeId(), false, state.guessCount);
             handleChallengeGameOver(false);
         } else if (state.isPassAndPlayMode) {
             gameOverTitle.textContent = 'Game Over!';
@@ -1274,7 +1476,7 @@ document.addEventListener('DOMContentLoaded', () => {
             p.y += p.speedY;
             p.angle += p.spin;
             p.speedY += 0.05;
-            
+
             if (p.y < confettiCanvas.height) {
                 stillAnimating = true;
                 confettiCtx.save();
@@ -1288,10 +1490,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (stillAnimating) {
             requestAnimationFrame(animateConfetti);
         } else {
-             confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
         }
     }
-    
+
     function handleShare() {
         const emojiMap = { correct: '🟩', present: '🟨', absent: '⬛' };
         let shareText = '';
@@ -1302,11 +1504,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             shareText = `AI Wordle Guesser ${state.guessCount}/6 (${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)})\n\n`;
         }
-        
+
         state.guesses.forEach(guess => {
             shareText += guess.map(result => emojiMap[result]).join('') + '\n';
         });
-        
+
         if (state.isChallengeMode) {
             shareText += `\nPlay this challenge: ${window.location.href}`;
         } else {
@@ -1333,29 +1535,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function downloadBoardImage() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
+
         const tileSize = 60;
         const gap = 8;
         const padding = 24;
         const headerHeight = 80;
-        
+
         const width = (tileSize * 5) + (gap * 4) + (padding * 2);
         const height = (tileSize * 6) + (gap * 5) + (padding * 2) + headerHeight;
-        
+
         canvas.width = width;
         canvas.height = height;
-        
+
         // Background: clean white
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
-        
+
         // Draw title
         ctx.fillStyle = '#1e293b'; // slate-800
         ctx.font = 'bold 22px sans-serif';
         ctx.textAlign = 'center';
         const titleText = state.isChallengeMode ? 'Wordle Challenge' : 'AI Wordle Solver';
         ctx.fillText(titleText, width / 2, padding + 22);
-        
+
         // Draw score/attempts
         ctx.fillStyle = '#64748b'; // slate-500
         ctx.font = 'bold 15px sans-serif';
@@ -1363,7 +1565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasWon = lastGuess && lastGuess.every(f => f === 'correct');
         const scoreText = hasWon ? `${state.guessCount}/6` : 'X/6';
         ctx.fillText(scoreText, width / 2, padding + 48);
-        
+
         // Define colors
         const colorHex = {
             correct: '#6aaa64', // green
@@ -1371,23 +1573,23 @@ document.addEventListener('DOMContentLoaded', () => {
             absent: '#787c7e',  // gray
             empty: '#f1f5f9'    // slate-100
         };
-        
+
         // Draw each grid tile
         for (let r = 0; r < 6; r++) {
             const y = padding + headerHeight + r * (tileSize + gap);
             const feedback = state.guesses[r];
             const word = state.guessWords[r];
-            
+
             for (let c = 0; c < 5; c++) {
                 const x = padding + c * (tileSize + gap);
-                
+
                 let tileColor = colorHex.empty;
                 let strokeColor = '#cbd5e1'; // slate-300
                 if (feedback) {
                     tileColor = colorHex[feedback[c]] || colorHex.absent;
                     strokeColor = tileColor;
                 }
-                
+
                 // Draw rounded tile
                 ctx.fillStyle = tileColor;
                 ctx.strokeStyle = strokeColor;
@@ -1401,7 +1603,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 ctx.fill();
                 ctx.stroke();
-                
+
                 // Draw letter text
                 if (word && word[c]) {
                     ctx.fillStyle = '#ffffff';
@@ -1412,7 +1614,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        
+
         // Generate download
         const link = document.createElement('a');
         link.download = `wordle-challenge-result.png`;
@@ -1680,6 +1882,18 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.disabled = false;
         feedbackInput.focus();
         state.startTime = Date.now();
+        saveGameProgress();
+    });
+
+    challengeLandingBackBtn?.addEventListener('click', () => {
+        if (challengeLandingOverlay) {
+            challengeLandingOverlay.classList.add('hidden');
+        }
+        state.isChallengeMode = false;
+        state.challengeWord = null;
+        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+        window.history.replaceState({}, document.title, cleanUrl);
+        openModeSelection();
     });
 
     closeDefBtn?.addEventListener('click', () => {
@@ -1704,7 +1918,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-    
+
     difficultyNormalBtn.addEventListener('click', () => {
         state.difficulty = 'normal';
         difficultyNormalBtn.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-500', 'text-white');
@@ -1843,20 +2057,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleChallengeGameOver(won) {
         if (!state.isChallengeMode) return;
-        
+
         // 1. Calculate time
         const endTime = Date.now();
         const elapsedMs = state.startTime ? (endTime - state.startTime) : 0;
         const timeSeconds = Math.max(1, Math.floor(elapsedMs / 1000));
-        
+
         state.completionTime = timeSeconds;
         state.completionWon = won;
-        
+
         // 2. Show View Leaderboard button
         if (gameOverLeaderboardBtn) {
             gameOverLeaderboardBtn.classList.remove('hidden');
         }
-        
+
         // 3. Show name input if not submitted yet
         if (!state.scoreSubmitted) {
             if (challengeLeaderboardSubmitContainer) {
@@ -1876,21 +2090,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function renderLeaderboard(challengeId, word) {
         if (!leaderboardModal || !leaderboardWordDisplay || !leaderboardListContainer) return;
-        
+
         leaderboardWordDisplay.textContent = word.toUpperCase();
         leaderboardModal.classList.remove('hidden');
-        
+
         leaderboardListContainer.innerHTML = `
             <div class="flex flex-col items-center justify-center py-12 text-slate-400">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-2"></div>
                 <span>Fetching scores...</span>
             </div>
         `;
-        
+
         const scores = await ChallengeDb.getScores(challengeId);
-        
+
         leaderboardListContainer.innerHTML = '';
-        
+
         if (scores.length === 0) {
             leaderboardListContainer.innerHTML = `
                 <div class="text-center py-8 text-slate-400 italic">
@@ -1899,27 +2113,27 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             return;
         }
-        
+
         const currentName = leaderboardPlayerName ? leaderboardPlayerName.value.trim().toLowerCase() : '';
-        
+
         scores.forEach((score, index) => {
             const rank = index + 1;
             const row = document.createElement('div');
-            
-            const isSelf = state.scoreSubmitted && 
-                           score.player_name.toLowerCase() === currentName && 
-                           score.guesses === state.guessCount &&
-                           score.won === state.completionWon;
-            
+
+            const isSelf = state.scoreSubmitted &&
+                score.player_name.toLowerCase() === currentName &&
+                score.guesses === state.guessCount &&
+                score.won === state.completionWon;
+
             row.className = `leaderboard-row flex items-center px-3 py-2.5 rounded-xl border border-transparent text-sm ${isSelf ? 'highlight-self bg-purple-50 border-purple-200 dark:bg-purple-950/20 dark:border-purple-800' : 'bg-slate-50/50 dark:bg-slate-800/20'}`;
-            
+
             const rankCol = document.createElement('div');
             rankCol.className = 'w-12 flex justify-center';
             const badge = document.createElement('span');
             badge.className = `rank-badge ${rank === 1 ? 'rank-badge-1' : rank === 2 ? 'rank-badge-2' : rank === 3 ? 'rank-badge-3' : 'rank-badge-other'}`;
             badge.textContent = rank;
             rankCol.appendChild(badge);
-            
+
             const nameCol = document.createElement('div');
             nameCol.className = `flex-1 pl-2 truncate font-medium text-slate-700 dark:text-slate-200 ${isSelf ? 'font-bold text-purple-900 dark:text-purple-300' : ''}`;
             nameCol.textContent = score.player_name;
@@ -1929,17 +2143,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 youTag.textContent = 'YOU';
                 nameCol.appendChild(youTag);
             }
-            
+
             const guessesCol = document.createElement('div');
             guessesCol.className = 'w-16 text-center font-semibold text-slate-700 dark:text-slate-300';
             guessesCol.textContent = score.won ? `${score.guesses}/6` : 'X/6';
             if (!score.won) {
                 guessesCol.className += ' text-red-500 dark:text-red-400';
             }
-            
+
             const timeCol = document.createElement('div');
             timeCol.className = 'w-16 text-center text-slate-500 dark:text-slate-400 font-mono text-xs';
-            
+
             const timeSec = score.time_seconds;
             if (timeSec < 60) {
                 timeCol.textContent = `${timeSec}s`;
@@ -1948,12 +2162,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const secs = timeSec % 60;
                 timeCol.textContent = `${mins}m ${secs}s`;
             }
-            
+
             row.appendChild(rankCol);
             row.appendChild(nameCol);
             row.appendChild(guessesCol);
             row.appendChild(timeCol);
-            
+
             leaderboardListContainer.appendChild(row);
         });
     }
@@ -1968,20 +2182,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         creatorChallengesContainer.classList.remove('hidden');
         creatorChallengesList.innerHTML = '';
-        
+
         challenges.forEach(item => {
             const row = document.createElement('div');
             row.className = 'creator-challenge-item flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 text-xs';
-            
+
             const info = document.createElement('div');
             info.className = 'flex flex-col';
             const wordSpan = document.createElement('span');
             wordSpan.className = 'font-bold uppercase text-purple-600 dark:text-purple-400 font-mono tracking-wider';
             wordSpan.textContent = item.word;
-            
+
             const timeSpan = document.createElement('span');
             timeSpan.className = 'text-[10px] text-slate-400';
-            
+
             const hoursLeft = 24 - (Date.now() - item.timestamp) / (1000 * 60 * 60);
             if (hoursLeft > 1) {
                 timeSpan.textContent = `${Math.floor(hoursLeft)}h left`;
@@ -1990,13 +2204,13 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 timeSpan.textContent = `Expired`;
             }
-            
+
             info.appendChild(wordSpan);
             info.appendChild(timeSpan);
-            
+
             const actions = document.createElement('div');
             actions.className = 'flex gap-1.5';
-            
+
             const copyBtn = document.createElement('button');
             copyBtn.className = 'bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 font-bold px-2 py-1 rounded text-[10px] transition-colors';
             copyBtn.textContent = 'Link';
@@ -2010,7 +2224,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Failed to copy', err);
                 });
             });
-            
+
             const viewBtn = document.createElement('button');
             viewBtn.className = 'bg-purple-600 hover:bg-purple-700 text-white font-bold px-2 py-1 rounded text-[10px] transition-colors';
             viewBtn.textContent = 'View';
@@ -2022,10 +2236,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const challengeId = `${item.word}|${item.timestamp}`;
                 renderLeaderboard(challengeId, item.word);
             });
-            
+
             actions.appendChild(copyBtn);
             actions.appendChild(viewBtn);
-            
+
             row.appendChild(info);
             row.appendChild(actions);
             creatorChallengesList.appendChild(row);
@@ -2055,24 +2269,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         localStorage.setItem('wordle_leaderboard_player_name', name);
-        
+
         submitLeaderboardBtn.disabled = true;
         const originalText = submitLeaderboardBtn.textContent;
         submitLeaderboardBtn.innerHTML = `<span class="animate-pulse">Submitting...</span>`;
-        
+
         const challengeId = getChallengeId();
         const success = await ChallengeDb.submitScore(
-            challengeId, 
-            state.challengeWord, 
-            name, 
-            state.guessCount, 
-            state.completionTime, 
+            challengeId,
+            state.challengeWord,
+            name,
+            state.guessCount,
+            state.completionTime,
             state.completionWon
         );
-        
+
         submitLeaderboardBtn.disabled = false;
         submitLeaderboardBtn.textContent = originalText;
-        
+
         if (success) {
             showToast('Score submitted successfully!');
             state.scoreSubmitted = true;
@@ -2131,8 +2345,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let text = `🏆 Wordle Challenge Leaderboard: "${activeHeaderWord}"\n`;
         scores.slice(0, 5).forEach((score, index) => {
-            const timeStr = score.time_seconds < 60 
-                ? `${score.time_seconds}s` 
+            const timeStr = score.time_seconds < 60
+                ? `${score.time_seconds}s`
                 : `${Math.floor(score.time_seconds / 60)}m ${score.time_seconds % 60}s`;
             const scoreStr = score.won ? `${score.guesses}/6` : 'X/6';
             text += `${index + 1}. ${score.player_name} (${scoreStr}, ${timeStr})\n`;
@@ -2209,7 +2423,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const emojiMap = { correct: '🟩', present: '🟨', absent: '⬛' };
         const grid = record.guesses.map(g => g.map(f => emojiMap[f]).join('')).join('\n');
         const scoreStr = record.won ? `${record.guessCount}/6` : 'X/6';
-        const text = `Wordle Hub Daily - ${new Date().toLocaleDateString('en-US', {month:'short',day:'numeric'})}\n${scoreStr}\n\n${grid}`;
+        const text = `Wordle Hub Daily - ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}\n${scoreStr}\n\n${grid}`;
         navigator.clipboard?.writeText(text).then(() => {
             const btn = document.getElementById('daily-share-btn');
             const orig = btn.textContent; btn.textContent = 'Copied! ✓';
@@ -2284,7 +2498,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         state.passAndPlayWord = word;
         state.isPassAndPlayMode = true;
-        
+
         // Clear input value so player 2 cannot inspect it or see it by accident
         passPlayWordInput.value = '';
         passPlayStatus.textContent = '';
@@ -2312,11 +2526,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Daily Challenge Utilities ──────────────────────────────────────────
     function getDailyDateKey() {
         const d = new Date();
-        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
     function getDailyWord() {
-        const epoch = new Date('2024-01-01'); epoch.setHours(0,0,0,0);
-        const today = new Date(); today.setHours(0,0,0,0);
+        const epoch = new Date('2024-01-01'); epoch.setHours(0, 0, 0, 0);
+        const today = new Date(); today.setHours(0, 0, 0, 0);
         const idx = Math.floor((today - epoch) / 86400000);
         return wordList[idx % wordList.length];
     }
@@ -2329,20 +2543,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateDailyStreak(won) {
         const streak = getDailyStreakData();
         const today = getDailyDateKey();
-        const d = new Date(); d.setDate(d.getDate()-1);
-        const yesterday = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        const d = new Date(); d.setDate(d.getDate() - 1);
+        const yesterday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         if (won) {
             streak.current = (streak.lastDate === yesterday || streak.lastDate === today) ? streak.current + (streak.lastDate === today ? 0 : 1) : 1;
             streak.max = Math.max(streak.current, streak.max);
         } else { streak.current = 0; }
         streak.lastDate = today;
-        try { localStorage.setItem('wordle_daily_streak', JSON.stringify(streak)); } catch {}
+        try { localStorage.setItem('wordle_daily_streak', JSON.stringify(streak)); } catch { }
         return streak;
     }
     function saveDailyRecord(won) {
         const streak = updateDailyStreak(won);
         updateDailyGlobalStats(won, state.guessCount);
-        try { localStorage.setItem(`wordle_daily_${getDailyDateKey()}`, JSON.stringify({ completed: true, won, guessWords: state.guessWords, guesses: state.guesses, guessCount: state.guessCount })); } catch {}
+        try { localStorage.setItem(`wordle_daily_${getDailyDateKey()}`, JSON.stringify({ completed: true, won, guessWords: state.guessWords, guesses: state.guesses, guessCount: state.guessCount })); } catch { }
         return streak;
     }
     function getDailyEmojis() {
@@ -2350,9 +2564,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return state.guesses.map(g => g.map(f => m[f]).join('')).join('\n');
     }
     function formatCountdown() {
-        const now = new Date(), tom = new Date(now); tom.setDate(tom.getDate()+1); tom.setHours(0,0,0,0);
+        const now = new Date(), tom = new Date(now); tom.setDate(tom.getDate() + 1); tom.setHours(0, 0, 0, 0);
         const diff = tom - now;
-        return [Math.floor(diff/3600000), Math.floor((diff%3600000)/60000), Math.floor((diff%60000)/1000)].map(n=>String(n).padStart(2,'0')).join(':');
+        return [Math.floor(diff / 3600000), Math.floor((diff % 3600000) / 60000), Math.floor((diff % 60000) / 1000)].map(n => String(n).padStart(2, '0')).join(':');
     }
     let dailyCountdownTimer = null;
     function showDailyResultOverlay(record, streak) {
@@ -2361,7 +2575,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('daily-result-emoji-icon').textContent = record.won ? '🎉' : '😔';
         document.getElementById('daily-result-title').textContent = record.won ? '🎉 Solved It!' : 'Better luck tomorrow!';
         document.getElementById('daily-result-word').textContent = `The word was: ${getDailyWord().toUpperCase()}`;
-        document.getElementById('daily-result-grid').innerHTML = record.guesses.map(g => `<div>${g.map(f=>emojiMap[f]).join('')}</div>`).join('');
+        document.getElementById('daily-result-grid').innerHTML = record.guesses.map(g => `<div>${g.map(f => emojiMap[f]).join('')}</div>`).join('');
         document.getElementById('daily-streak-count').textContent = streak.current;
         document.getElementById('daily-max-streak-count').textContent = streak.max;
         const countdown = document.getElementById('daily-countdown');
@@ -2396,7 +2610,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dailyBanner) dailyBanner.classList.add('hidden');
         insightsPanel.classList.add('hidden');
         if (keyboardContainer) keyboardContainer.classList.add('hidden');
-        
+
         // Hide explanation modal if open
         if (modeInfoModal) {
             modeInfoModal.classList.add('hidden');
@@ -2414,7 +2628,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
             ['enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'backspace']
         ];
-        
+
         if (!keyboardContainer) return;
         keyboardContainer.innerHTML = '';
         keyboardContainer.className = 'mt-2 sm:mt-4 select-none max-w-sm mx-auto space-y-1 px-1 sm:px-2';
@@ -2506,7 +2720,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < 5; i++) {
             const letter = word[i] || '';
             const tileContainer = document.createElement('div');
-            
+
             if (letter) {
                 tileContainer.className = 'tile-container';
                 const tile = document.createElement('div');
@@ -2750,8 +2964,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function getDailyGlobalStats() {
         try {
             const d = localStorage.getItem('wordle_daily_global_stats');
-            return d ? JSON.parse(d) : { played: 0, wins: 0, distribution: [0,0,0,0,0,0] };
-        } catch { return { played: 0, wins: 0, distribution: [0,0,0,0,0,0] }; }
+            return d ? JSON.parse(d) : { played: 0, wins: 0, distribution: [0, 0, 0, 0, 0, 0] };
+        } catch { return { played: 0, wins: 0, distribution: [0, 0, 0, 0, 0, 0] }; }
     }
 
     function updateDailyGlobalStats(won, guessCount) {
@@ -2762,7 +2976,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const idx = Math.max(0, Math.min(5, guessCount - 1));
             stats.distribution[idx]++;
         }
-        try { localStorage.setItem('wordle_daily_global_stats', JSON.stringify(stats)); } catch {}
+        try { localStorage.setItem('wordle_daily_global_stats', JSON.stringify(stats)); } catch { }
     }
 
     function renderStatsModal() {
