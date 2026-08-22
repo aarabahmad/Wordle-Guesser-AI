@@ -2107,7 +2107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (scores.length === 0) {
             leaderboardListContainer.innerHTML = `
-                <div class="text-center py-8 text-slate-400 italic">
+                <div class="text-center py-8 text-slate-500 dark:text-slate-400 font-medium italic">
                     No scores yet. Be the first to solve it!
                 </div>
             `;
@@ -2125,7 +2125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 score.guesses === state.guessCount &&
                 score.won === state.completionWon;
 
-            row.className = `leaderboard-row flex items-center px-3 py-2.5 rounded-xl border border-transparent text-sm ${isSelf ? 'highlight-self bg-purple-50 border-purple-200 dark:bg-purple-950/20 dark:border-purple-800' : 'bg-slate-50/50 dark:bg-slate-800/20'}`;
+            row.className = `leaderboard-row flex items-center px-3 py-2.5 rounded-xl border border-transparent text-sm ${isSelf ? 'highlight-self bg-purple-50 border-purple-200 dark:bg-purple-950/20 dark:border-purple-800' : 'bg-slate-100/60 dark:bg-slate-800/20'}`;
 
             const rankCol = document.createElement('div');
             rankCol.className = 'w-12 flex justify-center';
@@ -2135,7 +2135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rankCol.appendChild(badge);
 
             const nameCol = document.createElement('div');
-            nameCol.className = `flex-1 pl-2 truncate font-medium text-slate-700 dark:text-slate-200 ${isSelf ? 'font-bold text-purple-900 dark:text-purple-300' : ''}`;
+            nameCol.className = `flex-1 pl-2 truncate font-semibold text-slate-800 dark:text-slate-100 ${isSelf ? 'font-bold text-purple-900 dark:text-purple-300' : ''}`;
             nameCol.textContent = score.player_name;
             if (isSelf) {
                 const youTag = document.createElement('span');
@@ -2145,14 +2145,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const guessesCol = document.createElement('div');
-            guessesCol.className = 'w-16 text-center font-semibold text-slate-700 dark:text-slate-300';
+            guessesCol.className = 'w-16 text-center font-bold text-slate-800 dark:text-slate-100';
             guessesCol.textContent = score.won ? `${score.guesses}/6` : 'X/6';
             if (!score.won) {
                 guessesCol.className += ' text-red-500 dark:text-red-400';
             }
 
             const timeCol = document.createElement('div');
-            timeCol.className = 'w-16 text-center text-slate-500 dark:text-slate-400 font-mono text-xs';
+            timeCol.className = 'w-16 text-center text-slate-600 dark:text-slate-200 font-mono text-xs font-semibold';
 
             const timeSec = score.time_seconds;
             if (timeSec < 60) {
