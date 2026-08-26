@@ -173,6 +173,9 @@ create policy "Allow public insert access"
 on wordle_leaderboard for insert
 to public
 with check (true);
+
+-- Grant table privileges to the anonymous API role
+grant select, insert on public.wordle_leaderboard to anon;
 ```
 
 ### 3. Connect to the Wordle Application

@@ -85,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         method: 'POST',
                         headers: {
                             'apikey': this.supabaseKey,
-                            'Authorization': `Bearer ${this.supabaseKey}`,
                             'Content-Type': 'application/json',
                             'Prefer': 'return=representation'
                         },
@@ -112,8 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&order=won.desc,guesses.asc,time_seconds.asc`, {
                         method: 'GET',
                         headers: {
-                            'apikey': this.supabaseKey,
-                            'Authorization': `Bearer ${this.supabaseKey}`
+                            'apikey': this.supabaseKey
                         }
                     });
                     if (response.ok) {
