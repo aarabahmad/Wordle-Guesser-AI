@@ -11,6 +11,7 @@ A sophisticated, highly interactive Wordle companion and gameplay platform. Feat
 - [✨ Key Features](#-key-features)
 - [🎮 Game Modes](#-game-modes)
 - [🧠 The AI Solver Algorithm](#-the-ai-solver-algorithm)
+- [🏗️ System Architecture](#️-system-architecture)
 - [📊 Persistence & Stats Tracking](#-persistence--stats-tracking)
 - [🛠️ Technologies Used](#️-technologies-used)
 - [🚀 Local Setup & Installation](#-local-setup--installation)
@@ -74,6 +75,46 @@ where $P(C_i)$ is the probability of receiving clue pattern $C_i$ if the secret 
 The interface shows the **AI Thought Process** listing the top suggestions. The **Confidence Bar** represents the information reduction strength of a suggestion, scaling with the remaining candidate count:
 
 ![Confidence Bars](images/confidence_bars.png)
+
+---
+
+## 🏗️ System Architecture
+
+The application is structured as a client-side single-page application (SPA). Its architecture separates UI layouts, game state, calculation engines, client-side persistence, and remote APIs.
+
+Below is a system architecture diagram depicting how data and control flow through the application:
+
+```mermaid
+graph TD
+    User([User / Browser]) <--> |Inputs & UI Interactions| DOM[HTML5 DOM & Event Listeners]
+    DOM <--> |State Changes & Layout updates| StateCtrl[State Controller / script.js]
+
+    subgraph Logic & Engines
+        StateCtrl <--> |State & Clues| AIEngine[AI Guessing Engine]
+        AIEngine --> |Calculate Clue Entropies| Entropy[Entropy Solver]
+        AIEngine --> |Positional Letter Frequencies| FreqHeuristic[Heuristic Solver]
+        AIEngine --> |Filter Candidates| WordFilter[Word List Filter]
+    end
+
+    subgraph Data & APIs
+        StateCtrl <--> |Local Stats & Fallbacks| LocStorage[(Local Storage Manager)]
+        StateCtrl --> |Fetch Definitions| DictAPI[Free Dictionary API]
+        StateCtrl --> |Synthesized Audio| ToneJS[Tone.js Audio Controller]
+        StateCtrl <--> |Submit/Get Leaderboard Scores| Supabase[Supabase API / PostgREST]
+    end
+```
+
+### Architectural Subsystems:
+1. **User Interface (DOM):** Built using HTML5, CSS3 transitions, and Tailwind CSS. Responsive layout with system-wide dark mode support.
+2. **State Controller:** Tracks current game state (`isGameOver`, `isChallengeMode`, `guesses`, `startTime`, etc.), updates active row/tile layouts, handles virtual keyboard coloring, and coordinates the game loop.
+3. **AI Guessing Engine:**
+   * **Entropy Solver:** Computes the information entropy of possible guesses based on remaining candidates, choosing the word that guarantees the maximum partition of the remaining search space.
+   * **Heuristic Solver:** Fallback solver using positional frequency analysis when the remaining candidates are too large to calculate full entropies in real-time.
+   * **Word Filter:** Filters dictionaries in real-time against green, yellow, and grey letter constraints.
+4. **Data Sync & external APIs:**
+   * **Supabase REST API:** Facilitates multiplayer competitive leaderboards without complex backend servers.
+   * **Local Storage Fallback:** Saves game progression, historical stats, and acts as a local fallback for leaderboards.
+   * **Tone.js Sound Controller:** Directly synthesizes audio oscillators to play game-action feedback.
 
 ---
 
@@ -189,6 +230,10 @@ grant select, insert on public.wordle_leaderboard to anon;
        anonKey: 'your-anon-public-key'
    };
    ```
+
+Here is how the active online leaderboard looks on the game-over screen after a challenge is completed:
+
+![Shared Competitive Leaderboard Dashboard](images/leaderboard.png)
 
 ---
 
