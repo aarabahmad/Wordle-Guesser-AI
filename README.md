@@ -184,9 +184,10 @@ By default, Challenge Mode leaderboards store and fetch scores locally on the us
 ### 1. Create a Supabase Project
 1. Go to [Supabase](https://supabase.com/) and sign up for a free account.
 2. Click **New Project** and configure your project name, password, and region.
+3. Enable **Anonymous Sign-ins** under **Project Settings** -> **Authentication** -> **Providers** -> **Anonymous** in your Supabase dashboard. This is required to cryptographically identify guest sessions and protect leaderboard submissions.
 
 ### 2. Create the Database Table
-Run the following SQL query in the **SQL Editor** of your Supabase dashboard to create the `wordle_leaderboard` table:
+Run the following SQL query in the **SQL Editor** of your Supabase dashboard to create the `wordle_leaderboard` table with hardened RLS policies:
 
 ```sql
 create table wordle_leaderboard (
@@ -197,26 +198,83 @@ create table wordle_leaderboard (
   guesses integer not null,
   time_seconds integer not null,
   won boolean not null,
+  fingerprint text,
+  ip_address text,
+  game_state jsonb,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- Enable Row Level Security (RLS)
 alter table wordle_leaderboard enable row level security;
 
--- Create a policy allowing anyone to read scores
+-- Create indices for fast anti-cheat lookups
+create index idx_leaderboard_challenge_fingerprint on wordle_leaderboard (challenge_id, fingerprint);
+create index idx_leaderboard_challenge_ip on wordle_leaderboard (challenge_id, ip_address);
+
+-- 1. Create a policy allowing anyone to read scores (the leaderboard remains public)
 create policy "Allow public read access"
 on wordle_leaderboard for select
 to public
 using (true);
 
--- Create a policy allowing anyone to submit a score
-create policy "Allow public insert access"
+-- 2. Create a policy allowing authenticated users (including anonymous guest sessions) to insert records
+-- Restricts insert so they can only submit using their own auth.uid() as the fingerprint (or 'creator' for setting custom puzzles)
+create policy "Allow authenticated insert access"
 on wordle_leaderboard for insert
-to public
-with check (true);
+to authenticated
+with check (
+  fingerprint = auth.uid()::text OR (fingerprint = 'creator' AND guesses = 0)
+);
 
--- Grant table privileges to the anonymous API role
-grant select, insert on public.wordle_leaderboard to anon;
+-- 3. Create a policy allowing authenticated users to update only their own progress and scores
+create policy "Allow authenticated update access"
+on wordle_leaderboard for update
+to authenticated
+using (
+  fingerprint = auth.uid()::text
+)
+with check (
+  fingerprint = auth.uid()::text
+);
+
+-- Grant table privileges to both anon (for public reads) and authenticated roles (for player actions)
+grant select, insert, update on public.wordle_leaderboard to anon, authenticated;
+```
+
+### ⚠️ Migration for Existing Tables (Anti-Cheat & RLS Hardening Upgrade)
+If you already have the leaderboard database set up from a previous version, run the following SQL commands to clean up the insecure public write policies and replace them with secure authenticated ones:
+
+```sql
+-- 1. Add columns for tracking fingerprint, IP address, and game state (if not already added)
+alter table public.wordle_leaderboard 
+add column if not exists fingerprint text,
+add column if not exists ip_address text,
+add column if not exists game_state jsonb;
+
+-- 2. Drop insecure legacy public policies (if they exist)
+drop policy if exists "Allow public insert access" on public.wordle_leaderboard;
+drop policy if exists "Allow public update access" on public.wordle_leaderboard;
+
+-- 3. Create hardened policies restricting inserts/updates to authenticated sessions matching auth.uid()
+create policy "Allow authenticated insert access"
+on public.wordle_leaderboard for insert
+to authenticated
+with check (
+  fingerprint = auth.uid()::text OR (fingerprint = 'creator' AND guesses = 0)
+);
+
+create policy "Allow authenticated update access"
+on public.wordle_leaderboard for update
+to authenticated
+using (
+  fingerprint = auth.uid()::text
+)
+with check (
+  fingerprint = auth.uid()::text
+);
+
+-- 4. Grant select, insert, and update permissions to the authenticated role
+grant select, insert, update on public.wordle_leaderboard to authenticated, anon;
 ```
 
 ### 3. Connect to the Wordle Application

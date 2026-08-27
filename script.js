@@ -34,6 +34,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     loadExtendedDictionary();
+    let networkTimeOffset = 0;
+
+    async function syncNetworkTime() {
+        try {
+            const response = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=UTC');
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.dateTime) {
+                    const networkUtc = new Date(data.dateTime).getTime();
+                    const localTime = Date.now();
+                    networkTimeOffset = networkUtc - localTime;
+                }
+            }
+        } catch (e) {
+            console.error('Failed to sync network time, using local system clock:', e);
+        }
+    }
+    syncNetworkTime();
+
+    function getSecureDate() {
+        return new Date(Date.now() + networkTimeOffset);
+    }
+
+    function getDeviceFingerprint() {
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return 'no-canvas-' + navigator.userAgent.replace(/[^a-zA-Z0-9]/g, '');
+            ctx.textBaseline = "top";
+            ctx.font = "14px 'Arial'";
+            ctx.fillStyle = "#f60";
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = "#069";
+            ctx.fillText("WordleFingerprint!", 2, 15);
+            ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+            ctx.fillText("WordleFingerprint!", 4, 17);
+            const dataURL = canvas.toDataURL();
+            let hash = 0;
+            for (let i = 0; i < dataURL.length; i++) {
+                hash = ((hash << 5) - hash) + dataURL.charCodeAt(i);
+                hash |= 0;
+            }
+            return 'fp_' + [hash, screen.width + 'x' + screen.height, navigator.language, new Date().getTimezoneOffset()].join('_');
+        } catch (e) {
+            return 'fallback_' + Math.random().toString(36).substring(2, 9);
+        }
+    }
+
+    async function getPublicIpAddress() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            if (response.ok) {
+                const data = await response.json();
+                return data.ip || '';
+            }
+        } catch (e) {
+            console.error('Failed to retrieve IP address:', e);
+        }
+        return '';
+    }
 
     // Supabase Configuration for Shared Competitive Leaderboards
     // Replace with your own Supabase project details to enable online multiplayer leaderboards!
@@ -46,16 +106,196 @@ document.addEventListener('DOMContentLoaded', () => {
     const ChallengeDb = {
         supabaseUrl: supabaseConfig.url || '',
         supabaseKey: supabaseConfig.anonKey || '',
+        accessToken: '',
+        userId: '',
 
         isConfigured() {
             return this.supabaseUrl && !this.supabaseUrl.includes('YOUR_') && this.supabaseUrl !== '' &&
                 this.supabaseKey && !this.supabaseKey.includes('YOUR_') && this.supabaseKey !== '';
         },
 
+        async ensureSession() {
+            if (this.accessToken && this.userId) {
+                return { access_token: this.accessToken, user_id: this.userId };
+            }
+            try {
+                const saved = localStorage.getItem('supabase_anon_session');
+                if (saved) {
+                    const session = JSON.parse(saved);
+                    if (session.expires_at && session.expires_at > Date.now()) {
+                        this.accessToken = session.access_token;
+                        this.userId = session.user_id;
+                        return session;
+                    }
+                }
+            } catch (e) {
+                console.error('Error reading saved session:', e);
+            }
+
+            if (!this.isConfigured()) return null;
+
+            try {
+                const response = await fetch(`${this.supabaseUrl}/auth/v1/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': this.supabaseKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const session = {
+                        access_token: data.access_token,
+                        user_id: data.user.id,
+                        expires_at: Date.now() + (data.expires_in * 1000) - 60000
+                    };
+                    localStorage.setItem('supabase_anon_session', JSON.stringify(session));
+                    this.accessToken = session.access_token;
+                    this.userId = session.user_id;
+                    return session;
+                } else {
+                    console.error('Supabase anonymous sign-in failed:', await response.text());
+                }
+            } catch (e) {
+                console.error('Failed to establish authenticated session:', e);
+            }
+            return null;
+        },
+
+        getHeaders(session) {
+            const headers = {
+                'apikey': this.supabaseKey,
+                'Content-Type': 'application/json'
+            };
+            if (session && session.access_token) {
+                headers['Authorization'] = `Bearer ${session.access_token}`;
+            }
+            return headers;
+        },
+
+        async createChallengeMetadata(challengeId, word) {
+            if (this.isConfigured() && challengeId) {
+                const session = await this.ensureSession();
+                const metadata = {
+                    challenge_id: challengeId.toLowerCase(),
+                    challenge_word: word.toLowerCase(),
+                    player_name: 'CREATOR',
+                    guesses: 0,
+                    time_seconds: 0,
+                    won: false,
+                    fingerprint: 'creator',
+                    ip_address: null,
+                    game_state: { guesses: [], guessWords: [] },
+                    created_at: new Date().toISOString()
+                };
+                try {
+                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard`, {
+                        method: 'POST',
+                        headers: this.getHeaders(session),
+                        body: JSON.stringify(metadata)
+                    });
+                    return response.ok;
+                } catch (e) {
+                    console.error('Failed to create challenge metadata in Supabase:', e);
+                }
+            }
+            return false;
+        },
+
+        async fetchChallengeWord(challengeId) {
+            if (this.isConfigured() && challengeId) {
+                try {
+                    const session = await this.ensureSession();
+                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&fingerprint=eq.creator&select=challenge_word`, {
+                        method: 'GET',
+                        headers: this.getHeaders(session)
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data && data.length > 0 ? data[0] : null;
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch challenge word from Supabase:', e);
+                }
+            }
+            return null;
+        },
+
+        async getExistingRecord(challengeId, fingerprint, ipAddress) {
+            if (this.isConfigured() && challengeId) {
+                try {
+                    const session = await this.ensureSession();
+                    const orFilter = encodeURIComponent(`fingerprint.eq.${fingerprint},ip_address.eq.${ipAddress}`);
+                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&or=(${orFilter})`, {
+                        method: 'GET',
+                        headers: this.getHeaders(session)
+                    });
+                    if (response.ok) {
+                        return await response.json();
+                    } else {
+                        console.error('Supabase getExistingRecord response error:', await response.text());
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch existing record from Supabase:', e);
+                }
+            }
+            return null;
+        },
+
+        async initializeSession(challengeId, word, fingerprint, ipAddress) {
+            if (this.isConfigured() && challengeId) {
+                const session = await this.ensureSession();
+                const gameSession = {
+                    challenge_id: challengeId.toLowerCase(),
+                    challenge_word: word.toLowerCase(),
+                    player_name: '',
+                    guesses: 0,
+                    time_seconds: 0,
+                    won: false,
+                    fingerprint: fingerprint,
+                    ip_address: ipAddress,
+                    game_state: { guesses: [], guessWords: [] },
+                    created_at: new Date().toISOString()
+                };
+                try {
+                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard`, {
+                        method: 'POST',
+                        headers: this.getHeaders(session),
+                        body: JSON.stringify(gameSession)
+                    });
+                    return response.ok;
+                } catch (e) {
+                    console.error('Failed to initialize session in Supabase:', e);
+                    return false;
+                }
+            }
+            return true;
+        },
+
+        async updateProgress(challengeId, fingerprint, guesses, guessWords) {
+            if (this.isConfigured() && challengeId && fingerprint) {
+                try {
+                    const session = await this.ensureSession();
+                    const progress = {
+                        game_state: { guesses, guessWords }
+                    };
+                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&fingerprint=eq.${encodeURIComponent(fingerprint)}`, {
+                        method: 'PATCH',
+                        headers: this.getHeaders(session),
+                        body: JSON.stringify(progress)
+                    });
+                    if (!response.ok) {
+                        console.error('Supabase updateProgress error:', await response.text());
+                    }
+                } catch (e) {
+                    console.error('Failed to update progress in Supabase:', e);
+                }
+            }
+        },
+
         async submitScore(challengeId, word, playerName, guesses, timeSeconds, won) {
             const score = {
-                challenge_id: challengeId.toLowerCase(),
-                challenge_word: word.toLowerCase(),
                 player_name: playerName.trim(),
                 guesses: parseInt(guesses, 10),
                 time_seconds: parseInt(timeSeconds, 10),
@@ -69,9 +309,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!localData[challengeId]) {
                     localData[challengeId] = [];
                 }
+                const scoreWithWord = { ...score, challenge_id: challengeId.toLowerCase(), challenge_word: word.toLowerCase() };
                 const exists = localData[challengeId].some(s => s.player_name.toLowerCase() === score.player_name.toLowerCase() && s.guesses === score.guesses && s.time_seconds === score.time_seconds);
                 if (!exists) {
-                    localData[challengeId].push(score);
+                    localData[challengeId].push(scoreWithWord);
                     localStorage.setItem('wordle_challenge_leaderboards', JSON.stringify(localData));
                 }
             } catch (e) {
@@ -81,21 +322,48 @@ document.addEventListener('DOMContentLoaded', () => {
             // 2. Submit to Supabase if configured
             if (this.isConfigured()) {
                 try {
-                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard`, {
-                        method: 'POST',
-                        headers: {
-                            'apikey': this.supabaseKey,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=representation'
-                        },
-                        body: JSON.stringify(score)
-                    });
-                    if (response.ok) {
-                        return true;
-                    } else {
-                        console.error('Supabase response error:', await response.text());
-                        return false;
+                    const session = await this.ensureSession();
+                    let submitted = false;
+                    const fingerprint = state.fingerprint || (session ? session.user_id : null);
+                    
+                    if (fingerprint) {
+                        // Try updating the existing session record
+                        const patchResponse = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&fingerprint=eq.${encodeURIComponent(fingerprint)}`, {
+                            method: 'PATCH',
+                            headers: this.getHeaders(session),
+                            body: JSON.stringify(score)
+                        });
+                        if (patchResponse.ok) {
+                            const updatedRows = await patchResponse.json();
+                            if (updatedRows && updatedRows.length > 0) {
+                                submitted = true;
+                            }
+                        }
                     }
+                    
+                    if (!submitted) {
+                        // Fallback to inserting a new record
+                        const insertScore = {
+                            ...score,
+                            challenge_id: challengeId.toLowerCase(),
+                            challenge_word: word.toLowerCase(),
+                            fingerprint: fingerprint || null,
+                            ip_address: state.ipAddress || null,
+                            game_state: { guesses: state.guesses || [], guessWords: state.guessWords || [] }
+                        };
+                        const postResponse = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard`, {
+                            method: 'POST',
+                            headers: this.getHeaders(session),
+                            body: JSON.stringify(insertScore)
+                        });
+                        if (postResponse.ok) {
+                            submitted = true;
+                        } else {
+                            console.error('Supabase insert response error:', await postResponse.text());
+                        }
+                    }
+                    
+                    return submitted;
                 } catch (e) {
                     console.error('Failed to submit score to Supabase:', e);
                     return false;
@@ -108,11 +376,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // 1. Try to fetch from Supabase if configured
             if (this.isConfigured()) {
                 try {
-                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&order=won.desc,guesses.asc,time_seconds.asc`, {
+                    const session = await this.ensureSession();
+                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&guesses=gt.0&order=won.desc,guesses.asc,time_seconds.asc`, {
                         method: 'GET',
-                        headers: {
-                            'apikey': this.supabaseKey
-                        }
+                        headers: this.getHeaders(session)
                     });
                     if (response.ok) {
                         return await response.json();
@@ -128,7 +395,6 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const localData = JSON.parse(localStorage.getItem('wordle_challenge_leaderboards') || '{}');
                 const scores = localData[challengeId] || [];
-                // Sort scores: wins first, then fewer guesses, then faster time
                 return scores.sort((a, b) => {
                     if (a.won !== b.won) return a.won ? -1 : 1;
                     if (a.guesses !== b.guesses) return a.guesses - b.guesses;
@@ -364,10 +630,168 @@ document.addEventListener('DOMContentLoaded', () => {
                         startTime: state.startTime
                     };
                     localStorage.setItem(`wordle_challenge_progress_${challengeId}`, JSON.stringify(progress));
+                    
+                    // Sync progress to Supabase
+                    if (state.fingerprint) {
+                        ChallengeDb.updateProgress(challengeId, state.fingerprint, state.guesses, state.guessWords);
+                    }
                 }
             }
         } catch (e) {
             console.error('Failed to save game progress', e);
+        }
+    }
+
+    async function verifyChallengeSession() {
+        if (!state.isChallengeMode) return;
+
+        const challengeId = getChallengeId();
+        if (!challengeId) return;
+
+        // Fetch session first to populate anonymous user ID
+        const session = await ChallengeDb.ensureSession();
+        state.fingerprint = session ? session.user_id : getDeviceFingerprint();
+        state.ipAddress = await getPublicIpAddress();
+
+        // 1. Show loading state on landing card
+        const landingTitle = document.getElementById('challenge-landing-title');
+        const landingText = document.getElementById('challenge-landing-text');
+        const landingIcon = document.getElementById('challenge-landing-icon');
+        const acceptBtn = document.getElementById('accept-challenge-btn');
+
+        if (landingTitle) landingTitle.textContent = 'Verifying Challenge...';
+        if (landingText) landingText.textContent = 'Checking for previous attempts on your device and network...';
+        if (landingIcon) landingIcon.textContent = '⏳';
+        if (acceptBtn) {
+            acceptBtn.disabled = true;
+            acceptBtn.innerHTML = `
+                <div class="flex items-center justify-center gap-2">
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Verifying...</span>
+                </div>
+            `;
+        }
+
+        let dbRecord = null;
+        let isCompleted = false;
+        let inProgressRecord = null;
+
+        // 2. Fetch from Supabase if configured
+        if (ChallengeDb.isConfigured()) {
+            try {
+                const records = await ChallengeDb.getExistingRecord(challengeId, state.fingerprint, state.ipAddress);
+                if (records && records.length > 0) {
+                    dbRecord = records;
+                    const completedRecords = records.filter(r => r.guesses > 0);
+                    const matchingFingerprint = records.find(r => r.fingerprint === state.fingerprint);
+                    
+                    if (completedRecords.length > 0) {
+                        isCompleted = true;
+                        const compRecord = completedRecords[0];
+                        saveChallengeCompletion(challengeId, compRecord.won, compRecord.guesses);
+                    } else if (matchingFingerprint && matchingFingerprint.guesses === 0) {
+                        inProgressRecord = matchingFingerprint;
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to verify challenge session with database:', e);
+            }
+        }
+
+        // 3. Check local storage fallback
+        const localCompletion = getChallengeCompletion(challengeId);
+        if (localCompletion) {
+            isCompleted = true;
+        }
+
+        let isExpired = false;
+        if (state.challengeTimestamp) {
+            const elapsed = Date.now() - state.challengeTimestamp;
+            isExpired = elapsed > 24 * 60 * 60 * 1000;
+        }
+
+        // 4. Reset acceptBtn style
+        if (acceptBtn) {
+            acceptBtn.disabled = false;
+            acceptBtn.innerHTML = 'Accept Challenge';
+        }
+
+        // 5. Update landing UI based on status
+        if (isCompleted) {
+            const comp = localCompletion || (dbRecord && dbRecord.filter(r => r.guesses > 0)[0]);
+            if (landingTitle) landingTitle.textContent = 'Challenge Completed!';
+            if (landingText) landingText.textContent = `You have already attempted this challenge. Score: ${comp.won ? (comp.guessCount || comp.guesses) : 'X'}/6.`;
+            if (landingIcon) landingIcon.textContent = '🏆';
+            if (acceptBtn) acceptBtn.classList.add('hidden');
+            if (landingLeaderboardBtn) landingLeaderboardBtn.classList.remove('hidden');
+            if (challengeLandingOverlay) {
+                challengeLandingOverlay.classList.remove('hidden');
+            }
+        } else if (isExpired) {
+            if (landingTitle) landingTitle.textContent = 'Challenge Closed!';
+            if (landingText) landingText.textContent = 'This challenge was created more than 24 hours ago and has expired. You can no longer submit guesses, but you can view the final leaderboard below.';
+            if (landingIcon) landingIcon.textContent = '🔒';
+            if (acceptBtn) acceptBtn.classList.add('hidden');
+            if (landingLeaderboardBtn) landingLeaderboardBtn.classList.remove('hidden');
+            if (challengeLandingOverlay) {
+                challengeLandingOverlay.classList.remove('hidden');
+            }
+        } else if (inProgressRecord) {
+            // Restore from Supabase progress!
+            if (challengeLandingOverlay) challengeLandingOverlay.classList.add('hidden');
+            
+            // Restore state fields
+            const savedState = inProgressRecord.game_state || {};
+            state.guesses = savedState.guesses || [];
+            state.guessWords = savedState.guessWords || [];
+            state.guessCount = state.guesses.length;
+            state.startTime = inProgressRecord.created_at ? new Date(inProgressRecord.created_at).getTime() : Date.now();
+            
+            // Re-render
+            gameBoard.innerHTML = '';
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement('div');
+                row.className = 'flex justify-center gap-1.5';
+                row.id = `row-${i}`;
+                for (let j = 0; j < 5; j++) {
+                    const tileContainer = document.createElement('div');
+                    tileContainer.className = 'tile-container border-2 border-gray-200 rounded-md';
+                    row.appendChild(tileContainer);
+                }
+                gameBoard.appendChild(row);
+            }
+            
+            for (let i = 0; i < state.guessCount; i++) {
+                const word = state.guessWords[i];
+                const feedback = state.guesses[i];
+                renderRowImmediate(i, word, feedback);
+                processFeedback(word, feedback);
+            }
+            updateActiveRowTiles();
+            updateKeyboardColors();
+            feedbackInput.disabled = false;
+            submitButton.disabled = false;
+            feedbackInput.focus();
+        } else {
+            // Fresh game setup or local progress setup
+            const localProgress = localStorage.getItem(`wordle_challenge_progress_${challengeId}`);
+            if (localProgress) {
+                // If local progress exists, just restore it and skip landing
+                if (challengeLandingOverlay) challengeLandingOverlay.classList.add('hidden');
+                restoreProgress();
+            } else {
+                // Normal accept challenge flow
+                if (landingTitle) landingTitle.textContent = 'You Are Challenged!';
+                if (landingText) landingText.textContent = 'A friend has created a secret 5-letter word for you to guess. Can you solve it in 6 tries?';
+                if (landingIcon) landingIcon.textContent = '⚔️';
+                if (acceptBtn) {
+                    acceptBtn.disabled = false;
+                    acceptBtn.classList.remove('hidden');
+                }
+                if (challengeLandingOverlay) {
+                    challengeLandingOverlay.classList.remove('hidden');
+                }
+            }
         }
     }
 
@@ -721,8 +1145,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let restored = false;
-        if (state.isDailyMode || state.isChallengeMode) {
+        if (state.isDailyMode) {
             restored = restoreProgress();
+        } else if (state.isChallengeMode) {
+            verifyChallengeSession();
+            restored = true;
         }
 
         if (!restored && !state.isChallengeMode && !state.isPassAndPlayMode && !state.isDailyMode) {
@@ -1872,14 +2299,42 @@ document.addEventListener('DOMContentLoaded', () => {
         openModeSelection();
     });
 
-    acceptChallengeBtn?.addEventListener('click', () => {
+    acceptChallengeBtn?.addEventListener('click', async () => {
+        if (acceptChallengeBtn.disabled) return;
+
+        const originalText = acceptChallengeBtn.innerHTML;
+        acceptChallengeBtn.disabled = true;
+        acceptChallengeBtn.innerHTML = `
+            <div class="flex items-center justify-center gap-2">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white text-white"></div>
+                <span>Starting...</span>
+            </div>
+        `;
+
+        const challengeId = getChallengeId();
+
+        // 1. Initialize session in Supabase (if configured)
+        if (ChallengeDb.isConfigured() && challengeId) {
+            const session = await ChallengeDb.ensureSession();
+            const fingerprint = state.fingerprint || (session ? session.user_id : getDeviceFingerprint());
+            const ipAddress = state.ipAddress || await getPublicIpAddress();
+            state.fingerprint = fingerprint;
+            state.ipAddress = ipAddress;
+
+            await ChallengeDb.initializeSession(challengeId, state.challengeWord, fingerprint, ipAddress);
+        }
+
+        // 2. Reset acceptBtn style and transition to game
+        acceptChallengeBtn.disabled = false;
+        acceptChallengeBtn.innerHTML = originalText;
+
         if (challengeLandingOverlay) {
             challengeLandingOverlay.classList.add('hidden');
         }
         feedbackInput.disabled = false;
         submitButton.disabled = false;
         feedbackInput.focus();
-        state.startTime = Date.now();
+        state.startTime = getSecureDate().getTime();
         saveGameProgress();
     });
 
@@ -1980,7 +2435,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    generateChallengeButton?.addEventListener('click', () => {
+    generateChallengeButton?.addEventListener('click', async () => {
         const word = challengeWordInput.value.trim().toLowerCase();
         if (word.length !== 5) {
             challengeStatus.textContent = 'Word must be exactly 5 letters long!';
@@ -2009,14 +2464,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         challengeStatus.textContent = '';
-        const timestamp = Date.now();
-        const challengeCode = btoa(word + '|' + timestamp);
-        const challengeUrl = `${window.location.origin}${window.location.pathname}?challenge=${challengeCode}`;
-        challengeLinkInput.value = challengeUrl;
-        challengeLinkContainer.classList.remove('hidden');
+        generateChallengeButton.disabled = true;
+        const originalBtnText = generateChallengeButton.innerHTML;
+        generateChallengeButton.innerHTML = 'Generating...';
 
-        CreatorHistory.saveChallenge(word, timestamp);
-        loadCreatorChallenges();
+        try {
+            let challengeCode = '';
+            const timestamp = Date.now();
+
+            if (ChallengeDb.isConfigured()) {
+                const uuid = crypto.randomUUID();
+                const success = await ChallengeDb.createChallengeMetadata(uuid, word);
+                if (success) {
+                    challengeCode = `db_${uuid}`;
+                } else {
+                    console.warn('DB creation failed, falling back to URL encoding');
+                    challengeCode = btoa(word + '|' + timestamp);
+                }
+            } else {
+                challengeCode = btoa(word + '|' + timestamp);
+            }
+
+            const challengeUrl = `${window.location.origin}${window.location.pathname}?challenge=${challengeCode}`;
+            challengeLinkInput.value = challengeUrl;
+            challengeLinkContainer.classList.remove('hidden');
+
+            CreatorHistory.saveChallenge(word, timestamp);
+            loadCreatorChallenges();
+        } catch (e) {
+            console.error('Failed to generate challenge:', e);
+            challengeStatus.textContent = 'Error creating challenge link.';
+        } finally {
+            generateChallengeButton.disabled = false;
+            generateChallengeButton.innerHTML = originalBtnText;
+        }
     });
 
     copyChallengeLinkButton?.addEventListener('click', () => {
@@ -2047,6 +2528,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getChallengeId() {
         if (!state.isChallengeMode) return '';
+        if (state.challengeIdOverride) return state.challengeIdOverride;
         if (state.challengeWord && state.challengeTimestamp) {
             return `${state.challengeWord}|${state.challengeTimestamp}`;
         }
@@ -2056,8 +2538,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleChallengeGameOver(won) {
         if (!state.isChallengeMode) return;
 
+        const challengeId = getChallengeId();
+        if (challengeId) {
+            localStorage.removeItem(`wordle_challenge_progress_${challengeId}`);
+        }
+
         // 1. Calculate time
-        const endTime = Date.now();
+        const endTime = getSecureDate().getTime();
         const elapsedMs = state.startTime ? (endTime - state.startTime) : 0;
         const timeSeconds = Math.max(1, Math.floor(elapsedMs / 1000));
 
@@ -2523,12 +3010,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Daily Challenge Utilities ──────────────────────────────────────────
     function getDailyDateKey() {
-        const d = new Date();
+        const d = getSecureDate();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
     function getDailyWord() {
         const epoch = new Date('2024-01-01'); epoch.setHours(0, 0, 0, 0);
-        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const today = getSecureDate(); today.setHours(0, 0, 0, 0);
         const idx = Math.floor((today - epoch) / 86400000);
         return wordList[idx % wordList.length];
     }
@@ -2541,7 +3028,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateDailyStreak(won) {
         const streak = getDailyStreakData();
         const today = getDailyDateKey();
-        const d = new Date(); d.setDate(d.getDate() - 1);
+        const d = getSecureDate(); d.setDate(d.getDate() - 1);
         const yesterday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         if (won) {
             streak.current = (streak.lastDate === yesterday || streak.lastDate === today) ? streak.current + (streak.lastDate === today ? 0 : 1) : 1;
@@ -2813,32 +3300,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function parseURLParams() {
+    async function parseURLParams() {
         const urlParams = new URLSearchParams(window.location.search);
         const challengeCode = urlParams.get('challenge');
         if (challengeCode) {
             try {
-                const decoded = atob(challengeCode).toLowerCase();
-                const parts = decoded.split('|');
-                const word = parts[0];
-                const timestampStr = parts[1];
-
-                if (word && word.length === 5 && /^[a-z]{5}$/.test(word)) {
-                    state.challengeWord = word;
-                    state.isChallengeMode = true;
-
-                    if (timestampStr) {
-                        const timestamp = parseInt(timestampStr, 10);
-                        if (!isNaN(timestamp)) {
-                            state.challengeTimestamp = timestamp;
+                if (challengeCode.startsWith('db_')) {
+                    const challengeId = challengeCode.substring(3);
+                    if (ChallengeDb.isConfigured()) {
+                        const wordData = await ChallengeDb.fetchChallengeWord(challengeId);
+                        if (wordData && wordData.challenge_word) {
+                            state.challengeWord = wordData.challenge_word;
+                            state.isChallengeMode = true;
+                            state.challengeIdOverride = challengeId; // Store actual UUID for game session
+                            
+                            if (!wordList.includes(state.challengeWord)) {
+                                wordList.push(state.challengeWord);
+                            }
+                            if (extendedWordList && !extendedWordList.includes(state.challengeWord)) {
+                                extendedWordList.push(state.challengeWord);
+                            }
+                        } else {
+                            showToast('Could not load challenge word from database.');
                         }
                     }
+                } else {
+                    const decoded = atob(challengeCode).toLowerCase();
+                    const parts = decoded.split('|');
+                    const word = parts[0];
+                    const timestampStr = parts[1];
 
-                    if (!wordList.includes(word)) {
-                        wordList.push(word);
-                    }
-                    if (extendedWordList && !extendedWordList.includes(word)) {
-                        extendedWordList.push(word);
+                    if (word && word.length === 5 && /^[a-z]{5}$/.test(word)) {
+                        state.challengeWord = word;
+                        state.isChallengeMode = true;
+
+                        if (timestampStr) {
+                            const timestamp = parseInt(timestampStr, 10);
+                            if (!isNaN(timestamp)) {
+                                state.challengeTimestamp = timestamp;
+                            }
+                        }
+
+                        if (!wordList.includes(word)) {
+                            wordList.push(word);
+                        }
+                        if (extendedWordList && !extendedWordList.includes(word)) {
+                            extendedWordList.push(word);
+                        }
                     }
                 }
             } catch (e) {
@@ -3016,12 +3524,15 @@ document.addEventListener('DOMContentLoaded', () => {
     closeStatsModal?.addEventListener('click', () => statsModal?.classList.add('hidden'));
     statsModal?.addEventListener('click', (e) => { if (e.target === statsModal) statsModal.classList.add('hidden'); });
 
-    initKeyboard();
-    parseURLParams();
-    updateDailyBadge();
-    if (state.isChallengeMode) {
-        startGame();
-    } else {
-        openModeSelection();
+    async function init() {
+        initKeyboard();
+        await parseURLParams();
+        updateDailyBadge();
+        if (state.isChallengeMode) {
+            startGame();
+        } else {
+            openModeSelection();
+        }
     }
+    init();
 });
