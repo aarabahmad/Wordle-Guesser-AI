@@ -687,7 +687,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function handleSpectatorEvent(event, payload) {
+    function broadcastRoomEvent(event, payload) {
+        if (!state.isRoomMode || state.isHost || !state.roomCode) return;
+        if (!state.roomChannel && supabaseClient) {
+            state.roomChannel = supabaseClient.channel(`room_${state.roomCode}`);
+            state.roomChannel.subscribe();
+        }
+        if (state.roomChannel) {
+            try {
+                state.roomChannel.send({
+                    type: 'broadcast',
+                    event: event,
+                    payload: payload
+                });
+            } catch (e) {
+                console.error('Failed to send broadcast event:', e);
+            }
+        }
+    }
+
+    function handleSpectatorEvent(event, data) {
+        if (!data) return;
+        const payload = (data && data.payload) ? data.payload : data;
         if (!payload) return;
 
         if (event === 'join') {
@@ -756,36 +777,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    async function createLiveRoom(hostName, word) {
+    async function createLiveRoom(hostName, secretWord) {
         initLiveRoomState();
         hostName = hostName.trim() || 'Host';
-        word = word.toLowerCase().trim();
+        secretWord = secretWord.trim().toLowerCase();
 
         localStorage.setItem('wordle_host_name', hostName);
         const code = generateRoomCode();
         const challengeId = `room_${code}`;
 
-        // Save challenge row to DB
-        if (ChallengeDb.isConfigured()) {
-            await ChallengeDb.createChallengeMetadata(challengeId, word);
-        }
-
-        state.isRoomMode = true;
         state.isHost = true;
+        state.isRoomMode = true;
         state.roomCode = code;
         state.hostName = hostName;
-        state.challengeWord = word;
 
-        // UI Setup for Spectator Dashboard
+        if (ChallengeDb.isConfigured()) {
+            await ChallengeDb.createChallengeMetadata(challengeId, secretWord);
+        }
+
         if (spectatorRoomCodeDisplay) spectatorRoomCodeDisplay.textContent = code;
-        if (spectatorWordDisplay) spectatorWordDisplay.textContent = word.toUpperCase();
         if (spectatorHostNameDisplay) spectatorHostNameDisplay.textContent = hostName;
+        if (spectatorSecretWordDisplay) spectatorSecretWordDisplay.textContent = secretWord.toUpperCase();
         if (spectatorPlayerNameDisplay) spectatorPlayerNameDisplay.textContent = 'Waiting for player...';
         if (spectatorStatusText) spectatorStatusText.textContent = 'Waiting for player to join with room code...';
         if (spectatorStatusBanner) {
             spectatorStatusBanner.className = 'flex items-center justify-center gap-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 p-2.5 rounded-xl text-xs font-bold text-amber-800 dark:text-amber-300';
         }
-        if (spectatorTimerDisplay) spectatorTimerDisplay.textContent = '00:00';
 
         renderSpectatorBoard();
 
@@ -798,10 +815,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (supabaseClient) {
             state.roomChannel = supabaseClient.channel(`room_${code}`);
             state.roomChannel
-                .on('broadcast', { event: 'join' }, payload => handleSpectatorEvent('join', payload.payload))
-                .on('broadcast', { event: 'typing' }, payload => handleSpectatorEvent('typing', payload.payload))
-                .on('broadcast', { event: 'guess' }, payload => handleSpectatorEvent('guess', payload.payload))
-                .on('broadcast', { event: 'complete' }, payload => handleSpectatorEvent('complete', payload.payload))
+                .on('broadcast', { event: 'join' }, payload => handleSpectatorEvent('join', payload))
+                .on('broadcast', { event: 'typing' }, payload => handleSpectatorEvent('typing', payload))
+                .on('broadcast', { event: 'guess' }, payload => handleSpectatorEvent('guess', payload))
+                .on('broadcast', { event: 'complete' }, payload => handleSpectatorEvent('complete', payload))
                 .subscribe();
         }
 
@@ -818,24 +835,36 @@ document.addEventListener('DOMContentLoaded', () => {
                         const records = await res.json();
                         if (records && records.length > 0) {
                             const rec = records[0];
-                            if (rec.player_name && spectatorPlayerNameDisplay.textContent === 'Waiting for player...') {
+                            let gameState = rec.game_state;
+                            if (typeof gameState === 'string') {
+                                try { gameState = JSON.parse(gameState); } catch (e) {}
+                            }
+
+                            const recGuesses = (gameState && Array.isArray(gameState.guesses)) ? gameState.guesses : [];
+                            const recWords = (gameState && Array.isArray(gameState.guessWords)) ? gameState.guessWords : [];
+
+                            if (rec.player_name && (spectatorPlayerNameDisplay.textContent === 'Waiting for player...' || spectatorPlayerNameDisplay.textContent === '')) {
                                 handleSpectatorEvent('join', { guestName: rec.player_name });
                             }
-                            if (rec.game_state && rec.game_state.guesses && rec.game_state.guesses.length > state.spectatorBoardState.guesses.length) {
+
+                            if (recGuesses.length > state.spectatorBoardState.guesses.length) {
                                 handleSpectatorEvent('guess', {
-                                    guesses: rec.game_state.guesses,
-                                    guessWords: rec.game_state.guessWords,
-                                    guessCount: rec.game_state.guesses.length
+                                    guesses: recGuesses,
+                                    guessWords: recWords,
+                                    guessCount: recGuesses.length
                                 });
                             }
-                            if (rec.guesses > 0 && state.spectatorBoardState.won === null) {
-                                handleSpectatorEvent('complete', {
-                                    won: rec.won,
-                                    guessCount: rec.guesses,
-                                    guesses: rec.game_state ? rec.game_state.guesses : [],
-                                    guessWords: rec.game_state ? rec.game_state.guessWords : [],
-                                    guestName: rec.player_name
-                                });
+
+                            if (rec.guesses > 0 && rec.won !== null && rec.won !== undefined && state.spectatorBoardState.won === null) {
+                                if (recGuesses.length === 6 || rec.won === true) {
+                                    handleSpectatorEvent('complete', {
+                                        won: rec.won,
+                                        guessCount: rec.guesses,
+                                        guesses: recGuesses,
+                                        guessWords: recWords,
+                                        guestName: rec.player_name
+                                    });
+                                }
                             }
                         }
                     }
@@ -1561,21 +1590,11 @@ document.addEventListener('DOMContentLoaded', () => {
         state.guessCount++;
 
         // Broadcast guess submission to room spectator
-        if (state.isRoomMode && !state.isHost && state.roomChannel) {
-            try {
-                state.roomChannel.send({
-                    type: 'broadcast',
-                    event: 'guess',
-                    payload: {
-                        guesses: state.guesses,
-                        guessWords: state.guessWords,
-                        guessCount: state.guessCount
-                    }
-                });
-            } catch (e) {
-                console.error('Failed to broadcast guess event:', e);
-            }
-        }
+        broadcastRoomEvent('guess', {
+            guesses: state.guesses,
+            guessWords: state.guessWords,
+            guessCount: state.guessCount
+        });
 
         if (feedback.every(f => f === 'correct')) {
             winGame(currentTiles);
@@ -2105,23 +2124,13 @@ document.addEventListener('DOMContentLoaded', () => {
             difficulty: state.difficulty
         });
         const emojiEl = document.getElementById('game-over-emoji');
-        if (state.isRoomMode && !state.isHost && state.roomChannel) {
-            try {
-                state.roomChannel.send({
-                    type: 'broadcast',
-                    event: 'complete',
-                    payload: {
-                        won: true,
-                        guessCount: state.guessCount,
-                        guesses: state.guesses,
-                        guessWords: state.guessWords,
-                        guestName: state.guestName
-                    }
-                });
-            } catch (e) {
-                console.error('Failed to broadcast room complete event:', e);
-            }
-        }
+        broadcastRoomEvent('complete', {
+            won: true,
+            guessCount: state.guessCount,
+            guesses: state.guesses,
+            guessWords: state.guessWords,
+            guestName: state.guestName
+        });
         if (state.isDailyMode) {
             gameOverTitle.textContent = 'Daily Complete!';
             gameOverText.textContent = `You solved today's word in ${state.guessCount} tries!`;
@@ -2186,23 +2195,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (wordReveal) wordReveal.classList.add('hidden');
         if (emojiEl) { emojiEl.textContent = '😔'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
 
-        if (state.isRoomMode && !state.isHost && state.roomChannel) {
-            try {
-                state.roomChannel.send({
-                    type: 'broadcast',
-                    event: 'complete',
-                    payload: {
-                        won: false,
-                        guessCount: state.guessCount,
-                        guesses: state.guesses,
-                        guessWords: state.guessWords,
-                        guestName: state.guestName
-                    }
-                });
-            } catch (e) {
-                console.error('Failed to broadcast room complete event:', e);
-            }
-        }
+        broadcastRoomEvent('complete', {
+            won: false,
+            guessCount: state.guessCount,
+            guesses: state.guesses,
+            guessWords: state.guessWords,
+            guestName: state.guestName
+        });
 
         if (state.isDailyMode) {
             gameOverTitle.textContent = 'Daily Failed!';
@@ -3691,20 +3690,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Broadcast live typing state if in multiplayer room mode
-        if (state.isRoomMode && !state.isHost && state.roomChannel) {
-            try {
-                state.roomChannel.send({
-                    type: 'broadcast',
-                    event: 'typing',
-                    payload: {
-                        currentTyped: state.currentTypedGuess || '',
-                        guessCount: state.guessCount
-                    }
-                });
-            } catch (e) {
-                console.error('Failed to broadcast typing:', e);
-            }
-        }
+        broadcastRoomEvent('typing', {
+            currentTyped: state.currentTypedGuess || '',
+            guessCount: state.guessCount
+        });
 
         if (!isManual) {
             feedbackInput.focus();
