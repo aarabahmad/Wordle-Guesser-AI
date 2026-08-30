@@ -539,6 +539,79 @@
         </div>
     </div>
 
+    <!-- Host Match Result Overlay Modal -->
+    <div id="host-match-result-modal"
+        class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-[130] p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 text-center space-y-5">
+            <div id="host-result-icon" class="text-5xl mx-auto">🎉</div>
+            <div>
+                <h3 id="host-result-title" class="text-2xl font-black text-slate-800 dark:text-slate-100">Player Solved It!</h3>
+                <p id="host-result-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Match Completed</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div class="text-center">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Guesses</span>
+                    <span id="host-result-guesses" class="text-lg font-black text-indigo-600 dark:text-indigo-400">5/6</span>
+                </div>
+                <div class="text-center border-x border-slate-200 dark:border-slate-700">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Time</span>
+                    <span id="host-result-time" class="text-lg font-black text-emerald-600 dark:text-emerald-400">01:06</span>
+                </div>
+                <div class="text-center">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Secret Word</span>
+                    <span id="host-result-word" class="text-lg font-black text-rose-600 font-mono">PIOUS</span>
+                </div>
+            </div>
+
+            <!-- Emoji Share Grid -->
+            <div class="bg-slate-100 dark:bg-slate-950/60 p-3 rounded-xl font-mono text-sm leading-snug tracking-widest text-center" id="host-result-emoji-grid">
+                <!-- Emojis populated by JS -->
+            </div>
+
+            <!-- Host Action Buttons -->
+            <div class="space-y-2 pt-2">
+                <button id="host-rematch-btn" class="w-full bg-gradient-to-r from-rose-500 to-indigo-600 hover:from-rose-600 hover:to-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2">
+                    <span>🔄</span> Play Again (Same Room)
+                </button>
+                <div class="flex gap-2">
+                    <button id="host-new-room-btn" class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold py-2.5 rounded-xl transition-all">
+                        ➕ New Room
+                    </button>
+                    <button id="host-exit-to-menu-btn" class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold py-2.5 rounded-xl transition-all">
+                        🏠 Main Menu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Host Rematch Word Selector Modal -->
+    <div id="host-rematch-selector-modal"
+        class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-[140] p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-6 text-center space-y-4 relative">
+            <button id="close-rematch-selector" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">✕</button>
+            <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto text-2xl">🎲</div>
+            <div>
+                <h3 class="text-xl font-extrabold text-slate-800 dark:text-slate-100">Set Next Secret Word</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Round <span id="rematch-round-number">2</span> word for your friend</p>
+            </div>
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Secret Word</label>
+                    <button id="rematch-random-word-btn" class="text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:underline">🎲 Random Word</button>
+                </div>
+                <input type="text" id="rematch-secret-word-input" maxlength="5" placeholder="5 Letters"
+                    class="w-full p-3 text-center text-xl tracking-[.3em] uppercase font-mono border-2 border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
+            </div>
+            <div id="rematch-error-status" class="text-xs text-rose-500 font-medium min-h-[1rem]"></div>
+            <button id="confirm-rematch-start-btn" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl shadow-lg transition-transform transform hover:scale-[1.01]">
+                🚀 Start Next Round
+            </button>
+        </div>
+    </div>
+
     <!-- Mode Explanation & Infographics Modal -->
     <div id="mode-info-modal"
         class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[100] transition-opacity duration-300">

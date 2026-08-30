@@ -763,7 +763,75 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 sounds?.lose.triggerAttackRelease(["C3", "B2", "Bb2", "A2"], 0.5);
             }
+            showHostMatchResultModal(payload);
         }
+    }
+
+    function showHostMatchResultModal(payload) {
+        const hostMatchResultModal = document.getElementById('host-match-result-modal');
+        if (!hostMatchResultModal) return;
+
+        const iconEl = document.getElementById('host-result-icon');
+        const titleEl = document.getElementById('host-result-title');
+        const subtitleEl = document.getElementById('host-result-subtitle');
+        const guessesEl = document.getElementById('host-result-guesses');
+        const timeEl = document.getElementById('host-result-time');
+        const wordEl = document.getElementById('host-result-word');
+        const emojiGridEl = document.getElementById('host-result-emoji-grid');
+
+        const playerName = payload.guestName || spectatorPlayerNameDisplay?.textContent || 'Player';
+        const won = payload.won;
+        const guessCount = payload.guessCount || (payload.guesses ? payload.guesses.length : 6);
+        const secretWord = (spectatorWordDisplay ? spectatorWordDisplay.textContent : state.challengeWord || '').toUpperCase();
+
+        const elapsedSeconds = spectatorStartTime ? Math.floor((Date.now() - spectatorStartTime) / 1000) : 0;
+        const m = String(Math.floor(elapsedSeconds / 60)).padStart(2, '0');
+        const s = String(elapsedSeconds % 60).padStart(2, '0');
+        const timeStr = `${m}:${s}`;
+
+        if (won) {
+            if (iconEl) iconEl.textContent = '🎉';
+            if (titleEl) titleEl.textContent = `${playerName} Solved It!`;
+            if (subtitleEl) subtitleEl.textContent = `Cracked the secret word in ${guessCount} ${guessCount === 1 ? 'try' : 'tries'}!`;
+        } else {
+            if (iconEl) iconEl.textContent = '😔';
+            if (titleEl) titleEl.textContent = `${playerName} Out of Attempts!`;
+            if (subtitleEl) subtitleEl.textContent = `Could not solve the secret word.`;
+        }
+
+        if (guessesEl) guessesEl.textContent = `${guessCount}/6`;
+        if (timeEl) timeEl.textContent = timeStr;
+        if (wordEl) wordEl.textContent = secretWord;
+
+        if (emojiGridEl) {
+            const emojiMap = { correct: '🟩', present: '🟨', absent: '⬛' };
+            const guesses = payload.guesses || state.spectatorBoardState.guesses || [];
+            if (guesses.length > 0) {
+                emojiGridEl.innerHTML = guesses.map(g => `<div>${g.map(f => emojiMap[f] || '⬛').join('')}</div>`).join('');
+                emojiGridEl.classList.remove('hidden');
+            } else {
+                emojiGridEl.classList.add('hidden');
+            }
+        }
+
+        setTimeout(() => {
+            hostMatchResultModal.classList.remove('hidden');
+        }, 1200);
+    }
+
+    function handleGuestRematch(payload) {
+        if (!payload || !payload.secretWord) return;
+        const newWord = payload.secretWord.toLowerCase();
+        state.challengeWord = newWord;
+        state.guesses = [];
+        state.guessWords = [];
+        state.guessCount = 0;
+        state.isGameOver = false;
+        state.currentTypedGuess = '';
+
+        if (gameOverContainer) gameOverContainer.classList.add('hidden');
+        startGame();
+        showToast(`🔄 Round ${payload.round || 2} Started! Host set a new word.`);
     }
 
     let spectatorStartTime = 0;
@@ -927,6 +995,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Connect Supabase Realtime channel & broadcast 'join'
         if (supabaseClient) {
             state.roomChannel = supabaseClient.channel(`room_${code}`);
+            state.roomChannel.on('broadcast', { event: 'rematch' }, (data) => {
+                handleGuestRematch(data.payload);
+            });
             state.roomChannel.subscribe((status) => {
                 if (status === 'SUBSCRIBED') {
                     state.roomChannel.send({
@@ -1312,6 +1383,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const hostN = state.hostName || '';
         const guestN = state.guestName || '';
         const roomChan = state.roomChannel || null;
+        const roomRound = state.roomRound || 1;
         const roomPollInt = state.roomPollInterval || null;
         const roomTimerInt = state.roomTimerInterval || null;
         const specBoardState = state.spectatorBoardState || { guesses: [], guessWords: [], currentTyped: '', won: null };
@@ -1348,6 +1420,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hostName: hostN,
             guestName: guestN,
             roomChannel: roomChan,
+            roomRound: roomRound,
             roomPollInterval: roomPollInt,
             roomTimerInterval: roomTimerInt,
             spectatorBoardState: specBoardState
@@ -3416,7 +3489,83 @@ document.addEventListener('DOMContentLoaded', () => {
     spectatorExitBtn?.addEventListener('click', () => {
         initLiveRoomState();
         if (liveRoomSpectatorModal) liveRoomSpectatorModal.classList.add('hidden');
+        document.getElementById('host-match-result-modal')?.classList.add('hidden');
         openModeSelection();
+    });
+
+    // Host Result Modal & Rematch Listeners
+    document.getElementById('host-rematch-btn')?.addEventListener('click', () => {
+        const input = document.getElementById('rematch-secret-word-input');
+        if (input) input.value = getRandomWord().toUpperCase();
+        const roundNumEl = document.getElementById('rematch-round-number');
+        if (roundNumEl) roundNumEl.textContent = (state.roomRound || 1) + 1;
+        const errEl = document.getElementById('rematch-error-status');
+        if (errEl) errEl.textContent = '';
+        document.getElementById('host-rematch-selector-modal')?.classList.remove('hidden');
+    });
+
+    document.getElementById('close-rematch-selector')?.addEventListener('click', () => {
+        document.getElementById('host-rematch-selector-modal')?.classList.add('hidden');
+    });
+
+    document.getElementById('rematch-random-word-btn')?.addEventListener('click', () => {
+        const input = document.getElementById('rematch-secret-word-input');
+        if (input) input.value = getRandomWord().toUpperCase();
+    });
+
+    document.getElementById('host-new-room-btn')?.addEventListener('click', () => {
+        document.getElementById('host-match-result-modal')?.classList.add('hidden');
+        document.getElementById('live-room-spectator-modal')?.classList.add('hidden');
+        initLiveRoomState();
+        if (liveRoomSetupModal) liveRoomSetupModal.classList.remove('hidden');
+    });
+
+    document.getElementById('host-exit-to-menu-btn')?.addEventListener('click', () => {
+        document.getElementById('host-match-result-modal')?.classList.add('hidden');
+        document.getElementById('live-room-spectator-modal')?.classList.add('hidden');
+        initLiveRoomState();
+        openModeSelection();
+    });
+
+    document.getElementById('confirm-rematch-start-btn')?.addEventListener('click', async () => {
+        const input = document.getElementById('rematch-secret-word-input');
+        const errEl = document.getElementById('rematch-error-status');
+        const newWord = (input ? input.value : '').trim().toLowerCase();
+
+        if (newWord.length !== 5 || !/^[a-z]{5}$/.test(newWord)) {
+            if (errEl) errEl.textContent = 'Please enter a valid 5-letter word.';
+            return;
+        }
+        if (!wordList.includes(newWord) && (!extendedWordList || !extendedWordList.includes(newWord))) {
+            if (errEl) errEl.textContent = 'Not in word list! Try another.';
+            return;
+        }
+
+        state.roomRound = (state.roomRound || 1) + 1;
+        state.spectatorBoardState = { guesses: [], guessWords: [], currentTyped: '', won: null };
+        renderSpectatorBoard();
+        startSpectatorTimer();
+
+        if (spectatorWordDisplay) spectatorWordDisplay.textContent = newWord.toUpperCase();
+        const playerName = spectatorPlayerNameDisplay?.textContent || 'Player';
+        if (spectatorStatusText) spectatorStatusText.textContent = `Round ${state.roomRound} started! Waiting for ${playerName}...`;
+        if (spectatorStatusBanner) {
+            spectatorStatusBanner.className = 'flex items-center justify-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 p-2.5 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-300';
+        }
+
+        const challengeId = `room_${state.roomCode}`;
+        if (ChallengeDb.isConfigured()) {
+            await ChallengeDb.createChallengeMetadata(challengeId, newWord);
+        }
+
+        broadcastRoomEvent('rematch', {
+            secretWord: newWord,
+            round: state.roomRound
+        });
+
+        document.getElementById('host-match-result-modal')?.classList.add('hidden');
+        document.getElementById('host-rematch-selector-modal')?.classList.add('hidden');
+        showToast(`🔄 Round ${state.roomRound} Started! Secret word: ${newWord.toUpperCase()}`);
     });
 
     exitDailyButton?.addEventListener('click', () => openModeSelection());
