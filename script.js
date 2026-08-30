@@ -797,7 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (spectatorRoomCodeDisplay) spectatorRoomCodeDisplay.textContent = code;
         if (spectatorHostNameDisplay) spectatorHostNameDisplay.textContent = hostName;
-        if (spectatorSecretWordDisplay) spectatorSecretWordDisplay.textContent = secretWord.toUpperCase();
+        if (spectatorWordDisplay) spectatorWordDisplay.textContent = secretWord.toUpperCase();
         if (spectatorPlayerNameDisplay) spectatorPlayerNameDisplay.textContent = 'Waiting for player...';
         if (spectatorStatusText) spectatorStatusText.textContent = 'Waiting for player to join with room code...';
         if (spectatorStatusBanner) {
