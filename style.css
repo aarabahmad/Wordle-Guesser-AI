@@ -435,4 +435,14 @@ body.dark .creator-challenge-item:hover { background-color: #1e293b !important; 
     }
 }
 
+@keyframes spectatorFlip {
+    0% { transform: rotateX(0deg); }
+    50% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0deg); }
+}
+
+.spectator-tile-reveal {
+    animation: spectatorFlip 0.4s ease-in-out forwards;
+}
+
 

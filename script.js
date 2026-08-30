@@ -669,6 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (guessFeedback) {
                     const fb = guessFeedback[c];
+                    tile.classList.add('spectator-tile-reveal');
                     if (fb === 'correct') {
                         tile.classList.add('bg-green-500', 'text-white', 'border-green-500');
                     } else if (fb === 'present') {
