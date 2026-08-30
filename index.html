@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Wordle Guesser</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -352,6 +353,19 @@
                         <p class="text-xs text-slate-500">One word a day. Track your streak!</p>
                     </div>
                 </button>
+
+                <!-- Option 5: Live Multiplayer Room -->
+                <button id="mode-live-room-btn"
+                    class="w-full flex items-center gap-4 p-4 bg-rose-50/50 hover:bg-rose-50 border border-rose-100 rounded-xl transition-all transform hover:scale-[1.02] text-left">
+                    <span class="text-3xl p-2 bg-rose-100 rounded-lg select-none">📡</span>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 text-sm">Live Room Challenge</h4>
+                            <span class="text-[9px] bg-rose-500 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">LIVE</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Create a room code, set a secret word, and watch your friend solve live!</p>
+                    </div>
+                </button>
             </div>
         </div>
     </div>
@@ -397,6 +411,130 @@
                 <button id="daily-close-btn"
                     class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-sm transition-colors">🏠
                     Back to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Room Setup Modal (Create or Join) -->
+    <div id="live-room-setup-modal"
+        class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] transition-opacity duration-300">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl border border-white/20 max-w-md w-full text-center space-y-5 relative">
+            <button id="close-live-room-setup" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="space-y-1">
+                <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-2xl">📡</div>
+                <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Live Multiplayer Room</h2>
+                <p class="text-xs text-slate-500">Play or watch in real-time with room codes</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex bg-slate-100 p-1 rounded-xl">
+                <button id="live-tab-create-btn" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-slate-800 transition-all">Create Room</button>
+                <button id="live-tab-join-btn" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition-all">Join Room</button>
+            </div>
+
+            <!-- Tab 1 Content: Create Room -->
+            <div id="live-tab-create-content" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Host Name</label>
+                    <input type="text" id="live-host-name-input" maxlength="15" placeholder="e.g. Ahmad"
+                        class="w-full p-2.5 text-sm border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 focus:outline-none">
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Secret Challenge Word</label>
+                        <button id="live-random-word-btn" class="text-[11px] font-bold text-rose-600 hover:text-rose-800">🎲 Random Word</button>
+                    </div>
+                    <input type="text" id="live-secret-word-input" maxlength="5" placeholder="5 Letters (e.g. CRANE)"
+                        class="w-full p-3 text-center text-lg tracking-[.3em] uppercase font-mono border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 focus:outline-none">
+                </div>
+                <div id="live-create-status" class="text-xs text-rose-500 text-center font-medium min-h-[1rem]"></div>
+                <button id="live-start-host-btn"
+                    class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl shadow-lg transition-transform transform hover:scale-[1.01] flex items-center justify-center gap-2">
+                    <span>🚀</span> Create & Host Room
+                </button>
+            </div>
+
+            <!-- Tab 2 Content: Join Room -->
+            <div id="live-tab-join-content" class="hidden space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Your Player Name</label>
+                    <input type="text" id="live-guest-name-input" maxlength="15" placeholder="e.g. Friend"
+                        class="w-full p-2.5 text-sm border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">4-Digit Room Code</label>
+                    <input type="text" id="live-room-code-input" maxlength="4" placeholder="e.g. 8371"
+                        class="w-full p-3 text-center text-2xl font-mono tracking-widest border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 focus:outline-none">
+                </div>
+                <div id="live-join-status" class="text-xs text-rose-500 text-center font-medium min-h-[1rem]"></div>
+                <button id="live-submit-join-btn"
+                    class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl shadow-lg transition-transform transform hover:scale-[1.01] flex items-center justify-center gap-2">
+                    <span>🎮</span> Enter Room & Play
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Host Spectator Dashboard Modal -->
+    <div id="live-room-spectator-modal"
+        class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-lg flex items-center justify-center z-[120] p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 text-center space-y-5 flex flex-col max-h-[95vh] overflow-y-auto">
+            <!-- Header with Room Code Banner -->
+            <div class="flex items-center justify-between bg-gradient-to-r from-rose-500 to-indigo-600 text-white p-4 rounded-2xl shadow-md">
+                <div class="text-left">
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest opacity-80">Room Code</span>
+                    <div id="spectator-room-code-display" class="text-3xl font-black font-mono tracking-wider">----</div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="spectator-copy-link-btn" class="bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-2 rounded-xl transition-all flex items-center gap-1">
+                        <span>🔗</span> Share Link
+                    </button>
+                    <button id="spectator-exit-btn" class="bg-white/10 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition-all">
+                        ✕ Leave
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Banner -->
+            <div id="spectator-status-banner" class="flex items-center justify-center gap-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 p-2.5 rounded-xl text-xs font-bold text-amber-800 dark:text-amber-300">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                </span>
+                <span id="spectator-status-text">Waiting for player to join with code...</span>
+            </div>
+
+            <!-- Secret Word & Player Info -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 text-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Secret Word</span>
+                    <span id="spectator-word-display" class="text-lg font-black text-rose-600 font-mono tracking-widest">-----</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 text-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Active Player</span>
+                    <span id="spectator-player-name-display" class="text-base font-bold text-slate-800 dark:text-slate-100 truncate block">Waiting...</span>
+                </div>
+            </div>
+
+            <!-- Live Spectator Grid -->
+            <div class="space-y-2 py-2">
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-center gap-1">
+                    <span>👁️</span> Live Spectator View
+                </div>
+                <div id="spectator-board" class="grid grid-rows-6 gap-1.5 max-w-[280px] mx-auto">
+                    <!-- Javascript populates 6 rows of 5 tiles -->
+                </div>
+            </div>
+
+            <!-- Spectator Footer stats -->
+            <div class="text-xs text-slate-400 flex justify-between items-center px-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <span>Created by <strong id="spectator-host-name-display" class="text-slate-600 dark:text-slate-300">Host</strong></span>
+                <span id="spectator-timer-display" class="font-mono font-bold text-slate-600 dark:text-slate-300">00:00</span>
             </div>
         </div>
     </div>

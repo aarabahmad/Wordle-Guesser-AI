@@ -95,12 +95,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return '';
     }
 
-    // Supabase Configuration for Shared Competitive Leaderboards
-    // Replace with your own Supabase project details to enable online multiplayer leaderboards!
     const supabaseConfig = {
         url: 'https://dbahrwaqbqixfslvrhww.supabase.co', // e.g. 'https://your-project.supabase.co'
         anonKey: 'sb_publishable_hoXt4Igq_bcBBCiPfktXLA_QFT1rsdM' // e.g. 'your-anon-public-key'
     };
+
+    let supabaseClient = null;
+    try {
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+            supabaseClient = window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey);
+        }
+    } catch (e) {
+        console.error('Failed to init Supabase client for realtime:', e);
+    }
 
     // Challenge Mode Database Manager (Supabase REST API + Local Storage fallback)
     const ChallengeDb = {
@@ -560,10 +567,350 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeInfoActionBtn = document.getElementById('mode-info-action-btn');
     const modeInfoBackBtn = document.getElementById('mode-info-back-btn');
 
-    let state = {};
+    // Live Multiplayer Room Selectors
+    const modeLiveRoomBtn = document.getElementById('mode-live-room-btn');
+    const liveRoomSetupModal = document.getElementById('live-room-setup-modal');
+    const closeLiveRoomSetup = document.getElementById('close-live-room-setup');
+    const liveTabCreateBtn = document.getElementById('live-tab-create-btn');
+    const liveTabJoinBtn = document.getElementById('live-tab-join-btn');
+    const liveTabCreateContent = document.getElementById('live-tab-create-content');
+    const liveTabJoinContent = document.getElementById('live-tab-join-content');
+    const liveHostNameInput = document.getElementById('live-host-name-input');
+    const liveSecretWordInput = document.getElementById('live-secret-word-input');
+    const liveRandomWordBtn = document.getElementById('live-random-word-btn');
+    const liveCreateStatus = document.getElementById('live-create-status');
+    const liveStartHostBtn = document.getElementById('live-start-host-btn');
+    const liveGuestNameInput = document.getElementById('live-guest-name-input');
+    const liveRoomCodeInput = document.getElementById('live-room-code-input');
+    const liveJoinStatus = document.getElementById('live-join-status');
+    const liveSubmitJoinBtn = document.getElementById('live-submit-join-btn');
+
+    // Host Spectator Dashboard Selectors
+    const liveRoomSpectatorModal = document.getElementById('live-room-spectator-modal');
+    const spectatorRoomCodeDisplay = document.getElementById('spectator-room-code-display');
+    const spectatorCopyLinkBtn = document.getElementById('spectator-copy-link-btn');
+    const spectatorExitBtn = document.getElementById('spectator-exit-btn');
+    const spectatorStatusBanner = document.getElementById('spectator-status-banner');
+    const spectatorStatusText = document.getElementById('spectator-status-text');
+    const spectatorWordDisplay = document.getElementById('spectator-word-display');
+    const spectatorPlayerNameDisplay = document.getElementById('spectator-player-name-display');
+    const spectatorHostNameDisplay = document.getElementById('spectator-host-name-display');
+    const spectatorTimerDisplay = document.getElementById('spectator-timer-display');
+    const spectatorBoard = document.getElementById('spectator-board');
+
+    let state = {
+        isRoomMode: false,
+        roomCode: null,
+        isHost: false,
+        hostName: '',
+        guestName: '',
+        roomChannel: null,
+        roomPollInterval: null,
+        roomTimerInterval: null,
+        spectatorBoardState: {
+            guesses: [],
+            guessWords: [],
+            currentTyped: '',
+            won: null
+        }
+    };
     let confettiParticles = [];
     const colorMap = { g: 'correct', y: 'present', b: 'absent' };
     const colorClasses = { absent: 'bg-absent', present: 'bg-present', correct: 'bg-correct' };
+
+    // ── Live Room Multiplayer System ───────────────────
+    function initLiveRoomState() {
+        state.isRoomMode = false;
+        state.roomCode = null;
+        state.isHost = false;
+        state.hostName = '';
+        state.guestName = '';
+        if (state.roomChannel) {
+            try { state.roomChannel.unsubscribe(); } catch(e){}
+            state.roomChannel = null;
+        }
+        if (state.roomPollInterval) {
+            clearInterval(state.roomPollInterval);
+            state.roomPollInterval = null;
+        }
+        if (state.roomTimerInterval) {
+            clearInterval(state.roomTimerInterval);
+            state.roomTimerInterval = null;
+        }
+        state.spectatorBoardState = {
+            guesses: [],
+            guessWords: [],
+            currentTyped: '',
+            won: null
+        };
+    }
+
+    function generateRoomCode() {
+        return Math.floor(1000 + Math.random() * 9000).toString();
+    }
+
+    function renderSpectatorBoard() {
+        if (!spectatorBoard) return;
+        spectatorBoard.innerHTML = '';
+        const { guesses, guessWords, currentTyped } = state.spectatorBoardState;
+
+        for (let r = 0; r < 6; r++) {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'flex justify-center gap-1.5';
+
+            const guessFeedback = guesses[r];
+            const word = guessWords[r] || (r === guesses.length ? currentTyped : '');
+
+            for (let c = 0; c < 5; c++) {
+                const tile = document.createElement('div');
+                tile.className = 'spectator-tile border-2 font-bold font-mono transition-all duration-300';
+                const letter = (word[c] || '').toUpperCase();
+                tile.textContent = letter;
+
+                if (guessFeedback) {
+                    const fb = guessFeedback[c];
+                    if (fb === 'correct') {
+                        tile.classList.add('bg-green-500', 'text-white', 'border-green-500');
+                    } else if (fb === 'present') {
+                        tile.classList.add('bg-yellow-500', 'text-white', 'border-yellow-500');
+                    } else {
+                        tile.classList.add('bg-slate-500', 'text-white', 'border-slate-500');
+                    }
+                } else if (letter) {
+                    tile.classList.add('border-slate-400', 'text-slate-800', 'dark:text-slate-100', 'pop-in');
+                } else {
+                    tile.classList.add('border-slate-200', 'dark:border-slate-800', 'text-slate-300');
+                }
+                rowDiv.appendChild(tile);
+            }
+            spectatorBoard.appendChild(rowDiv);
+        }
+    }
+
+    function handleSpectatorEvent(event, payload) {
+        if (!payload) return;
+
+        if (event === 'join') {
+            const name = payload.guestName || 'Friend';
+            if (spectatorPlayerNameDisplay) spectatorPlayerNameDisplay.textContent = name;
+            if (spectatorStatusText) spectatorStatusText.textContent = `${name} is currently playing!`;
+            if (spectatorStatusBanner) {
+                spectatorStatusBanner.className = 'flex items-center justify-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 p-2.5 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-300';
+            }
+            startSpectatorTimer();
+        } else if (event === 'typing') {
+            state.spectatorBoardState.currentTyped = payload.currentTyped || '';
+            renderSpectatorBoard();
+            if (spectatorStatusText) {
+                const playerName = spectatorPlayerNameDisplay.textContent || 'Player';
+                spectatorStatusText.textContent = `${playerName} is typing guess ${(payload.guessCount || 0) + 1}...`;
+            }
+        } else if (event === 'guess') {
+            state.spectatorBoardState.guesses = payload.guesses || [];
+            state.spectatorBoardState.guessWords = payload.guessWords || [];
+            state.spectatorBoardState.currentTyped = '';
+            renderSpectatorBoard();
+            if (spectatorStatusText) {
+                const playerName = spectatorPlayerNameDisplay.textContent || 'Player';
+                spectatorStatusText.textContent = `${playerName} submitted guess ${state.spectatorBoardState.guesses.length}/6`;
+            }
+        } else if (event === 'complete') {
+            state.spectatorBoardState.guesses = payload.guesses || state.spectatorBoardState.guesses;
+            state.spectatorBoardState.guessWords = payload.guessWords || state.spectatorBoardState.guessWords;
+            state.spectatorBoardState.currentTyped = '';
+            state.spectatorBoardState.won = payload.won;
+            renderSpectatorBoard();
+
+            if (state.roomTimerInterval) {
+                clearInterval(state.roomTimerInterval);
+                state.roomTimerInterval = null;
+            }
+
+            const playerName = payload.guestName || spectatorPlayerNameDisplay.textContent || 'Player';
+            if (payload.won) {
+                if (spectatorStatusText) spectatorStatusText.textContent = `🎉 ${playerName} cracked the word in ${payload.guessCount} tries!`;
+                if (spectatorStatusBanner) {
+                    spectatorStatusBanner.className = 'flex items-center justify-center gap-2 bg-green-100 dark:bg-green-950/50 border border-green-300 p-2.5 rounded-xl text-xs font-bold text-green-800 dark:text-green-200';
+                }
+                launchConfetti();
+                sounds?.win.triggerAttackRelease(["C4", "E4", "G4", "C5"], 0.4);
+            } else {
+                if (spectatorStatusText) spectatorStatusText.textContent = `😔 ${playerName} ran out of attempts!`;
+                if (spectatorStatusBanner) {
+                    spectatorStatusBanner.className = 'flex items-center justify-center gap-2 bg-rose-100 dark:bg-rose-950/50 border border-rose-300 p-2.5 rounded-xl text-xs font-bold text-rose-800 dark:text-rose-200';
+                }
+                sounds?.lose.triggerAttackRelease(["C3", "B2", "Bb2", "A2"], 0.5);
+            }
+        }
+    }
+
+    let spectatorStartTime = 0;
+    function startSpectatorTimer() {
+        if (state.roomTimerInterval) clearInterval(state.roomTimerInterval);
+        spectatorStartTime = Date.now();
+        state.roomTimerInterval = setInterval(() => {
+            const elapsedSeconds = Math.floor((Date.now() - spectatorStartTime) / 1000);
+            const m = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
+            const s = (elapsedSeconds % 60).toString().padStart(2, '0');
+            if (spectatorTimerDisplay) spectatorTimerDisplay.textContent = `${m}:${s}`;
+        }, 1000);
+    }
+
+    async function createLiveRoom(hostName, word) {
+        initLiveRoomState();
+        hostName = hostName.trim() || 'Host';
+        word = word.toLowerCase().trim();
+
+        localStorage.setItem('wordle_host_name', hostName);
+        const code = generateRoomCode();
+        const challengeId = `room_${code}`;
+
+        // Save challenge row to DB
+        if (ChallengeDb.isConfigured()) {
+            await ChallengeDb.createChallengeMetadata(challengeId, word);
+        }
+
+        state.isRoomMode = true;
+        state.isHost = true;
+        state.roomCode = code;
+        state.hostName = hostName;
+        state.challengeWord = word;
+
+        // UI Setup for Spectator Dashboard
+        if (spectatorRoomCodeDisplay) spectatorRoomCodeDisplay.textContent = code;
+        if (spectatorWordDisplay) spectatorWordDisplay.textContent = word.toUpperCase();
+        if (spectatorHostNameDisplay) spectatorHostNameDisplay.textContent = hostName;
+        if (spectatorPlayerNameDisplay) spectatorPlayerNameDisplay.textContent = 'Waiting for player...';
+        if (spectatorStatusText) spectatorStatusText.textContent = 'Waiting for player to join with room code...';
+        if (spectatorStatusBanner) {
+            spectatorStatusBanner.className = 'flex items-center justify-center gap-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 p-2.5 rounded-xl text-xs font-bold text-amber-800 dark:text-amber-300';
+        }
+        if (spectatorTimerDisplay) spectatorTimerDisplay.textContent = '00:00';
+
+        renderSpectatorBoard();
+
+        // Show Spectator Modal
+        if (liveRoomSetupModal) liveRoomSetupModal.classList.add('hidden');
+        if (modeSelectionOverlay) modeSelectionOverlay.classList.add('hidden');
+        if (liveRoomSpectatorModal) liveRoomSpectatorModal.classList.remove('hidden');
+
+        // Connect Supabase Realtime Channel
+        if (supabaseClient) {
+            state.roomChannel = supabaseClient.channel(`room_${code}`);
+            state.roomChannel
+                .on('broadcast', { event: 'join' }, payload => handleSpectatorEvent('join', payload.payload))
+                .on('broadcast', { event: 'typing' }, payload => handleSpectatorEvent('typing', payload.payload))
+                .on('broadcast', { event: 'guess' }, payload => handleSpectatorEvent('guess', payload.payload))
+                .on('broadcast', { event: 'complete' }, payload => handleSpectatorEvent('complete', payload.payload))
+                .subscribe();
+        }
+
+        // Database Fallback Polling (Every 2 Seconds)
+        state.roomPollInterval = setInterval(async () => {
+            if (!state.isHost || !state.roomCode) return;
+            if (ChallengeDb.isConfigured()) {
+                try {
+                    const session = await ChallengeDb.ensureSession();
+                    const res = await fetch(`${ChallengeDb.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.room_${state.roomCode}&fingerprint=neq.creator&order=created_at.desc&limit=1`, {
+                        headers: ChallengeDb.getHeaders(session)
+                    });
+                    if (res.ok) {
+                        const records = await res.json();
+                        if (records && records.length > 0) {
+                            const rec = records[0];
+                            if (rec.player_name && spectatorPlayerNameDisplay.textContent === 'Waiting for player...') {
+                                handleSpectatorEvent('join', { guestName: rec.player_name });
+                            }
+                            if (rec.game_state && rec.game_state.guesses && rec.game_state.guesses.length > state.spectatorBoardState.guesses.length) {
+                                handleSpectatorEvent('guess', {
+                                    guesses: rec.game_state.guesses,
+                                    guessWords: rec.game_state.guessWords,
+                                    guessCount: rec.game_state.guesses.length
+                                });
+                            }
+                            if (rec.guesses > 0 && state.spectatorBoardState.won === null) {
+                                handleSpectatorEvent('complete', {
+                                    won: rec.won,
+                                    guessCount: rec.guesses,
+                                    guesses: rec.game_state ? rec.game_state.guesses : [],
+                                    guessWords: rec.game_state ? rec.game_state.guessWords : [],
+                                    guestName: rec.player_name
+                                });
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('Room polling error:', e);
+                }
+            }
+        }, 2000);
+    }
+
+    async function joinLiveRoom(code, guestName) {
+        guestName = guestName.trim() || 'Guest';
+        code = code.trim();
+
+        if (liveJoinStatus) liveJoinStatus.textContent = 'Joining room...';
+
+        localStorage.setItem('wordle_guest_name', guestName);
+        const challengeId = `room_${code}`;
+
+        let word = null;
+        if (ChallengeDb.isConfigured()) {
+            word = await ChallengeDb.fetchChallengeWord(challengeId);
+        }
+
+        if (!word) {
+            if (liveJoinStatus) liveJoinStatus.textContent = 'Room not found! Check your code.';
+            return;
+        }
+
+        initLiveRoomState();
+
+        state.isChallengeMode = true;
+        state.isRoomMode = true;
+        state.roomCode = code;
+        state.guestName = guestName;
+        state.challengeWord = word.toLowerCase();
+        state.challengeIdOverride = challengeId;
+
+        // DB Session init for guest
+        const session = await ChallengeDb.ensureSession();
+        state.fingerprint = session ? session.user_id : getDeviceFingerprint();
+        state.ipAddress = await getPublicIpAddress();
+
+        if (ChallengeDb.isConfigured()) {
+            await ChallengeDb.initializeSession(challengeId, word, state.fingerprint, state.ipAddress);
+            // Save initial player_name
+            try {
+                await fetch(`${ChallengeDb.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${challengeId}&fingerprint=eq.${state.fingerprint}`, {
+                    method: 'PATCH',
+                    headers: ChallengeDb.getHeaders(session),
+                    body: JSON.stringify({ player_name: guestName })
+                });
+            } catch (e) {}
+        }
+
+        // Connect Supabase Realtime channel & broadcast 'join'
+        if (supabaseClient) {
+            state.roomChannel = supabaseClient.channel(`room_${code}`);
+            state.roomChannel.subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    state.roomChannel.send({
+                        type: 'broadcast',
+                        event: 'join',
+                        payload: { guestName }
+                    });
+                }
+            });
+        }
+
+        if (liveRoomSetupModal) liveRoomSetupModal.classList.add('hidden');
+        if (modeSelectionOverlay) modeSelectionOverlay.classList.add('hidden');
+
+        showToast(`Joined Room ${code}! All the best! 🎮`);
+        startGame();
+    }
 
     let sounds;
     const initSounds = () => {
@@ -1210,6 +1557,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         state.guessCount++;
 
+        // Broadcast guess submission to room spectator
+        if (state.isRoomMode && !state.isHost && state.roomChannel) {
+            try {
+                state.roomChannel.send({
+                    type: 'broadcast',
+                    event: 'guess',
+                    payload: {
+                        guesses: state.guesses,
+                        guessWords: state.guessWords,
+                        guessCount: state.guessCount
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to broadcast guess event:', e);
+            }
+        }
+
         if (feedback.every(f => f === 'correct')) {
             winGame(currentTiles);
             return;
@@ -1738,6 +2102,23 @@ document.addEventListener('DOMContentLoaded', () => {
             difficulty: state.difficulty
         });
         const emojiEl = document.getElementById('game-over-emoji');
+        if (state.isRoomMode && !state.isHost && state.roomChannel) {
+            try {
+                state.roomChannel.send({
+                    type: 'broadcast',
+                    event: 'complete',
+                    payload: {
+                        won: true,
+                        guessCount: state.guessCount,
+                        guesses: state.guesses,
+                        guessWords: state.guessWords,
+                        guestName: state.guestName
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to broadcast room complete event:', e);
+            }
+        }
         if (state.isDailyMode) {
             gameOverTitle.textContent = 'Daily Complete!';
             gameOverText.textContent = `You solved today's word in ${state.guessCount} tries!`;
@@ -1801,6 +2182,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const wordReveal = document.getElementById('game-over-word-reveal');
         if (wordReveal) wordReveal.classList.add('hidden');
         if (emojiEl) { emojiEl.textContent = '😔'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
+
+        if (state.isRoomMode && !state.isHost && state.roomChannel) {
+            try {
+                state.roomChannel.send({
+                    type: 'broadcast',
+                    event: 'complete',
+                    payload: {
+                        won: false,
+                        guessCount: state.guessCount,
+                        guesses: state.guesses,
+                        guessWords: state.guessWords,
+                        guestName: state.guestName
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to broadcast room complete event:', e);
+            }
+        }
+
         if (state.isDailyMode) {
             gameOverTitle.textContent = 'Daily Failed!';
             gameOverText.textContent = message;
@@ -2901,6 +3301,102 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Live Multiplayer Room Setup Listeners
+    modeLiveRoomBtn?.addEventListener('click', () => {
+        if (modeSelectionOverlay) modeSelectionOverlay.classList.add('hidden');
+        if (liveRoomSetupModal) liveRoomSetupModal.classList.remove('hidden');
+
+        // Pre-fill stored names
+        const savedHost = localStorage.getItem('wordle_host_name') || '';
+        const savedGuest = localStorage.getItem('wordle_guest_name') || '';
+        if (liveHostNameInput && savedHost) liveHostNameInput.value = savedHost;
+        if (liveGuestNameInput && savedGuest) liveGuestNameInput.value = savedGuest;
+    });
+
+    closeLiveRoomSetup?.addEventListener('click', () => {
+        if (liveRoomSetupModal) liveRoomSetupModal.classList.add('hidden');
+        openModeSelection();
+    });
+
+    liveTabCreateBtn?.addEventListener('click', () => {
+        liveTabCreateBtn.className = 'flex-1 py-2 text-center font-semibold text-xs sm:text-sm rounded-lg transition-all bg-emerald-600 text-white shadow-sm';
+        liveTabJoinBtn.className = 'flex-1 py-2 text-center font-semibold text-xs sm:text-sm rounded-lg transition-all text-slate-500 hover:text-slate-700 dark:text-slate-400';
+        liveTabCreateContent.classList.remove('hidden');
+        liveTabJoinContent.classList.add('hidden');
+    });
+
+    liveTabJoinBtn?.addEventListener('click', () => {
+        liveTabJoinBtn.className = 'flex-1 py-2 text-center font-semibold text-xs sm:text-sm rounded-lg transition-all bg-emerald-600 text-white shadow-sm';
+        liveTabCreateBtn.className = 'flex-1 py-2 text-center font-semibold text-xs sm:text-sm rounded-lg transition-all text-slate-500 hover:text-slate-700 dark:text-slate-400';
+        liveTabJoinContent.classList.remove('hidden');
+        liveTabCreateContent.classList.add('hidden');
+    });
+
+    liveRandomWordBtn?.addEventListener('click', () => {
+        if (wordList && wordList.length > 0) {
+            const random = wordList[Math.floor(Math.random() * wordList.length)];
+            if (liveSecretWordInput) liveSecretWordInput.value = random.toUpperCase();
+        }
+    });
+
+    liveStartHostBtn?.addEventListener('click', async () => {
+        const hostName = liveHostNameInput ? liveHostNameInput.value.trim() : 'Host';
+        const word = liveSecretWordInput ? liveSecretWordInput.value.trim().toLowerCase() : '';
+
+        if (!hostName) {
+            if (liveCreateStatus) liveCreateStatus.textContent = 'Please enter your host name!';
+            return;
+        }
+
+        if (word.length !== 5 || !/^[a-z]{5}$/.test(word)) {
+            if (liveCreateStatus) liveCreateStatus.textContent = 'Secret word must be exactly 5 letters!';
+            return;
+        }
+
+        if (!wordList.includes(word) && (!extendedWordList || !extendedWordList.includes(word))) {
+            if (liveCreateStatus) liveCreateStatus.textContent = 'Word not in valid dictionary!';
+            return;
+        }
+
+        if (liveCreateStatus) liveCreateStatus.textContent = '';
+        await createLiveRoom(hostName, word);
+    });
+
+    liveSubmitJoinBtn?.addEventListener('click', async () => {
+        const guestName = liveGuestNameInput ? liveGuestNameInput.value.trim() : 'Guest';
+        const code = liveRoomCodeInput ? liveRoomCodeInput.value.trim() : '';
+
+        if (!guestName) {
+            if (liveJoinStatus) liveJoinStatus.textContent = 'Please enter your name!';
+            return;
+        }
+
+        if (code.length !== 4 || !/^\d{4}$/.test(code)) {
+            if (liveJoinStatus) liveJoinStatus.textContent = 'Room code must be a 4-digit number!';
+            return;
+        }
+
+        if (liveJoinStatus) liveJoinStatus.textContent = '';
+        await joinLiveRoom(code, guestName);
+    });
+
+    // Spectator Modal Listeners
+    spectatorCopyLinkBtn?.addEventListener('click', () => {
+        if (!state.roomCode) return;
+        const link = `${window.location.origin}${window.location.pathname}?room=${state.roomCode}`;
+        navigator.clipboard.writeText(link).then(() => {
+            showToast('Room link copied! Send it to your friend.');
+        }).catch(err => {
+            console.error('Failed to copy room link:', err);
+        });
+    });
+
+    spectatorExitBtn?.addEventListener('click', () => {
+        initLiveRoomState();
+        if (liveRoomSpectatorModal) liveRoomSpectatorModal.classList.add('hidden');
+        openModeSelection();
+    });
+
     exitDailyButton?.addEventListener('click', () => openModeSelection());
 
     document.getElementById('daily-share-btn')?.addEventListener('click', () => {
@@ -3190,6 +3686,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+
+        // Broadcast live typing state if in multiplayer room mode
+        if (state.isRoomMode && !state.isHost && state.roomChannel) {
+            try {
+                state.roomChannel.send({
+                    type: 'broadcast',
+                    event: 'typing',
+                    payload: {
+                        currentTyped: state.currentTypedGuess || '',
+                        guessCount: state.guessCount
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to broadcast typing:', e);
+            }
+        }
+
         if (!isManual) {
             feedbackInput.focus();
         }
@@ -3352,6 +3865,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) {
                 console.error('Invalid challenge code in URL', e);
             }
+        }
+
+        const roomCode = urlParams.get('room');
+        if (roomCode) {
+            if (liveRoomSetupModal) liveRoomSetupModal.classList.remove('hidden');
+            if (modeSelectionOverlay) modeSelectionOverlay.classList.add('hidden');
+            if (liveTabJoinBtn && liveTabCreateBtn && liveTabJoinContent && liveTabCreateContent) {
+                liveTabJoinBtn.click();
+            }
+            if (liveRoomCodeInput) liveRoomCodeInput.value = roomCode;
         }
     }
 
