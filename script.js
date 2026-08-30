@@ -1305,6 +1305,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const isDaily = state.isDailyMode || false;
         const dailyW = state.dailyWord || null;
 
+        const isRoom = state.isRoomMode || false;
+        const roomC = state.roomCode || null;
+        const isH = state.isHost || false;
+        const hostN = state.hostName || '';
+        const guestN = state.guestName || '';
+        const roomChan = state.roomChannel || null;
+        const roomPollInt = state.roomPollInterval || null;
+        const roomTimerInt = state.roomTimerInterval || null;
+        const specBoardState = state.spectatorBoardState || { guesses: [], guessWords: [], currentTyped: '', won: null };
+
         state = {
             possibleWords: [...wordList],
             guesses: [],
@@ -1330,7 +1340,16 @@ document.addEventListener('DOMContentLoaded', () => {
             passAndPlayWord: passPlayW,
             isDailyMode: isDaily,
             dailyWord: dailyW,
-            currentTypedGuess: ''
+            currentTypedGuess: '',
+            isRoomMode: isRoom,
+            roomCode: roomC,
+            isHost: isH,
+            hostName: hostN,
+            guestName: guestN,
+            roomChannel: roomChan,
+            roomPollInterval: roomPollInt,
+            roomTimerInterval: roomTimerInt,
+            spectatorBoardState: specBoardState
         };
 
         if (isChallenge && challengeW && !state.possibleWords.includes(challengeW)) {
