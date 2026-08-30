@@ -763,6 +763,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 sounds?.lose.triggerAttackRelease(["C3", "B2", "Bb2", "A2"], 0.5);
             }
+
+            const specActions = document.getElementById('spectator-match-actions');
+            if (specActions) specActions.classList.remove('hidden');
+
             showHostMatchResultModal(payload);
         }
     }
@@ -806,17 +810,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (emojiGridEl) {
             const emojiMap = { correct: '🟩', present: '🟨', absent: '⬛' };
             const guesses = payload.guesses || state.spectatorBoardState.guesses || [];
-            if (guesses.length > 0) {
-                emojiGridEl.innerHTML = guesses.map(g => `<div>${g.map(f => emojiMap[f] || '⬛').join('')}</div>`).join('');
+            if (Array.isArray(guesses) && guesses.length > 0) {
+                const rowsHtml = guesses.map(g => {
+                    if (Array.isArray(g)) {
+                        return `<div>${g.map(f => emojiMap[f] || '⬛').join('')}</div>`;
+                    }
+                    return '';
+                }).filter(Boolean).join('');
+                emojiGridEl.innerHTML = rowsHtml;
                 emojiGridEl.classList.remove('hidden');
             } else {
                 emojiGridEl.classList.add('hidden');
             }
         }
 
-        setTimeout(() => {
-            hostMatchResultModal.classList.remove('hidden');
-        }, 1200);
+        hostMatchResultModal.classList.remove('hidden');
     }
 
     function handleGuestRematch(payload) {
@@ -3565,7 +3573,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('host-match-result-modal')?.classList.add('hidden');
         document.getElementById('host-rematch-selector-modal')?.classList.add('hidden');
+        document.getElementById('spectator-match-actions')?.classList.add('hidden');
         showToast(`🔄 Round ${state.roomRound} Started! Secret word: ${newWord.toUpperCase()}`);
+    });
+
+    document.getElementById('spectator-dashboard-rematch-btn')?.addEventListener('click', () => {
+        const input = document.getElementById('rematch-secret-word-input');
+        if (input) input.value = getRandomWord().toUpperCase();
+        const roundNumEl = document.getElementById('rematch-round-number');
+        if (roundNumEl) roundNumEl.textContent = (state.roomRound || 1) + 1;
+        const errEl = document.getElementById('rematch-error-status');
+        if (errEl) errEl.textContent = '';
+        document.getElementById('host-rematch-selector-modal')?.classList.remove('hidden');
+    });
+
+    document.getElementById('spectator-dashboard-new-room-btn')?.addEventListener('click', () => {
+        document.getElementById('host-match-result-modal')?.classList.add('hidden');
+        document.getElementById('live-room-spectator-modal')?.classList.add('hidden');
+        initLiveRoomState();
+        if (liveRoomSetupModal) liveRoomSetupModal.classList.remove('hidden');
+    });
+
+    document.getElementById('spectator-dashboard-menu-btn')?.addEventListener('click', () => {
+        document.getElementById('host-match-result-modal')?.classList.add('hidden');
+        document.getElementById('live-room-spectator-modal')?.classList.add('hidden');
+        initLiveRoomState();
+        openModeSelection();
     });
 
     exitDailyButton?.addEventListener('click', () => openModeSelection());
