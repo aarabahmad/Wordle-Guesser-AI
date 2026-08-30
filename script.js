@@ -3510,6 +3510,11 @@ document.addEventListener('DOMContentLoaded', () => {
         openModeSelection();
     });
 
+    function getRandomWord() {
+        if (!wordList || wordList.length === 0) return 'APPLE';
+        return wordList[Math.floor(Math.random() * wordList.length)];
+    }
+
     // Host Result Modal & Rematch Listeners
     document.getElementById('host-rematch-btn')?.addEventListener('click', () => {
         const input = document.getElementById('rematch-secret-word-input');
