@@ -855,12 +855,15 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('wordle_guest_name', guestName);
         const challengeId = `room_${code}`;
 
-        let word = null;
+        let secretWord = null;
         if (ChallengeDb.isConfigured()) {
-            word = await ChallengeDb.fetchChallengeWord(challengeId);
+            const wordData = await ChallengeDb.fetchChallengeWord(challengeId);
+            if (wordData && wordData.challenge_word) {
+                secretWord = wordData.challenge_word;
+            }
         }
 
-        if (!word) {
+        if (!secretWord) {
             if (liveJoinStatus) liveJoinStatus.textContent = 'Room not found! Check your code.';
             return;
         }
@@ -871,7 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.isRoomMode = true;
         state.roomCode = code;
         state.guestName = guestName;
-        state.challengeWord = word.toLowerCase();
+        state.challengeWord = secretWord.toLowerCase();
         state.challengeIdOverride = challengeId;
 
         // DB Session init for guest
@@ -880,7 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.ipAddress = await getPublicIpAddress();
 
         if (ChallengeDb.isConfigured()) {
-            await ChallengeDb.initializeSession(challengeId, word, state.fingerprint, state.ipAddress);
+            await ChallengeDb.initializeSession(challengeId, secretWord, state.fingerprint, state.ipAddress);
             // Save initial player_name
             try {
                 await fetch(`${ChallengeDb.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${challengeId}&fingerprint=eq.${state.fingerprint}`, {
