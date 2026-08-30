@@ -23,6 +23,7 @@ A sophisticated, highly interactive Wordle companion and gameplay platform. Feat
 ## ✨ Key Features
 
 - **Side-by-Side UI Layout:** Real-time feedback dashboard splitting the main Wordle board and the active AI engine panel side-by-side on desktop displays.
+- **Real-Time Live Room Multiplayer:** Create room codes or share direct links (`?room=CODE`) to watch friends solve custom puzzles live in real-time.
 - **AI Thought Process & Confidence Bars:** Visualizes the AI's search space reduction. Each suggestion displays a gradient confidence meter reflecting entropy calculations.
 - **Interactive Feedback System:** Easily submit clues to the AI using standard color patterns (`G` for Green, `Y` for Yellow, and `B` for Gray).
 - **System-Wide Dark Mode:** Fully immersive slate dark mode theme, automatically persistent using `localStorage`.
@@ -43,6 +44,9 @@ Set a secret word in your mind, then guide the AI to guess it by inputting the c
 
 - **Normal Mode:** AI guesses any word that maximizes entropy (clue information gain).
 - **Hard Mode:** AI is restricted to only guessing words that comply with all previously discovered yellow/green letter rules.
+
+### 🔴 Live Room Challenge (Real-Time Multiplayer)
+Create a room with a custom secret word, generate a 4-digit room code or shareable invite link (`?room=CODE`), and watch your friend solve the puzzle in real-time! The host spectator dashboard streams live typing animations, tile flips, feedback colors, and game timer using Supabase Realtime broadcast channels and fallback database polling.
 
 ### 📅 Daily Challenge
 Play the official word of the day (updated daily at midnight local time) with persistent win-streak tracking and guess distribution histograms.
