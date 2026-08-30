@@ -121,7 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.supabaseKey && !this.supabaseKey.includes('YOUR_') && this.supabaseKey !== '';
         },
 
+        anonAuthDisabled: false,
+
         async ensureSession() {
+            if (this.anonAuthDisabled) return null;
             if (this.accessToken && this.userId) {
                 return { access_token: this.accessToken, user_id: this.userId };
             }
@@ -162,7 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.userId = session.user_id;
                     return session;
                 } else {
-                    console.error('Supabase anonymous sign-in failed:', await response.text());
+                    const text = await response.text();
+                    if (text.includes('anonymous_provider_disabled')) {
+                        this.anonAuthDisabled = true;
+                        console.warn('Supabase Anonymous Sign-Ins are disabled in project settings. Operating with standard API key auth.');
+                    } else {
+                        console.error('Supabase anonymous sign-in failed:', text);
+                    }
                 }
             } catch (e) {
                 console.error('Failed to establish authenticated session:', e);
@@ -3561,15 +3570,15 @@ document.addEventListener('DOMContentLoaded', () => {
             spectatorStatusBanner.className = 'flex items-center justify-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 p-2.5 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-300';
         }
 
-        const challengeId = `room_${state.roomCode}`;
-        if (ChallengeDb.isConfigured()) {
-            await ChallengeDb.createChallengeMetadata(challengeId, newWord);
-        }
-
         broadcastRoomEvent('rematch', {
             secretWord: newWord,
             round: state.roomRound
         });
+
+        if (ChallengeDb.isConfigured()) {
+            const challengeId = `room_${state.roomCode}`;
+            ChallengeDb.createChallengeMetadata(challengeId, newWord).catch(e => console.warn('DB Sync Warning:', e));
+        }
 
         document.getElementById('host-match-result-modal')?.classList.add('hidden');
         document.getElementById('host-rematch-selector-modal')?.classList.add('hidden');
