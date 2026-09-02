@@ -2333,6 +2333,31 @@ document.addEventListener('DOMContentLoaded', () => {
         unlimitedStatWinPct.textContent = `${pct}%`;
         unlimitedStatStreak.textContent = stats.streak;
         unlimitedStatBest.textContent = stats.maxStreak;
+        
+        const chart = document.getElementById('unlimited-distribution-chart');
+        if (chart) {
+            chart.innerHTML = '';
+            let maxGuesses = 0;
+            for (let i = 1; i <= 6; i++) {
+                if (stats.guesses[i] > maxGuesses) maxGuesses = stats.guesses[i];
+            }
+            
+            for (let i = 1; i <= 6; i++) {
+                const count = stats.guesses[i] || 0;
+                const percent = maxGuesses > 0 ? Math.max(5, Math.round((count / maxGuesses) * 100)) : 5;
+                const isCurrent = state.won && state.guessCount === i;
+                
+                const barRow = document.createElement('div');
+                barRow.className = 'flex items-center text-xs text-gray-600 font-bold';
+                barRow.innerHTML = `
+                    <div class="w-4">${i}</div>
+                    <div class="flex-1 bg-gray-200 ml-1 rounded">
+                        <div class="${isCurrent ? 'bg-sky-500' : 'bg-slate-400'} text-white text-right px-1.5 rounded min-w-fit" style="width: ${percent}%;">${count}</div>
+                    </div>
+                `;
+                chart.appendChild(barRow);
+            }
+        }
     }
 
     function applyGameOverContextLayout(won) {
@@ -2340,11 +2365,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (challengeLeaderboardSubmitContainer) challengeLeaderboardSubmitContainer.classList.add('hidden');
         if (gameOverLeaderboardBtn) gameOverLeaderboardBtn.classList.add('hidden');
         if (unlimitedStatsContainer) unlimitedStatsContainer.classList.add('hidden');
+        
+        const detailsWrapper = document.getElementById('unlimited-detailed-stats-wrapper');
+        if (detailsWrapper) detailsWrapper.classList.add('hidden');
 
         if (state.isUnlimitedMode) {
             const stats = UnlimitedStats.saveRecord(won, state.guessCount);
             renderUnlimitedStats(stats);
             if (unlimitedStatsContainer) unlimitedStatsContainer.classList.remove('hidden');
+            const detailsWrapper = document.getElementById('unlimited-detailed-stats-wrapper');
+            if (detailsWrapper) {
+                detailsWrapper.classList.remove('hidden');
+                document.getElementById('unlimited-detailed-stats-container').classList.add('hidden');
+                const icon = document.getElementById('unlimited-toggle-icon');
+                if(icon) icon.style.transform = 'rotate(0deg)';
+            }
             if (restartButton) {
                 restartButton.textContent = 'Play Next Word 🎲';
                 restartButton.classList.remove('hidden');
@@ -3615,12 +3650,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const unlimitedStatWinPct = document.getElementById('unlimited-stat-win-pct');
     const unlimitedStatStreak = document.getElementById('unlimited-stat-streak');
     const unlimitedStatBest = document.getElementById('unlimited-stat-best');
+    const unlimitedToggleDetailsBtn = document.getElementById('unlimited-toggle-details-btn');
 
     modeUnlimitedBtn?.addEventListener('click', () => {
         showModeExplanation('unlimited');
     });
 
     exitUnlimitedButton?.addEventListener('click', () => openModeSelection());
+    
+    unlimitedToggleDetailsBtn?.addEventListener('click', () => {
+        const container = document.getElementById('unlimited-detailed-stats-container');
+        const icon = document.getElementById('unlimited-toggle-icon');
+        if (container.classList.contains('hidden')) {
+            container.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            container.classList.add('hidden');
+            icon.style.transform = 'rotate(0deg)';
+        }
+    });
 
     // Live Multiplayer Room Setup Listeners
     modeLiveRoomBtn?.addEventListener('click', () => {
