@@ -2968,7 +2968,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     submitButton.addEventListener('click', handleFeedback);
     restartButton.addEventListener('click', () => {
-        if (state.isChallengeMode) {
+        if (state.isUnlimitedMode) {
+            state.challengeWord = wordList[Math.floor(Math.random() * wordList.length)];
+            gameOverContainer.classList.add('hidden');
+            startGame();
+        } else if (state.isChallengeMode) {
             startGame();
         } else {
             openModeSelection();
