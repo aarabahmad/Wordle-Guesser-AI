@@ -59,26 +59,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getDeviceFingerprint() {
         try {
+            const savedFp = localStorage.getItem('wordle_persistent_fp');
+            if (savedFp) return savedFp;
+
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            if (!ctx) return 'no-canvas-' + navigator.userAgent.replace(/[^a-zA-Z0-9]/g, '');
-            ctx.textBaseline = "top";
-            ctx.font = "14px 'Arial'";
-            ctx.fillStyle = "#f60";
-            ctx.fillRect(125, 1, 62, 20);
-            ctx.fillStyle = "#069";
-            ctx.fillText("WordleFingerprint!", 2, 15);
-            ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
-            ctx.fillText("WordleFingerprint!", 4, 17);
-            const dataURL = canvas.toDataURL();
-            let hash = 0;
-            for (let i = 0; i < dataURL.length; i++) {
-                hash = ((hash << 5) - hash) + dataURL.charCodeAt(i);
-                hash |= 0;
+            let fp = '';
+            if (!ctx) {
+                fp = 'no-canvas-' + navigator.userAgent.replace(/[^a-zA-Z0-9]/g, '');
+            } else {
+                ctx.textBaseline = "top";
+                ctx.font = "14px 'Arial'";
+                ctx.fillStyle = "#f60";
+                ctx.fillRect(125, 1, 62, 20);
+                ctx.fillStyle = "#069";
+                ctx.fillText("WordleFingerprint!", 2, 15);
+                ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+                ctx.fillText("WordleFingerprint!", 4, 17);
+                const dataURL = canvas.toDataURL();
+                let hash = 0;
+                for (let i = 0; i < dataURL.length; i++) {
+                    hash = ((hash << 5) - hash) + dataURL.charCodeAt(i);
+                    hash |= 0;
+                }
+                fp = 'fp_' + [hash, screen.width + 'x' + screen.height, navigator.language, new Date().getTimezoneOffset()].join('_');
             }
-            return 'fp_' + [hash, screen.width + 'x' + screen.height, navigator.language, new Date().getTimezoneOffset()].join('_');
+            localStorage.setItem('wordle_persistent_fp', fp);
+            return fp;
         } catch (e) {
-            return 'fallback_' + Math.random().toString(36).substring(2, 9);
+            const fallback = 'fallback_' + Math.random().toString(36).substring(2, 9);
+            try { localStorage.setItem('wordle_persistent_fp', fallback); } catch(err){}
+            return fallback;
         }
     }
 
@@ -125,17 +136,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async ensureSession() {
             if (this.anonAuthDisabled) return null;
-            if (this.accessToken && this.userId) {
+            if (this.accessToken && this.userId && this.sessionExpiresAt && this.sessionExpiresAt > Date.now()) {
                 return { access_token: this.accessToken, user_id: this.userId };
             }
+            let saved = null;
             try {
-                const saved = localStorage.getItem('supabase_anon_session');
-                if (saved) {
-                    const session = JSON.parse(saved);
-                    if (session.expires_at && session.expires_at > Date.now()) {
-                        this.accessToken = session.access_token;
-                        this.userId = session.user_id;
-                        return session;
+                const raw = localStorage.getItem('supabase_anon_session');
+                if (raw) {
+                    saved = JSON.parse(raw);
+                    if (saved.expires_at && saved.expires_at > Date.now()) {
+                        this.accessToken = saved.access_token;
+                        this.userId = saved.user_id;
+                        this.sessionExpiresAt = saved.expires_at;
+                        return saved;
                     }
                 }
             } catch (e) {
@@ -144,6 +157,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!this.isConfigured()) return null;
 
+            // Attempt to refresh existing session using refresh_token before creating a new user
+            if (saved && saved.refresh_token) {
+                try {
+                    const refreshRes = await fetch(`${this.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': this.supabaseKey,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ refresh_token: saved.refresh_token })
+                    });
+                    if (refreshRes.ok) {
+                        const data = await refreshRes.json();
+                        const session = {
+                            access_token: data.access_token,
+                            refresh_token: data.refresh_token || saved.refresh_token,
+                            user_id: data.user ? data.user.id : (saved.user_id || this.userId),
+                            expires_at: Date.now() + ((data.expires_in || 3600) * 1000) - 60000
+                        };
+                        localStorage.setItem('supabase_anon_session', JSON.stringify(session));
+                        this.accessToken = session.access_token;
+                        this.userId = session.user_id;
+                        this.sessionExpiresAt = session.expires_at;
+                        return session;
+                    }
+                } catch (e) {
+                    console.error('Failed to refresh Supabase session:', e);
+                }
+            }
+
+            // Fallback to new anonymous sign-in / signup
             try {
                 const response = await fetch(`${this.supabaseUrl}/auth/v1/signup`, {
                     method: 'POST',
@@ -157,12 +201,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = await response.json();
                     const session = {
                         access_token: data.access_token,
+                        refresh_token: data.refresh_token || '',
                         user_id: data.user.id,
-                        expires_at: Date.now() + (data.expires_in * 1000) - 60000
+                        expires_at: Date.now() + ((data.expires_in || 3600) * 1000) - 60000
                     };
                     localStorage.setItem('supabase_anon_session', JSON.stringify(session));
                     this.accessToken = session.access_token;
                     this.userId = session.user_id;
+                    this.sessionExpiresAt = session.expires_at;
                     return session;
                 } else {
                     const text = await response.text();
@@ -182,7 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
         getHeaders(session) {
             const headers = {
                 'apikey': this.supabaseKey,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
             };
             if (session && session.access_token) {
                 headers['Authorization'] = `Bearer ${session.access_token}`;
@@ -262,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         async initializeSession(challengeId, word, fingerprint, ipAddress) {
             if (this.isConfigured() && challengeId) {
                 const session = await this.ensureSession();
+                const activeFingerprint = (session ? session.user_id : null) || fingerprint || getDeviceFingerprint();
                 const gameSession = {
                     challenge_id: challengeId.toLowerCase(),
                     challenge_word: word.toLowerCase(),
@@ -269,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     guesses: 0,
                     time_seconds: 0,
                     won: false,
-                    fingerprint: fingerprint,
+                    fingerprint: activeFingerprint,
                     ip_address: ipAddress,
                     game_state: { guesses: [], guessWords: [] },
                     created_at: new Date().toISOString()
@@ -293,10 +341,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (this.isConfigured() && challengeId && fingerprint) {
                 try {
                     const session = await this.ensureSession();
+                    const activeFingerprint = (session ? session.user_id : null) || fingerprint;
                     const progress = {
                         game_state: { guesses, guessWords }
                     };
-                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&fingerprint=eq.${encodeURIComponent(fingerprint)}`, {
+                    const response = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&fingerprint=eq.${encodeURIComponent(activeFingerprint)}`, {
                         method: 'PATCH',
                         headers: this.getHeaders(session),
                         body: JSON.stringify(progress)
@@ -340,8 +389,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const session = await this.ensureSession();
                     let submitted = false;
-                    const fingerprint = state.fingerprint || (session ? session.user_id : null);
-                    
+                    const activeUserId = session ? session.user_id : null;
+                    const fingerprint = activeUserId || state.fingerprint || getDeviceFingerprint();
+
                     if (fingerprint) {
                         // Try updating the existing session record
                         const patchResponse = await fetch(`${this.supabaseUrl}/rest/v1/wordle_leaderboard?challenge_id=eq.${encodeURIComponent(challengeId.toLowerCase())}&fingerprint=eq.${encodeURIComponent(fingerprint)}`, {
@@ -350,9 +400,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             body: JSON.stringify(score)
                         });
                         if (patchResponse.ok) {
-                            const updatedRows = await patchResponse.json();
-                            if (updatedRows && updatedRows.length > 0) {
+                            if (patchResponse.status === 204) {
                                 submitted = true;
+                            } else {
+                                const updatedRows = await patchResponse.json();
+                                if (Array.isArray(updatedRows) && updatedRows.length > 0) {
+                                    submitted = true;
+                                }
                             }
                         }
                     }

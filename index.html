@@ -87,11 +87,11 @@
 
             <div id="challenge-link-container" class="hidden mt-6 pt-4 border-t space-y-3">
                 <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider">Share Link</label>
-                <div class="flex gap-2">
+                <div class="flex gap-2 items-center">
                     <input type="text" id="challenge-link-input" readonly
-                        class="flex-1 p-2.5 text-xs bg-gray-50 border rounded-lg overflow-x-auto text-gray-600 focus:outline-none">
+                        class="flex-1 min-w-0 p-2.5 text-xs bg-gray-50 border rounded-lg overflow-x-auto text-gray-600 focus:outline-none">
                     <button id="copy-challenge-link-button"
-                        class="bg-green-500 text-white font-bold px-4 py-2 text-xs rounded-lg hover:bg-green-600 shadow transition-colors">
+                        class="shrink-0 bg-green-500 text-white font-bold px-4 py-2 text-xs rounded-lg hover:bg-green-600 shadow transition-colors whitespace-nowrap">
                         Copy
                     </button>
                 </div>
@@ -769,9 +769,9 @@
     </div>
     <!-- Game Over Modal Overlay -->
     <div id="game-over-container"
-        class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[115] p-4">
+        class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[115] p-3 sm:p-4">
         <div
-            class="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 w-full max-w-sm space-y-4 fade-in relative">
+            class="bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 sm:p-6 w-full max-w-sm space-y-4 fade-in relative">
             <button id="close-game-over-btn"
                 class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors" title="Close">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -793,30 +793,28 @@
                 </button>
             </div>
             <div id="challenge-leaderboard-submit-container" class="hidden space-y-3 pt-4 border-t">
-                <label for="leaderboard-player-name" class="block text-center font-semibold text-gray-700">
+                <label for="leaderboard-player-name" class="block text-center text-xs sm:text-sm font-semibold text-gray-700">
                     Add your name to the Leaderboard!
                 </label>
-                <div class="flex gap-2">
+                <div class="flex gap-2 items-center">
                     <input type="text" id="leaderboard-player-name" maxlength="15" placeholder="Your Name"
-                        class="flex-1 p-2.5 text-center border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none">
+                        class="flex-1 min-w-0 p-2.5 text-center border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none text-sm">
                     <button id="submit-leaderboard-btn"
-                        class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2.5 rounded-lg shadow-md transition-colors text-sm">
+                        class="shrink-0 bg-purple-600 hover:bg-purple-700 text-white font-bold px-3.5 sm:px-4 py-2.5 rounded-lg shadow-md transition-colors text-xs sm:text-sm whitespace-nowrap">
                         Submit
                     </button>
                 </div>
             </div>
             <div class="space-y-3">
-                <div class="flex gap-2">
+                <div class="flex gap-1.5 sm:gap-2">
                     <button id="share-button"
-                        class="flex-1 bg-blue-500 text-white font-bold py-3 px-2 text-sm rounded-lg hover:bg-blue-600 shadow-lg transition-colors">Share
-                        Text</button>
+                        class="flex-1 min-w-0 bg-blue-500 text-white font-bold py-3 px-1.5 sm:px-2 text-xs sm:text-sm rounded-lg hover:bg-blue-600 shadow-lg transition-colors whitespace-nowrap overflow-hidden text-ellipsis">Share Text</button>
                     <button id="share-image-button"
-                        class="flex-1 bg-purple-600 text-white font-bold py-3 px-2 text-sm rounded-lg hover:bg-purple-700 shadow-lg flex items-center justify-center gap-1 transition-colors">
+                        class="flex-1 min-w-0 bg-purple-600 text-white font-bold py-3 px-1.5 sm:px-2 text-xs sm:text-sm rounded-lg hover:bg-purple-700 shadow-lg flex items-center justify-center gap-1 transition-colors whitespace-nowrap overflow-hidden text-ellipsis">
                         <span>📸</span> Save Image
                     </button>
                     <button id="restart-button"
-                        class="flex-1 bg-green-500 text-white font-bold py-3 px-2 text-sm rounded-lg hover:bg-green-600 shadow-lg transition-colors">Play
-                        Again</button>
+                        class="flex-1 min-w-0 bg-green-500 text-white font-bold py-3 px-1.5 sm:px-2 text-xs sm:text-sm rounded-lg hover:bg-green-600 shadow-lg transition-colors whitespace-nowrap overflow-hidden text-ellipsis">Play Again</button>
                 </div>
                 <button id="game-over-leaderboard-btn"
                     class="hidden w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 text-base rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all">
