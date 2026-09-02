@@ -1804,7 +1804,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         processFeedback(state.currentGuessWord, feedback);
 
-        if (state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode) {
+        if (state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode || state.isUnlimitedMode) {
             updateCandidatesAndInsights();
             saveGameProgress();
             feedbackInput.value = '';
@@ -1821,7 +1821,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleFeedback() {
         if (state.isGameOver || state.isAnimating) return;
 
-        const isManual = state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode;
+        const isManual = state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode || state.isUnlimitedMode;
         const inputVal = isManual
             ? (state.currentTypedGuess || '').toLowerCase().trim()
             : feedbackInput.value.toLowerCase().trim();
