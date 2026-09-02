@@ -4073,7 +4073,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleVirtualKeyPress(key) {
         if (state.isGameOver || state.isAnimating) return;
 
-        const isManual = state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode;
+        const isManual = state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode || state.isUnlimitedMode;
 
         // Visual and auditory feedback
         if (sounds && sounds.type) {
@@ -4150,7 +4150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (e) => {
         if (state.isGameOver || state.isAnimating) return;
-        const isManual = state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode;
+        const isManual = state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode || state.isUnlimitedMode;
         if (!isManual) return;
 
         if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
