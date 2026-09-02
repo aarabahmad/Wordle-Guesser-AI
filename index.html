@@ -314,13 +314,13 @@
     <div id="mode-selection-overlay"
         class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[100] transition-opacity duration-300">
         <div
-            class="bg-white/95 p-8 rounded-2xl shadow-2xl border border-white/20 max-w-md w-full text-center space-y-6 transform scale-95 transition-transform duration-300">
+            class="bg-white/95 p-6 sm:p-8 rounded-2xl shadow-2xl border border-white/20 max-w-3xl w-full text-center space-y-6 transform scale-95 transition-transform duration-300">
             <div class="space-y-2">
                 <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Wordle Hub</h2>
                 <p class="text-sm text-slate-500">Select how you want to play today</p>
             </div>
 
-            <div class="space-y-4 pt-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-left">
                 <!-- Option 1: AI Solver -->
                 <button id="mode-ai-btn"
                     class="w-full flex items-center gap-4 p-4 bg-indigo-50/50 hover:bg-indigo-50 border border-indigo-100 rounded-xl transition-all transform hover:scale-[1.02] text-left">
