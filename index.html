@@ -193,6 +193,18 @@
                             Daily</button>
                     </div>
 
+                    <!-- Unlimited Practice Banner -->
+                    <div id="unlimited-banner"
+                        class="hidden bg-sky-50 border border-sky-200 rounded-xl p-2 sm:p-3 mb-2 text-center">
+                        <p class="text-xs font-bold text-sky-800 flex items-center justify-center gap-1.5">
+                            <span>♾️</span> Unlimited Practice Mode
+                        </p>
+                        <p class="text-[10px] text-sky-600 font-medium">Guess unlimited random words to build your stats!</p>
+                        <button id="exit-unlimited-button"
+                            class="mt-1 text-[10px] text-red-500 hover:text-red-700 underline font-semibold transition-colors">Exit
+                            Mode</button>
+                    </div>
+
                     <div id="game-board" class="grid grid-rows-6 gap-1.5 mb-2"></div>
 
                     <div class="space-y-2 mt-2 sm:mt-4">
@@ -364,6 +376,19 @@
                             <span class="text-[9px] bg-rose-500 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">LIVE</span>
                         </div>
                         <p class="text-xs text-slate-500">Create a room code, set a secret word, and watch your friend solve live!</p>
+                    </div>
+                </button>
+
+                <!-- Option 6: Unlimited Practice -->
+                <button id="mode-unlimited-btn"
+                    class="w-full flex items-center gap-4 p-4 bg-sky-50/50 hover:bg-sky-50 border border-sky-100 rounded-xl transition-all transform hover:scale-[1.02] text-left">
+                    <span class="text-3xl p-2 bg-sky-100 rounded-lg select-none">♾️</span>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 text-sm">Unlimited Practice</h4>
+                            <span class="text-[9px] bg-sky-500 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">ENDLESS</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Play endless Wordles with random words & track your stats!</p>
                     </div>
                 </button>
             </div>
@@ -782,6 +807,26 @@
             <h3 id="game-over-title" class="text-2xl font-bold text-center"></h3>
             <div id="game-over-word-reveal" class="hidden flex justify-center gap-1.5"></div>
             <p id="game-over-text" class="text-center text-gray-600 text-sm"></p>
+            
+            <!-- Unlimited Mode Summary Stats -->
+            <div id="unlimited-stats-container" class="hidden grid grid-cols-4 gap-2 text-center py-3 border-t border-b border-slate-100 dark:border-slate-800">
+                <div>
+                    <div id="unlimited-stat-played" class="text-xl font-extrabold text-slate-800 dark:text-slate-100">0</div>
+                    <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Played</div>
+                </div>
+                <div>
+                    <div id="unlimited-stat-win-pct" class="text-xl font-extrabold text-slate-800 dark:text-slate-100">0%</div>
+                    <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Win %</div>
+                </div>
+                <div>
+                    <div id="unlimited-stat-streak" class="text-xl font-extrabold text-amber-500">0</div>
+                    <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Streak 🔥</div>
+                </div>
+                <div>
+                    <div id="unlimited-stat-best" class="text-xl font-extrabold text-slate-700 dark:text-slate-200">0</div>
+                    <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Best 🏆</div>
+                </div>
+            </div>
             <div id="add-word-container" class="hidden space-y-3 pt-4 border-t">
                 <label for="add-word-input" class="block text-center font-semibold text-gray-700">What was your
                     word?</label>

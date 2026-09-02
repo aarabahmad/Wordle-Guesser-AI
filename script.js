@@ -1458,6 +1458,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const roomPollInt = state.roomPollInterval || null;
         const roomTimerInt = state.roomTimerInterval || null;
         const specBoardState = state.spectatorBoardState || { guesses: [], guessWords: [], currentTyped: '', won: null };
+        const isUnlimited = state.isUnlimitedMode || false;
+
+        let unlimitedWord = state.challengeWord;
+        if (isUnlimited && !unlimitedWord) {
+            unlimitedWord = wordList[Math.floor(Math.random() * wordList.length)];
+        }
 
         state = {
             possibleWords: [...wordList],
@@ -1476,7 +1482,7 @@ document.addEventListener('DOMContentLoaded', () => {
             difficulty: 'normal',
             usedExtendedDictionary: false,
             isChallengeMode: isChallenge,
-            challengeWord: challengeW,
+            challengeWord: isUnlimited ? unlimitedWord : challengeW,
             challengeTimestamp: challengeT,
             scoreSubmitted: false,
             startTime: null,
@@ -1484,6 +1490,7 @@ document.addEventListener('DOMContentLoaded', () => {
             passAndPlayWord: passPlayW,
             isDailyMode: isDaily,
             dailyWord: dailyW,
+            isUnlimitedMode: isUnlimited,
             currentTypedGuess: '',
             isRoomMode: isRoom,
             roomCode: roomC,
@@ -1628,6 +1635,7 @@ document.addEventListener('DOMContentLoaded', () => {
             actionArea.classList.add('hidden');
             challengeBanner.classList.add('hidden');
             passPlayBanner.classList.add('hidden');
+            if (unlimitedBanner) unlimitedBanner.classList.add('hidden');
             if (dailyBanner) dailyBanner.classList.remove('hidden');
             if (dailyBannerDate) {
                 dailyBannerDate.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -1640,10 +1648,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (challengeButton) challengeButton.classList.add('hidden');
             if (headerRow) { headerRow.classList.remove('max-w-[896px]', 'md:flex-row', 'gap-8'); headerRow.classList.add('max-w-[432px]', 'flex-col', 'gap-2'); }
             if (headerTitle) headerTitle.textContent = 'Daily Challenge';
+        } else if (state.isUnlimitedMode) {
+            actionArea.classList.add('hidden');
+            challengeBanner.classList.add('hidden');
+            passPlayBanner.classList.add('hidden');
+            if (dailyBanner) dailyBanner.classList.add('hidden');
+            if (unlimitedBanner) unlimitedBanner.classList.remove('hidden');
+            feedbackInput.placeholder = 'GUESS';
+            submitButton.textContent = 'Submit Guess';
+            if (feedbackSubtext) feedbackSubtext.textContent = 'Enter a 5-letter word guess';
+            feedbackInput.disabled = false;
+            submitButton.disabled = false;
+            if (challengeButton) challengeButton.classList.add('hidden');
+            if (headerRow) { headerRow.classList.remove('max-w-[896px]', 'md:flex-row', 'gap-8'); headerRow.classList.add('max-w-[432px]', 'flex-col', 'gap-2'); }
+            if (headerTitle) headerTitle.textContent = 'Unlimited Practice';
         } else {
             actionArea.classList.remove('hidden');
             challengeBanner.classList.add('hidden');
             passPlayBanner.classList.add('hidden');
+            if (dailyBanner) dailyBanner.classList.add('hidden');
+            if (unlimitedBanner) unlimitedBanner.classList.add('hidden');
             feedbackInput.placeholder = '*****';
             submitButton.textContent = 'Submit Clues';
             if (feedbackSubtext) {
@@ -2276,6 +2300,81 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const UnlimitedStats = {
+        getStats: function() {
+            try {
+                const stored = localStorage.getItem('wordle_unlimited_stats');
+                if (stored) return JSON.parse(stored);
+            } catch (e) {}
+            return { played: 0, won: 0, streak: 0, maxStreak: 0, guesses: [0, 0, 0, 0, 0, 0] };
+        },
+        saveRecord: function(won, guessCount) {
+            const stats = this.getStats();
+            stats.played += 1;
+            if (won) {
+                stats.won += 1;
+                stats.streak += 1;
+                if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
+                if (guessCount >= 1 && guessCount <= 6) stats.guesses[guessCount - 1] += 1;
+            } else {
+                stats.streak = 0;
+            }
+            try {
+                localStorage.setItem('wordle_unlimited_stats', JSON.stringify(stats));
+            } catch (e) {}
+            return stats;
+        }
+    };
+
+    function renderUnlimitedStats(stats) {
+        if (!unlimitedStatPlayed) return;
+        unlimitedStatPlayed.textContent = stats.played;
+        const pct = stats.played > 0 ? Math.round((stats.won / stats.played) * 100) : 0;
+        unlimitedStatWinPct.textContent = `${pct}%`;
+        unlimitedStatStreak.textContent = stats.streak;
+        unlimitedStatBest.textContent = stats.maxStreak;
+    }
+
+    function applyGameOverContextLayout(won) {
+        if (addWordContainer) addWordContainer.classList.add('hidden');
+        if (challengeLeaderboardSubmitContainer) challengeLeaderboardSubmitContainer.classList.add('hidden');
+        if (gameOverLeaderboardBtn) gameOverLeaderboardBtn.classList.add('hidden');
+        if (unlimitedStatsContainer) unlimitedStatsContainer.classList.add('hidden');
+
+        if (state.isUnlimitedMode) {
+            const stats = UnlimitedStats.saveRecord(won, state.guessCount);
+            renderUnlimitedStats(stats);
+            if (unlimitedStatsContainer) unlimitedStatsContainer.classList.remove('hidden');
+            if (restartButton) {
+                restartButton.textContent = 'Play Next Word 🎲';
+                restartButton.classList.remove('hidden');
+            }
+        } else if (state.isChallengeMode) {
+            if (gameOverLeaderboardBtn) gameOverLeaderboardBtn.classList.remove('hidden');
+            if (!state.scoreSubmitted && challengeLeaderboardSubmitContainer) {
+                challengeLeaderboardSubmitContainer.classList.remove('hidden');
+                const savedName = localStorage.getItem('wordle_leaderboard_player_name') || '';
+                if (leaderboardPlayerName) leaderboardPlayerName.value = savedName;
+            }
+            if (restartButton) restartButton.classList.add('hidden');
+        } else if (state.isPassAndPlayMode) {
+            if (restartButton) {
+                restartButton.textContent = 'Play Again';
+                restartButton.classList.remove('hidden');
+            }
+        } else {
+            if (!won && addWordContainer) {
+                addWordContainer.classList.remove('hidden');
+            }
+            if (restartButton) {
+                restartButton.textContent = 'Play Again';
+                restartButton.classList.remove('hidden');
+            }
+        }
+
+        if (newGameButton) newGameButton.classList.remove('hidden');
+    }
+
     function setGameOverButtons(isChallengeOrPassPlay) {
         if (newGameButton) newGameButton.classList.remove('hidden');
     }
@@ -2283,7 +2382,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function winGame(tiles) {
         endGame();
         trackEvent('game_won', {
-            mode: state.isDailyMode ? 'daily' : (state.isChallengeMode ? 'challenge' : (state.isPassAndPlayMode ? 'pass_play' : 'ai_solver')),
+            mode: state.isDailyMode ? 'daily' : (state.isUnlimitedMode ? 'unlimited' : (state.isChallengeMode ? 'challenge' : (state.isPassAndPlayMode ? 'pass_play' : 'ai_solver'))),
             guesses: state.guessCount,
             difficulty: state.difficulty
         });
@@ -2314,30 +2413,29 @@ document.addEventListener('DOMContentLoaded', () => {
             animateWordReveal(state.currentGuessWord, state.guesses[state.guesses.length - 1]);
             setTimeout(() => showDailyResultOverlay(getDailyRecord(), streak), 1400);
             return;
+        } else if (state.isUnlimitedMode) {
+            if (emojiEl) { emojiEl.textContent = '🎉'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
+            gameOverTitle.textContent = 'Victory!';
+            gameOverText.textContent = `Cracked "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries!`;
+            applyGameOverContextLayout(true);
         } else if (state.isChallengeMode) {
             if (emojiEl) { emojiEl.textContent = '⚔️'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
             gameOverTitle.textContent = 'You Won!';
             gameOverText.textContent = `Cracked "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries!`;
-            restartButton.classList.add('hidden');
-            setGameOverButtons(true);
             saveChallengeCompletion(getChallengeId(), true, state.guessCount);
             handleChallengeGameOver(true);
+            applyGameOverContextLayout(true);
         } else if (state.isPassAndPlayMode) {
             if (emojiEl) { emojiEl.textContent = '🏆'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
             gameOverTitle.textContent = 'Player 2 Wins!';
             gameOverText.textContent = `Guessed "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries!`;
-            restartButton.textContent = 'Play Again';
-            restartButton.classList.remove('hidden');
-            setGameOverButtons(true);
+            applyGameOverContextLayout(true);
         } else {
             if (emojiEl) { emojiEl.textContent = '🎉'; emojiEl.className = 'text-5xl text-center leading-none hero-emoji-animate'; }
             gameOverTitle.textContent = 'I Won!';
             gameOverText.textContent = `Solved "${state.currentGuessWord.toUpperCase()}" in ${state.guessCount} tries!`;
-            restartButton.textContent = 'Play Again';
-            restartButton.classList.remove('hidden');
-            setGameOverButtons(false);
+            applyGameOverContextLayout(true);
         }
-        addWordContainer.classList.add('hidden');
         sounds?.win.triggerAttackRelease(["C4", "E4", "G4", "C5"], 0.4);
         launchConfetti();
         for (let i = 0; i < tiles.length; i++) {
@@ -2350,7 +2448,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function endGameNoSolution(message) {
         endGame();
         trackEvent('game_lost', {
-            mode: state.isDailyMode ? 'daily' : (state.isChallengeMode ? 'challenge' : (state.isPassAndPlayMode ? 'pass_play' : 'ai_solver')),
+            mode: state.isDailyMode ? 'daily' : (state.isUnlimitedMode ? 'unlimited' : (state.isChallengeMode ? 'challenge' : (state.isPassAndPlayMode ? 'pass_play' : 'ai_solver'))),
             guesses: state.guessCount,
             difficulty: state.difficulty
         });
@@ -2377,28 +2475,24 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('wordle_daily_progress');
             updateDailyBadge();
             setTimeout(() => showDailyResultOverlay(getDailyRecord(), streak), 1200);
+        } else if (state.isUnlimitedMode) {
+            gameOverTitle.textContent = 'Out of Tries!';
+            gameOverText.textContent = `The word was "${(state.challengeWord || state.currentGuessWord).toUpperCase()}".`;
+            applyGameOverContextLayout(false);
         } else if (state.isChallengeMode) {
             gameOverTitle.textContent = 'Game Over!';
             gameOverText.textContent = message;
-            addWordContainer.classList.add('hidden');
-            restartButton.classList.add('hidden');
-            setGameOverButtons(true);
             saveChallengeCompletion(getChallengeId(), false, state.guessCount);
             handleChallengeGameOver(false);
+            applyGameOverContextLayout(false);
         } else if (state.isPassAndPlayMode) {
             gameOverTitle.textContent = 'Game Over!';
             gameOverText.textContent = message;
-            addWordContainer.classList.add('hidden');
-            restartButton.textContent = 'Play Again';
-            restartButton.classList.remove('hidden');
-            setGameOverButtons(true);
+            applyGameOverContextLayout(false);
         } else {
             gameOverTitle.textContent = 'You Stumped Me!';
             gameOverText.textContent = message;
-            addWordContainer.classList.remove('hidden');
-            restartButton.textContent = 'Play Again';
-            restartButton.classList.remove('hidden');
-            setGameOverButtons(false);
+            applyGameOverContextLayout(false);
         }
         sounds?.lose.triggerAttackRelease(["C4", "A3", "F3", "D3"], 0.8);
     }
@@ -2792,6 +2886,48 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="flex-1">
                         <h4 class="font-bold text-slate-700 text-sm">Result Summary</h4>
                         <p class="text-xs text-slate-500 mt-0.5">See if Player 2 beats the challenge or runs out of guesses!</p>
+                    </div>
+                </div>
+            `
+        },
+        unlimited: {
+            title: 'Unlimited Practice',
+            tagline: 'Play endless Wordles with random words and build your stats!',
+            icon: '♾️',
+            themeClass: 'bg-sky-100 text-sky-700 border-sky-200',
+            buttonClass: 'bg-sky-600 hover:bg-sky-700 shadow-sky-600/30',
+            buttonText: 'Start Unlimited Practice',
+            action: () => {
+                modeInfoModal.classList.add('hidden');
+                state.isUnlimitedMode = true;
+                state.isChallengeMode = false;
+                state.isPassAndPlayMode = false;
+                state.isDailyMode = false;
+                state.challengeWord = wordList[Math.floor(Math.random() * wordList.length)];
+                startGame();
+            },
+            graphics: `
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-xs font-bold mt-0.5">1</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Random Target Words</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">A fresh secret word is chosen every single round.</p>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-sky-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-xs font-bold mt-0.5">2</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Endless Play</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">No 24-hour limit! Keep playing as many rounds as you like.</p>
+                    </div>
+                </div>
+                <div class="w-0.5 h-4 bg-sky-100 ml-3"></div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-xs font-bold mt-0.5">3</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-700 text-sm">Track Stats & Streaks</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Keep track of your wins, streaks, win rate, and guess distributions.</p>
                     </div>
                 </div>
             `
@@ -3466,6 +3602,21 @@ document.addEventListener('DOMContentLoaded', () => {
             startGame();
         }
     });
+
+    const modeUnlimitedBtn = document.getElementById('mode-unlimited-btn');
+    const unlimitedBanner = document.getElementById('unlimited-banner');
+    const exitUnlimitedButton = document.getElementById('exit-unlimited-button');
+    const unlimitedStatsContainer = document.getElementById('unlimited-stats-container');
+    const unlimitedStatPlayed = document.getElementById('unlimited-stat-played');
+    const unlimitedStatWinPct = document.getElementById('unlimited-stat-win-pct');
+    const unlimitedStatStreak = document.getElementById('unlimited-stat-streak');
+    const unlimitedStatBest = document.getElementById('unlimited-stat-best');
+
+    modeUnlimitedBtn?.addEventListener('click', () => {
+        showModeExplanation('unlimited');
+    });
+
+    exitUnlimitedButton?.addEventListener('click', () => openModeSelection());
 
     // Live Multiplayer Room Setup Listeners
     modeLiveRoomBtn?.addEventListener('click', () => {
