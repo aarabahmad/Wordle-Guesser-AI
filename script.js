@@ -1841,7 +1841,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             makeGuess(inputVal);
             state.currentTypedGuess = '';
-            const targetWord = state.isChallengeMode ? state.challengeWord
+            const targetWord = (state.isChallengeMode || state.isUnlimitedMode) ? state.challengeWord
                 : state.isPassAndPlayMode ? state.passAndPlayWord
                     : state.dailyWord;
             const feedback = calculateFeedback(inputVal, targetWord);
