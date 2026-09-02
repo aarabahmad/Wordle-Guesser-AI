@@ -1697,7 +1697,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statusMessage.className = 'text-center h-8 flex items-center justify-center font-semibold text-lg mt-2';
         feedbackInput.value = '';
 
-        if (state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode) {
+        if (state.isChallengeMode || state.isPassAndPlayMode || state.isDailyMode || state.isUnlimitedMode) {
             insightsPanel.classList.add('hidden');
             if (keyboardContainer) keyboardContainer.classList.remove('hidden');
             updateKeyboardColors();
@@ -1719,7 +1719,7 @@ document.addEventListener('DOMContentLoaded', () => {
             restored = true;
         }
 
-        if (!restored && !state.isChallengeMode && !state.isPassAndPlayMode && !state.isDailyMode) {
+        if (!restored && !state.isChallengeMode && !state.isPassAndPlayMode && !state.isDailyMode && !state.isUnlimitedMode) {
             setTimeout(() => {
                 makeGuess(computeOpeningGuess());
             }, 500);
