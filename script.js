@@ -1785,8 +1785,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.disabled = false;
         feedbackInput.disabled = false;
         feedbackInput.focus();
-        if (typeof syncActiveGameDemoSteps === 'function') {
-            syncActiveGameDemoSteps();
+        if (typeof syncAndRenderLatestReasoning === 'function') {
+            syncAndRenderLatestReasoning();
         }
     }
 
@@ -1918,12 +1918,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateInsightsPanel();
 
-        if (typeof syncActiveGameDemoSteps === 'function' && syncActiveGameDemoSteps()) {
-            const viewDemo = document.getElementById('insights-view-demo');
-            if (viewDemo && !viewDemo.classList.contains('hidden')) {
-                demoCurrentStep = activeDemoSteps.length - 1;
-                renderDemoStep(demoCurrentStep, true);
-            }
+        if (typeof syncAndRenderLatestReasoning === 'function') {
+            syncAndRenderLatestReasoning();
         }
     }
 
@@ -4746,6 +4742,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return generatedSteps;
     }
 
+    function syncAndRenderLatestReasoning() {
+        if (typeof syncActiveGameDemoSteps === 'function' && syncActiveGameDemoSteps()) {
+            demoCurrentStep = activeDemoSteps.length - 1;
+            renderDemoStep(demoCurrentStep, true);
+        }
+    }
+
     function syncActiveGameDemoSteps() {
         const boardWords = [];
         for (let r = 0; r < 6; r++) {
@@ -4788,15 +4791,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const prevCount = currentCandidates.length;
 
             if (feedback) {
-                currentCandidates = currentCandidates.filter(word => {
+                let filtered = currentCandidates.filter(word => {
                     const testFeedback = calculateFeedback(guess, word);
                     return testFeedback.every((fb, idx) => fb === feedback[idx]);
                 });
+
+                if (filtered.length === 0 && typeof extendedWordList !== 'undefined' && extendedWordList.length > 0) {
+                    filtered = extendedWordList.filter(word => {
+                        for (let k = 0; k <= i; k++) {
+                            const g = allWords[k];
+                            const fb = state.guesses ? state.guesses[k] : null;
+                            if (g && fb) {
+                                const testFB = calculateFeedback(g, word);
+                                if (!testFB.every((val, idx) => val === fb[idx])) return false;
+                            }
+                        }
+                        return true;
+                    });
+                }
+                currentCandidates = filtered;
             }
 
             const newCount = feedback ? currentCandidates.length : prevCount;
-            const nextBest = newCount > 1 ? currentCandidates[0] : null;
-            const reasoning = generateStepReasoning(guess, feedback, prevCount, newCount, nextBest);
+            const effectiveCount = newCount === 0 && i === allWords.length - 1 ? 1 : newCount;
+            const nextBest = effectiveCount > 1 ? currentCandidates[0] : null;
+            const reasoning = generateStepReasoning(guess, feedback, prevCount, effectiveCount, nextBest);
 
             const letters = guess.toUpperCase().split('').map((char, idx) => {
                 let status = 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200';
@@ -4808,12 +4827,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 return { char, status };
             });
 
+            const isSolvedStep = effectiveCount <= 1 || guess === (state.currentGuessWord || '').toLowerCase();
+
             steps.push({
                 badge: `Step ${i + 1} of 6`,
-                title: i === 0 ? `1. Opener (${guess.toUpperCase()})` : `${i + 1}. AI Choice: ${guess.toUpperCase()}`,
+                title: (isSolvedStep && i > 0) ? `${i + 1}. Solved (${guess.toUpperCase()})` : (i === 0 ? `1. Opener (${guess.toUpperCase()})` : `${i + 1}. AI Choice: ${guess.toUpperCase()}`),
                 desc: reasoning.descHtml,
-                candidates: `${newCount.toLocaleString()} ${newCount === 1 ? 'word' : 'words'} left`,
-                reductionBadge: feedback ? reasoning.reductionBadge : null,
+                candidates: `${Math.max(1, effectiveCount).toLocaleString()} ${effectiveCount <= 1 ? 'word' : 'words'} left`,
+                reductionBadge: feedback ? (effectiveCount <= 1 ? '🎯 100% Confident' : reasoning.reductionBadge) : null,
                 letters
             });
         }
@@ -4950,10 +4971,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tabDemo.className = 'px-2.5 py-1 rounded-md bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm transition-all';
             tabSolver.className = 'px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-700 dark:text-slate-400 transition-all';
 
-            if (syncActiveGameDemoSteps()) {
-                demoCurrentStep = activeDemoSteps.length - 1;
-            }
-            renderDemoStep(demoCurrentStep, true);
+            syncAndRenderLatestReasoning();
         });
 
         document.getElementById('demo-prev-btn')?.addEventListener('click', () => {
