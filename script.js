@@ -547,7 +547,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Challenge Mode DOM Selectors
     const challengeButton = document.getElementById('challenge-button');
-    const gameOverChallengeButton = document.getElementById('game-over-challenge-button');
     const challengeModal = document.getElementById('challenge-modal');
     const closeChallengeModalButton = document.getElementById('close-challenge-modal-button');
     const challengeWordInput = document.getElementById('challenge-word-input');
@@ -604,6 +603,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeDailyBtn = document.getElementById('mode-daily-btn');
     const modeUnlimitedBtn = document.getElementById('mode-unlimited-btn');
     const unlimitedToggleDetailsBtn = document.getElementById('unlimited-toggle-details-btn');
+    const unlimitedStatsContainer = document.getElementById('unlimited-stats-container');
+    const unlimitedStatPlayed = document.getElementById('unlimited-stat-played');
+    const unlimitedStatWinPct = document.getElementById('unlimited-stat-win-pct');
+    const unlimitedStatStreak = document.getElementById('unlimited-stat-streak');
+    const unlimitedStatBest = document.getElementById('unlimited-stat-best');
     const dailyResultOverlay = document.getElementById('daily-result-overlay');
     const dailyModeBadge = document.getElementById('daily-mode-badge');
     const keyboardContainer = document.getElementById('keyboard-container');
