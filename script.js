@@ -602,6 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hubViewChallengesBtn = document.getElementById('hub-view-challenges-btn');
     const modePassPlayBtn = document.getElementById('mode-pass-play-btn');
     const modeDailyBtn = document.getElementById('mode-daily-btn');
+    const modeUnlimitedBtn = document.getElementById('mode-unlimited-btn');
     const dailyResultOverlay = document.getElementById('daily-result-overlay');
     const dailyModeBadge = document.getElementById('daily-mode-badge');
     const keyboardContainer = document.getElementById('keyboard-container');
