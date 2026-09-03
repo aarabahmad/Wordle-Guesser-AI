@@ -1914,6 +1914,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         updateInsightsPanel();
+
+        if (typeof syncActiveGameDemoSteps === 'function' && syncActiveGameDemoSteps()) {
+            const viewDemo = document.getElementById('insights-view-demo');
+            if (viewDemo && !viewDemo.classList.contains('hidden')) {
+                demoCurrentStep = activeDemoSteps.length - 1;
+                renderDemoStep(demoCurrentStep, true);
+            }
+        }
     }
 
     function calculateFeedback(guess, secret) {
@@ -4730,23 +4738,54 @@ document.addEventListener('DOMContentLoaded', () => {
         return generatedSteps;
     }
 
-    // Default demo steps initialized via simulation for 'PIZZA'
-    activeDemoSteps = simulateAiSolveForWord('PIZZA') || [
-        {
-            badge: "Step 1 of 4",
-            title: "1. Optimal First Guess",
-            desc: "AI chooses <strong>SLATE</strong> because S, L, A, T, E are the 5 most frequent Wordle letters.",
-            candidates: "2,309 words left",
-            reductionBadge: null,
-            letters: [
-                { char: 'S', status: 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200' },
-                { char: 'L', status: 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200' },
-                { char: 'A', status: 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200' },
-                { char: 'T', status: 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200' },
-                { char: 'E', status: 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200' }
-            ]
+    function syncActiveGameDemoSteps() {
+        if (!state.guessWords || state.guessCount === 0) return false;
+
+        let currentCandidates = [...wordList];
+        const steps = [];
+
+        for (let i = 0; i < state.guessCount; i++) {
+            const guess = state.guessWords[i];
+            const feedback = state.guesses[i];
+            if (!guess || !feedback) continue;
+
+            const prevCount = currentCandidates.length;
+
+            currentCandidates = currentCandidates.filter(word => {
+                const testFeedback = calculateFeedback(guess, word);
+                return testFeedback.every((fb, idx) => fb === feedback[idx]);
+            });
+
+            const newCount = currentCandidates.length;
+            const nextBest = newCount > 1 ? currentCandidates[0] : null;
+            const reasoning = generateStepReasoning(guess, feedback, prevCount, newCount, nextBest);
+
+            const letters = guess.toUpperCase().split('').map((char, idx) => {
+                let status = 'bg-absent';
+                if (feedback[idx] === 'correct') status = 'bg-correct';
+                else if (feedback[idx] === 'present') status = 'bg-present';
+                return { char, status };
+            });
+
+            steps.push({
+                badge: `Step ${i + 1} of 6`,
+                title: `${i + 1}. AI Choice: ${guess.toUpperCase()}`,
+                desc: reasoning.descHtml,
+                candidates: `${newCount.toLocaleString()} ${newCount === 1 ? 'word' : 'words'} left`,
+                reductionBadge: reasoning.reductionBadge,
+                letters
+            });
         }
-    ];
+
+        if (steps.length > 0) {
+            activeDemoSteps = steps;
+            return true;
+        }
+        return false;
+    }
+
+    // Default demo steps initialized via simulation for 'PIZZA'
+    activeDemoSteps = simulateAiSolveForWord('PIZZA') || [];
 
     function renderDemoStep(stepIdx, animate = true) {
         if (!activeDemoSteps || activeDemoSteps.length === 0) return;
@@ -4869,6 +4908,10 @@ document.addEventListener('DOMContentLoaded', () => {
             viewSolver?.classList.add('hidden');
             tabDemo.className = 'px-2.5 py-1 rounded-md bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm transition-all';
             tabSolver.className = 'px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-700 dark:text-slate-400 transition-all';
+
+            if (syncActiveGameDemoSteps()) {
+                demoCurrentStep = activeDemoSteps.length - 1;
+            }
             renderDemoStep(demoCurrentStep, true);
         });
 
