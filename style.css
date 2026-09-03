@@ -445,4 +445,57 @@ body.dark .creator-challenge-item:hover { background-color: #1e293b !important; 
     animation: spectatorFlip 0.4s ease-in-out forwards;
 }
 
+/* ── Interactive AI Demo Tiles ── */
+.demo-tile {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+    user-select: none;
+    font-family: 'Lexend Deca', 'Inter', sans-serif;
+}
+
+@media (min-width: 640px) {
+    .demo-tile {
+        width: 2.6rem;
+        height: 2.6rem;
+        font-size: 1.35rem;
+    }
+}
+
+@keyframes demoTileFlip {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(90deg); }
+    100% { transform: rotateY(0deg); }
+}
+
+.demo-tile-flip {
+    animation: demoTileFlip 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ── Custom Secret Word Simulator ── */
+#sim-secret-word {
+    letter-spacing: 0.15em;
+    font-weight: 800;
+}
+
+#sim-secret-word:focus {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.sim-pulse-badge {
+    animation: pulseBadge 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseBadge {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
 

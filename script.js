@@ -556,8 +556,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const challengeLinkContainer = document.getElementById('challenge-link-container');
     const challengeLinkInput = document.getElementById('challenge-link-input');
     const copyChallengeLinkButton = document.getElementById('copy-challenge-link-button');
-    const challengeBanner = document.getElementById('challenge-banner');
-    const exitChallengeButton = document.getElementById('exit-challenge-button');
+    const activeModeBanner = document.getElementById('active-mode-banner');
+    const modeBannerTitle = document.getElementById('mode-banner-title');
+    const modeBannerSubtext = document.getElementById('mode-banner-subtext');
+    const exitModeButton = document.getElementById('exit-mode-button');
     const feedbackSubtext = document.getElementById('feedback-subtext');
 
     // Challenge Leaderboards Selectors
@@ -600,9 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const hubViewChallengesBtn = document.getElementById('hub-view-challenges-btn');
     const modePassPlayBtn = document.getElementById('mode-pass-play-btn');
     const modeDailyBtn = document.getElementById('mode-daily-btn');
-    const dailyBanner = document.getElementById('daily-banner');
-    const dailyBannerDate = document.getElementById('daily-banner-date');
-    const exitDailyButton = document.getElementById('exit-daily-button');
     const dailyResultOverlay = document.getElementById('daily-result-overlay');
     const dailyModeBadge = document.getElementById('daily-mode-badge');
     const keyboardContainer = document.getElementById('keyboard-container');
@@ -617,8 +616,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const passPlaySubmitWordBtn = document.getElementById('pass-play-submit-word-btn');
     const passPlayCancelBtn = document.getElementById('pass-play-cancel-btn');
     const passPlayStartBtn = document.getElementById('pass-play-start-btn');
-    const passPlayBanner = document.getElementById('pass-play-banner');
-    const exitPassPlayButton = document.getElementById('exit-pass-play-button');
 
     // Mode Info Explanation DOM Selectors
     const modeInfoModal = document.getElementById('mode-info-modal');
@@ -1535,10 +1532,34 @@ document.addEventListener('DOMContentLoaded', () => {
             gameBoard.appendChild(row);
         }
 
+        function showModeBanner(config) {
+            if (!activeModeBanner) return;
+            if (!config) {
+                activeModeBanner.classList.add('hidden');
+                return;
+            }
+            activeModeBanner.className = `rounded-xl p-2.5 sm:p-3 mb-2 text-center transition-all duration-300 ${config.bgClass} border ${config.borderClass}`;
+            if (modeBannerTitle) {
+                modeBannerTitle.className = `text-xs font-bold flex items-center justify-center gap-1.5 ${config.titleColor}`;
+                modeBannerTitle.innerHTML = config.title;
+            }
+            if (modeBannerSubtext) {
+                modeBannerSubtext.className = `text-[10px] font-medium mt-0.5 ${config.subtextColor}`;
+                modeBannerSubtext.textContent = config.subtext;
+            }
+            activeModeBanner.classList.remove('hidden');
+        }
+
         if (state.isChallengeMode) {
             actionArea.classList.add('hidden');
-            challengeBanner.classList.remove('hidden');
-            passPlayBanner.classList.add('hidden');
+            showModeBanner({
+                bgClass: 'bg-indigo-50',
+                borderClass: 'border-indigo-200',
+                titleColor: 'text-indigo-800',
+                subtextColor: 'text-indigo-600',
+                title: '<span>⚔️</span> Challenge Mode Active',
+                subtext: "Try to guess your friend's secret word!"
+            });
             feedbackInput.placeholder = 'GUESS';
             submitButton.textContent = 'Submit Guess';
             if (feedbackSubtext) {
@@ -1606,8 +1627,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (state.isPassAndPlayMode) {
             actionArea.classList.add('hidden');
-            challengeBanner.classList.add('hidden');
-            passPlayBanner.classList.remove('hidden');
+            showModeBanner({
+                bgClass: 'bg-emerald-50',
+                borderClass: 'border-emerald-200',
+                titleColor: 'text-emerald-800',
+                subtextColor: 'text-emerald-600',
+                title: '<span>👥</span> Pass \'n Play Active',
+                subtext: "Player 2 is guessing Player 1's secret word!"
+            });
             feedbackInput.placeholder = 'GUESS';
             submitButton.textContent = 'Submit Guess';
             if (feedbackSubtext) {
@@ -1633,13 +1660,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (state.isDailyMode) {
             actionArea.classList.add('hidden');
-            challengeBanner.classList.add('hidden');
-            passPlayBanner.classList.add('hidden');
-            if (unlimitedBanner) unlimitedBanner.classList.add('hidden');
-            if (dailyBanner) dailyBanner.classList.remove('hidden');
-            if (dailyBannerDate) {
-                dailyBannerDate.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-            }
+            showModeBanner({
+                bgClass: 'bg-amber-50',
+                borderClass: 'border-amber-200',
+                titleColor: 'text-amber-800',
+                subtextColor: 'text-amber-600',
+                title: '<span>📅</span> Daily Challenge',
+                subtext: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+            });
             feedbackInput.placeholder = 'GUESS';
             submitButton.textContent = 'Submit Guess';
             if (feedbackSubtext) feedbackSubtext.textContent = 'Enter a 5-letter word guess';
@@ -1650,10 +1678,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (headerTitle) headerTitle.textContent = 'Daily Challenge';
         } else if (state.isUnlimitedMode) {
             actionArea.classList.add('hidden');
-            challengeBanner.classList.add('hidden');
-            passPlayBanner.classList.add('hidden');
-            if (dailyBanner) dailyBanner.classList.add('hidden');
-            if (unlimitedBanner) unlimitedBanner.classList.remove('hidden');
+            showModeBanner({
+                bgClass: 'bg-sky-50',
+                borderClass: 'border-sky-200',
+                titleColor: 'text-sky-800',
+                subtextColor: 'text-sky-600',
+                title: '<span>♾️</span> Unlimited Practice Mode',
+                subtext: 'Guess unlimited random words to build your stats!'
+            });
             feedbackInput.placeholder = 'GUESS';
             submitButton.textContent = 'Submit Guess';
             if (feedbackSubtext) feedbackSubtext.textContent = 'Enter a 5-letter word guess';
@@ -1664,10 +1696,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (headerTitle) headerTitle.textContent = 'Unlimited Practice';
         } else {
             actionArea.classList.remove('hidden');
-            challengeBanner.classList.add('hidden');
-            passPlayBanner.classList.add('hidden');
-            if (dailyBanner) dailyBanner.classList.add('hidden');
-            if (unlimitedBanner) unlimitedBanner.classList.add('hidden');
+            showModeBanner(null);
             feedbackInput.placeholder = '*****';
             submitButton.textContent = 'Submit Clues';
             if (feedbackSubtext) {
@@ -3257,11 +3286,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    exitChallengeButton?.addEventListener('click', () => {
-        state.isChallengeMode = false;
-        state.challengeWord = null;
-        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
-        window.history.replaceState({}, document.title, cleanUrl);
+    exitModeButton?.addEventListener('click', () => {
+        if (state.isChallengeMode) {
+            state.isChallengeMode = false;
+            state.challengeWord = null;
+            const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+        if (state.isPassAndPlayMode) {
+            state.isPassAndPlayMode = false;
+            state.passAndPlayWord = null;
+        }
+        if (state.isDailyMode) {
+            state.isDailyMode = false;
+        }
+        if (state.isUnlimitedMode) {
+            state.isUnlimitedMode = false;
+        }
         openModeSelection();
     });
 
@@ -3642,21 +3683,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const modeUnlimitedBtn = document.getElementById('mode-unlimited-btn');
-    const unlimitedBanner = document.getElementById('unlimited-banner');
-    const exitUnlimitedButton = document.getElementById('exit-unlimited-button');
-    const unlimitedStatsContainer = document.getElementById('unlimited-stats-container');
-    const unlimitedStatPlayed = document.getElementById('unlimited-stat-played');
-    const unlimitedStatWinPct = document.getElementById('unlimited-stat-win-pct');
-    const unlimitedStatStreak = document.getElementById('unlimited-stat-streak');
-    const unlimitedStatBest = document.getElementById('unlimited-stat-best');
-    const unlimitedToggleDetailsBtn = document.getElementById('unlimited-toggle-details-btn');
-
     modeUnlimitedBtn?.addEventListener('click', () => {
         showModeExplanation('unlimited');
     });
-
-    exitUnlimitedButton?.addEventListener('click', () => openModeSelection());
     
     unlimitedToggleDetailsBtn?.addEventListener('click', () => {
         const container = document.getElementById('unlimited-detailed-stats-container');
@@ -3872,7 +3901,6 @@ document.addEventListener('DOMContentLoaded', () => {
         openModeSelection();
     });
 
-    exitDailyButton?.addEventListener('click', () => openModeSelection());
 
     document.getElementById('daily-share-btn')?.addEventListener('click', () => {
         const record = getDailyRecord();
@@ -3975,9 +4003,6 @@ document.addEventListener('DOMContentLoaded', () => {
         startGame();
     });
 
-    exitPassPlayButton?.addEventListener('click', () => {
-        openModeSelection();
-    });
 
     // ── Daily Challenge Utilities ──────────────────────────────────────────
     function getDailyDateKey() {
@@ -4512,8 +4537,303 @@ document.addEventListener('DOMContentLoaded', () => {
     closeStatsModal?.addEventListener('click', () => statsModal?.classList.add('hidden'));
     statsModal?.addEventListener('click', (e) => { if (e.target === statsModal) statsModal.classList.add('hidden'); });
 
+    // ── Dynamic Live AI Reasoning & Custom Word Simulator ─────────────────
+    let demoCurrentStep = 0;
+    let demoAutoPlayTimer = null;
+    let activeDemoSteps = [];
+
+    function generateStepReasoning(guess, feedback, prevCount, newCount, nextBest) {
+        const uppercaseGuess = guess.toUpperCase();
+        let letterRules = [];
+        for (let i = 0; i < 5; i++) {
+            const char = uppercaseGuess[i];
+            const status = feedback[i];
+            if (status === 'correct') {
+                letterRules.push(`Locks <strong class="text-emerald-600 dark:text-emerald-400 font-bold">'${char}'</strong> in slot ${i + 1}`);
+            } else if (status === 'present') {
+                letterRules.push(`Confirms <strong class="text-amber-600 dark:text-amber-400 font-bold">'${char}'</strong> in word (not slot ${i + 1})`);
+            }
+        }
+
+        const elimCount = Math.max(0, prevCount - newCount);
+        const reductionPct = prevCount > 0 ? ((elimCount / prevCount) * 100).toFixed(1) : '0.0';
+
+        let descHtml = '';
+        if (prevCount >= 2000) {
+            descHtml = `AI selects <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> as the optimal opener because S, L, A, T, E cover the top Wordle letter frequencies across all 2,309 initial candidates.`;
+        } else if (newCount === 1 || guess === nextBest) {
+            descHtml = `Only 1 candidate remains matching all yellow/green constraints: <strong class="text-emerald-600 dark:text-emerald-400 font-extrabold">${uppercaseGuess}</strong>! Solved with 100% confidence.`;
+        } else {
+            const rulesText = letterRules.length > 0 ? letterRules.slice(0, 2).join('. ') + '. ' : '';
+            descHtml = `${rulesText}Eliminated <strong>${elimCount.toLocaleString()}</strong> words (${reductionPct}% reduction). `;
+            if (nextBest) {
+                descHtml += `Next pick <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${nextBest.toUpperCase()}</strong> splits the remaining ${newCount} candidates.`;
+            }
+        }
+
+        return {
+            descHtml,
+            elimCount,
+            reductionPct,
+            reductionBadge: prevCount < 2000 && elimCount > 0 ? `⚡ ${reductionPct}% Reduced` : null
+        };
+    }
+
+    function simulateAiSolveForWord(secretWord) {
+        const target = secretWord.trim().toLowerCase();
+        if (target.length !== 5) return null;
+
+        let currentCandidates = [...wordList];
+        const generatedSteps = [];
+        const maxTries = 6;
+
+        for (let turn = 0; turn < maxTries; turn++) {
+            const prevCount = currentCandidates.length;
+            if (prevCount === 0) break;
+
+            let guess = '';
+            if (turn === 0) {
+                guess = 'slate';
+            } else if (currentCandidates.length <= 2) {
+                guess = currentCandidates[0];
+            } else {
+                const remaining = currentCandidates;
+                let bestScore = -1;
+                let bestWord = remaining[0];
+                const pool = remaining.length <= 150 ? wordList : remaining;
+                for (const candidate of pool) {
+                    let score = 0;
+                    if (remaining.length <= 150) {
+                        const groups = {};
+                        for (const sec of remaining) {
+                            const key = getPatternKey(candidate, sec);
+                            groups[key] = (groups[key] || 0) + 1;
+                        }
+                        for (const count of Object.values(groups)) {
+                            const p = count / remaining.length;
+                            score -= p * Math.log2(p);
+                        }
+                        if (remaining.includes(candidate)) score += 0.01;
+                    } else {
+                        const posFreq = Array.from({ length: 5 }, () => ({}));
+                        for (const w of remaining) {
+                            for (let i = 0; i < 5; i++) {
+                                posFreq[i][w[i]] = (posFreq[i][w[i]] || 0) + 1;
+                            }
+                        }
+                        const seen = new Set();
+                        for (let i = 0; i < 5; i++) {
+                            const ch = candidate[i];
+                            if (!seen.has(ch)) {
+                                seen.add(ch);
+                                score += (posFreq[i][ch] || 0);
+                            }
+                        }
+                    }
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestWord = candidate;
+                    }
+                }
+                guess = bestWord;
+            }
+
+            const feedback = calculateFeedback(guess, target);
+
+            currentCandidates = currentCandidates.filter(word => {
+                const testFeedback = calculateFeedback(guess, word);
+                return testFeedback.every((fb, idx) => fb === feedback[idx]);
+            });
+
+            const newCount = currentCandidates.length;
+            const nextBest = newCount > 1 ? currentCandidates[0] : null;
+            const reasoning = generateStepReasoning(guess, feedback, prevCount, newCount, nextBest);
+
+            const letters = guess.toUpperCase().split('').map((char, i) => {
+                let status = 'bg-absent';
+                if (feedback[i] === 'correct') status = 'bg-correct';
+                else if (feedback[i] === 'present') status = 'bg-present';
+                return { char, status };
+            });
+
+            generatedSteps.push({
+                badge: `Step ${turn + 1} of ${maxTries}`,
+                title: turn === 0 ? `1. Opener (${guess.toUpperCase()})` : (guess === target ? `${turn + 1}. Solved (${guess.toUpperCase()})!` : `${turn + 1}. AI Choice: ${guess.toUpperCase()}`),
+                desc: reasoning.descHtml,
+                candidates: `${newCount.toLocaleString()} ${newCount === 1 ? 'word' : 'words'} left`,
+                reductionBadge: reasoning.reductionBadge,
+                letters
+            });
+
+            if (guess === target || newCount === 0) break;
+        }
+
+        return generatedSteps;
+    }
+
+    // Default demo steps initialized via simulation for 'PIZZA'
+    activeDemoSteps = simulateAiSolveForWord('PIZZA') || [
+        {
+            badge: "Step 1 of 4",
+            title: "1. Optimal First Guess",
+            desc: "AI chooses <strong>SLATE</strong> because S, L, A, T, E are the 5 most frequent Wordle letters.",
+            candidates: "2,309 words left",
+            reductionBadge: null,
+            letters: [
+                { char: 'S', status: 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200' },
+                { char: 'L', status: 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200' },
+                { char: 'A', status: 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200' },
+                { char: 'T', status: 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200' },
+                { char: 'E', status: 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200' }
+            ]
+        }
+    ];
+
+    function renderDemoStep(stepIdx, animate = true) {
+        if (!activeDemoSteps || activeDemoSteps.length === 0) return;
+        if (stepIdx < 0) stepIdx = 0;
+        if (stepIdx >= activeDemoSteps.length) stepIdx = activeDemoSteps.length - 1;
+        
+        const step = activeDemoSteps[stepIdx];
+        if (!step) return;
+        demoCurrentStep = stepIdx;
+
+        const badge = document.getElementById('demo-step-badge');
+        const reductionBadge = document.getElementById('demo-reduction-badge');
+        const candidates = document.getElementById('demo-step-candidates');
+        const title = document.getElementById('demo-step-title');
+        const desc = document.getElementById('demo-step-desc');
+        const tilesRow = document.getElementById('demo-tiles-row');
+        const dotsContainer = document.getElementById('demo-dots');
+        const prevBtn = document.getElementById('demo-prev-btn');
+        const nextBtn = document.getElementById('demo-next-btn');
+
+        if (badge) badge.textContent = step.badge;
+        if (reductionBadge) {
+            if (step.reductionBadge) {
+                reductionBadge.textContent = step.reductionBadge;
+                reductionBadge.classList.remove('hidden');
+            } else {
+                reductionBadge.classList.add('hidden');
+            }
+        }
+        if (candidates) candidates.textContent = step.candidates;
+        if (title) title.textContent = step.title;
+        if (desc) desc.innerHTML = step.desc;
+
+        if (tilesRow) {
+            tilesRow.innerHTML = '';
+            step.letters.forEach((item, i) => {
+                const tile = document.createElement('div');
+                tile.className = `demo-tile ${item.status} ${animate ? 'demo-tile-flip' : ''}`;
+                tile.style.animationDelay = `${i * 60}ms`;
+                tile.textContent = item.char;
+                tilesRow.appendChild(tile);
+            });
+        }
+
+        if (dotsContainer) {
+            dotsContainer.innerHTML = '';
+            activeDemoSteps.forEach((_, i) => {
+                const dot = document.createElement('span');
+                if (i === stepIdx) {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-indigo-600 dark:bg-indigo-400 transition-all scale-110';
+                } else {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-slate-700 transition-all';
+                }
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        if (prevBtn) prevBtn.disabled = stepIdx === 0;
+        if (nextBtn) nextBtn.disabled = stepIdx === activeDemoSteps.length - 1;
+    }
+
+    function toggleDemoAutoPlay() {
+        const playBtn = document.getElementById('demo-auto-play-btn');
+        if (demoAutoPlayTimer) {
+            clearInterval(demoAutoPlayTimer);
+            demoAutoPlayTimer = null;
+            if (playBtn) playBtn.textContent = '▶ Play';
+        } else {
+            if (demoCurrentStep >= activeDemoSteps.length - 1) demoCurrentStep = 0;
+            renderDemoStep(demoCurrentStep);
+            if (playBtn) playBtn.textContent = '⏸ Pause';
+            demoAutoPlayTimer = setInterval(() => {
+                if (demoCurrentStep < activeDemoSteps.length - 1) {
+                    demoCurrentStep++;
+                    renderDemoStep(demoCurrentStep);
+                } else {
+                    clearInterval(demoAutoPlayTimer);
+                    demoAutoPlayTimer = null;
+                    if (playBtn) playBtn.textContent = '▶ Play';
+                }
+            }, 2500);
+        }
+    }
+
+    function runCustomSecretWordSimulation() {
+        const inputEl = document.getElementById('sim-secret-word');
+        const val = inputEl?.value.trim().toUpperCase();
+        if (!val || val.length !== 5) {
+            if (inputEl) {
+                inputEl.classList.add('border-red-500', 'animate-shake');
+                setTimeout(() => inputEl.classList.remove('border-red-500', 'animate-shake'), 600);
+            }
+            return;
+        }
+
+        const steps = simulateAiSolveForWord(val);
+        if (steps && steps.length > 0) {
+            if (demoAutoPlayTimer) toggleDemoAutoPlay();
+            activeDemoSteps = steps;
+            renderDemoStep(0, true);
+        }
+    }
+
+    function initAiDemoEvents() {
+        const tabSolver = document.getElementById('insights-tab-solver');
+        const tabDemo = document.getElementById('insights-tab-demo');
+        const viewSolver = document.getElementById('insights-view-solver');
+        const viewDemo = document.getElementById('insights-view-demo');
+
+        tabSolver?.addEventListener('click', () => {
+            viewSolver?.classList.remove('hidden');
+            viewDemo?.classList.add('hidden');
+            tabSolver.className = 'px-2.5 py-1 rounded-md bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm transition-all';
+            tabDemo.className = 'px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-700 dark:text-slate-400 transition-all';
+            if (demoAutoPlayTimer) toggleDemoAutoPlay();
+        });
+
+        tabDemo?.addEventListener('click', () => {
+            viewDemo?.classList.remove('hidden');
+            viewSolver?.classList.add('hidden');
+            tabDemo.className = 'px-2.5 py-1 rounded-md bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm transition-all';
+            tabSolver.className = 'px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-700 dark:text-slate-400 transition-all';
+            renderDemoStep(demoCurrentStep, true);
+        });
+
+        document.getElementById('demo-prev-btn')?.addEventListener('click', () => {
+            if (demoCurrentStep > 0) renderDemoStep(demoCurrentStep - 1);
+        });
+
+        document.getElementById('demo-next-btn')?.addEventListener('click', () => {
+            if (demoCurrentStep < activeDemoSteps.length - 1) renderDemoStep(demoCurrentStep + 1);
+        });
+
+        document.getElementById('demo-auto-play-btn')?.addEventListener('click', () => {
+            toggleDemoAutoPlay();
+        });
+
+        document.getElementById('run-sim-btn')?.addEventListener('click', runCustomSecretWordSimulation);
+        document.getElementById('sim-secret-word')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') runCustomSecretWordSimulation();
+        });
+    }
+
     async function init() {
         initKeyboard();
+        initAiDemoEvents();
         await parseURLParams();
         updateDailyBadge();
         if (state.isChallengeMode) {
