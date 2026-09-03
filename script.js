@@ -1785,6 +1785,9 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.disabled = false;
         feedbackInput.disabled = false;
         feedbackInput.focus();
+        if (typeof syncActiveGameDemoSteps === 'function') {
+            syncActiveGameDemoSteps();
+        }
     }
 
     async function submitFeedbackAndAdvance(feedback) {
@@ -4610,14 +4613,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generateStepReasoning(guess, feedback, prevCount, newCount, nextBest) {
         const uppercaseGuess = guess.toUpperCase();
+        const letterListFormatted = uppercaseGuess.split('').join(', ');
         let letterRules = [];
-        for (let i = 0; i < 5; i++) {
-            const char = uppercaseGuess[i];
-            const status = feedback[i];
-            if (status === 'correct') {
-                letterRules.push(`Locks <strong class="text-emerald-600 dark:text-emerald-400 font-bold">'${char}'</strong> in slot ${i + 1}`);
-            } else if (status === 'present') {
-                letterRules.push(`Confirms <strong class="text-amber-600 dark:text-amber-400 font-bold">'${char}'</strong> in word (not slot ${i + 1})`);
+        if (feedback) {
+            for (let i = 0; i < 5; i++) {
+                const char = uppercaseGuess[i];
+                const status = feedback[i];
+                if (status === 'correct') {
+                    letterRules.push(`Locks <strong class="text-emerald-600 dark:text-emerald-400 font-bold">'${char}'</strong> in slot ${i + 1}`);
+                } else if (status === 'present') {
+                    letterRules.push(`Confirms <strong class="text-amber-600 dark:text-amber-400 font-bold">'${char}'</strong> in word (not slot ${i + 1})`);
+                }
             }
         }
 
@@ -4626,15 +4632,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let descHtml = '';
         if (prevCount >= 2000) {
-            descHtml = `AI selects <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> as the optimal opener because S, L, A, T, E cover the top Wordle letter frequencies across all 2,309 initial candidates.`;
-        } else if (newCount === 1 || guess === nextBest) {
+            descHtml = `AI selects <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> as the optimal opener because ${letterListFormatted} cover the top Wordle letter frequencies across all 2,309 initial candidates.`;
+        } else if (feedback && (newCount === 1 || guess === nextBest)) {
             descHtml = `Only 1 candidate remains matching all yellow/green constraints: <strong class="text-emerald-600 dark:text-emerald-400 font-extrabold">${uppercaseGuess}</strong>! Solved with 100% confidence.`;
-        } else {
+        } else if (feedback) {
             const rulesText = letterRules.length > 0 ? letterRules.slice(0, 2).join('. ') + '. ' : '';
             descHtml = `${rulesText}Eliminated <strong>${elimCount.toLocaleString()}</strong> words (${reductionPct}% reduction). `;
             if (nextBest) {
                 descHtml += `Next pick <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${nextBest.toUpperCase()}</strong> splits the remaining ${newCount} candidates.`;
             }
+        } else {
+            descHtml = `AI selects <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> to test unrevealed high-frequency letters and split the remaining <strong>${prevCount.toLocaleString()}</strong> candidates into minimal group sizes.`;
         }
 
         return {
@@ -4739,40 +4747,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function syncActiveGameDemoSteps() {
-        if (!state.guessWords || state.guessCount === 0) return false;
+        if (!state.guessWords || state.guessWords.length === 0) return false;
 
         let currentCandidates = [...wordList];
         const steps = [];
 
-        for (let i = 0; i < state.guessCount; i++) {
+        for (let i = 0; i < state.guessWords.length; i++) {
             const guess = state.guessWords[i];
-            const feedback = state.guesses[i];
-            if (!guess || !feedback) continue;
+            if (!guess) continue;
 
+            const feedback = state.guesses ? state.guesses[i] : null;
             const prevCount = currentCandidates.length;
 
-            currentCandidates = currentCandidates.filter(word => {
-                const testFeedback = calculateFeedback(guess, word);
-                return testFeedback.every((fb, idx) => fb === feedback[idx]);
-            });
+            if (feedback) {
+                currentCandidates = currentCandidates.filter(word => {
+                    const testFeedback = calculateFeedback(guess, word);
+                    return testFeedback.every((fb, idx) => fb === feedback[idx]);
+                });
+            }
 
-            const newCount = currentCandidates.length;
+            const newCount = feedback ? currentCandidates.length : prevCount;
             const nextBest = newCount > 1 ? currentCandidates[0] : null;
             const reasoning = generateStepReasoning(guess, feedback, prevCount, newCount, nextBest);
 
             const letters = guess.toUpperCase().split('').map((char, idx) => {
-                let status = 'bg-absent';
-                if (feedback[idx] === 'correct') status = 'bg-correct';
-                else if (feedback[idx] === 'present') status = 'bg-present';
+                let status = 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200';
+                if (feedback) {
+                    if (feedback[idx] === 'correct') status = 'bg-correct';
+                    else if (feedback[idx] === 'present') status = 'bg-present';
+                    else status = 'bg-absent';
+                }
                 return { char, status };
             });
 
             steps.push({
                 badge: `Step ${i + 1} of 6`,
-                title: `${i + 1}. AI Choice: ${guess.toUpperCase()}`,
+                title: i === 0 ? `1. Opener (${guess.toUpperCase()})` : `${i + 1}. AI Choice: ${guess.toUpperCase()}`,
                 desc: reasoning.descHtml,
                 candidates: `${newCount.toLocaleString()} ${newCount === 1 ? 'word' : 'words'} left`,
-                reductionBadge: reasoning.reductionBadge,
+                reductionBadge: feedback ? reasoning.reductionBadge : null,
                 letters
             });
         }
