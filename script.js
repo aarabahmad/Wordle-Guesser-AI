@@ -2316,6 +2316,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
             topSuggestions.appendChild(row);
         }
+
+        updateLiveSolverReasoning(top5.length > 0 ? top5[0].word : null);
+    }
+
+    function updateLiveSolverReasoning(topPick) {
+        const reasoningText = document.getElementById('live-reasoning-text');
+        const reductionBadge = document.getElementById('live-reduction-badge');
+        if (!reasoningText) return;
+
+        const currentCount = state.possibleWords.length;
+        const prevCount = state.prevCandidateCount || 2309;
+        const turn = state.attempts ? state.attempts.length : 0;
+
+        if (currentCount === 0) {
+            if (reductionBadge) {
+                reductionBadge.textContent = '⚠️ 0 Candidates';
+                reductionBadge.className = 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded-full text-[10px]';
+                reductionBadge.classList.remove('hidden');
+            }
+            reasoningText.innerHTML = `No dictionary words match all submitted color clues! Double check row feedback for conflicting green/yellow letters.`;
+            return;
+        }
+
+        if (currentCount === 1) {
+            const word = state.possibleWords[0].toUpperCase();
+            if (reductionBadge) {
+                reductionBadge.textContent = '🎯 Solved (100%)';
+                reductionBadge.className = 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full text-[10px]';
+                reductionBadge.classList.remove('hidden');
+            }
+            reasoningText.innerHTML = `Only 1 candidate remains matching all clues: <strong class="text-emerald-600 dark:text-emerald-400 font-extrabold text-xs">${word}</strong>! Target word guaranteed.`;
+            return;
+        }
+
+        if (turn === 0 || currentCount >= 2000) {
+            if (reductionBadge) {
+                reductionBadge.textContent = '⚡ 2,309 Words';
+                reductionBadge.className = 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full text-[10px]';
+                reductionBadge.classList.remove('hidden');
+            }
+            reasoningText.innerHTML = `Opener: <strong class="text-indigo-600 dark:text-indigo-400 font-bold">SLATE</strong> covers S, L, A, T, E (top letter frequencies). Input color clues to calculate next pick.`;
+        } else {
+            const elimCount = Math.max(0, prevCount - currentCount);
+            const dropPct = prevCount > 0 ? ((elimCount / prevCount) * 100).toFixed(1) : '0.0';
+            if (reductionBadge) {
+                reductionBadge.textContent = `⚡ ${dropPct}% Reduced`;
+                reductionBadge.className = 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full text-[10px]';
+                reductionBadge.classList.remove('hidden');
+            }
+
+            let text = `Turn ${turn}: Eliminated <strong class="font-bold text-slate-800 dark:text-slate-200">${elimCount.toLocaleString()}</strong> words (${dropPct}% drop). <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${currentCount}</strong> candidates remaining. `;
+            if (topPick) {
+                text += `Next recommended pick <strong class="text-indigo-600 dark:text-indigo-400 font-extrabold uppercase">${topPick}</strong> maximally reduces candidate entropy.`;
+            }
+            reasoningText.innerHTML = text;
+        }
+
+        state.prevCandidateCount = currentCount;
     }
 
     function setStatusMessage(msg, animationClass = '', textClass = '') {
@@ -4583,7 +4641,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = secretWord.trim().toLowerCase();
         if (target.length !== 5) return null;
 
-        let currentCandidates = [...wordList];
+        const targetPool = wordList.includes(target) ? wordList : (extendedWordList.includes(target) ? extendedWordList : [...wordList, target]);
+        let currentCandidates = [...targetPool];
         const generatedSteps = [];
         const maxTries = 6;
 

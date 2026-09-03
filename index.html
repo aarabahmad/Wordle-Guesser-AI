@@ -210,7 +210,7 @@
                 </div>
 
                 <!-- View 1: Live Solver Insights -->
-                <div id="insights-view-solver" class="space-y-4 flex-1 flex flex-col justify-between">
+                <div id="insights-view-solver" class="space-y-3.5 flex-1 flex flex-col justify-between">
                     <div class="flex justify-between items-center text-sm border-b pb-3">
                         <div class="flex flex-col">
                             <span class="text-gray-600 font-medium">Remaining Candidates:</span>
@@ -220,9 +220,21 @@
                         </div>
                         <span id="remaining-count" class="font-bold text-indigo-600 text-lg">2,309</span>
                     </div>
+
+                    <!-- Live AI Thought Process Card (Updates Turn-by-Turn) -->
+                    <div id="live-reasoning-card" class="bg-indigo-50/70 dark:bg-indigo-950/40 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/50 space-y-2 text-left">
+                        <div class="flex items-center justify-between text-[11px] font-bold">
+                            <span class="bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full">🧠 AI Thought Process</span>
+                            <span id="live-reduction-badge" class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full text-[10px] hidden">⚡ Ready</span>
+                        </div>
+                        <p id="live-reasoning-text" class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Ready! Submit your clue feedback row-by-row to watch the AI explain its reasoning, candidate drops, and next guess strategy live.
+                        </p>
+                    </div>
+
                     <div class="flex-1 flex flex-col justify-center">
                         <span
-                            class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2.5 text-center">Top
+                            class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 text-center">Top
                             Possible Matches</span>
                         <div id="top-suggestions" class="space-y-2 flex flex-col items-center">
                             <!-- Dynamically populated rows of letter tiles -->
