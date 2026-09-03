@@ -4747,15 +4747,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function syncActiveGameDemoSteps() {
-        if (!state.guessWords || state.guessWords.length === 0) return false;
+        const boardWords = [];
+        for (let r = 0; r < 6; r++) {
+            const rowEl = document.getElementById(`row-${r}`);
+            if (rowEl) {
+                const tiles = rowEl.querySelectorAll('.tile-front, .tile');
+                if (tiles.length === 5) {
+                    let word = '';
+                    tiles.forEach(t => { word += (t.textContent || '').trim().toLowerCase(); });
+                    if (word.length === 5 && /^[a-z]{5}$/.test(word)) {
+                        boardWords.push(word);
+                    }
+                }
+            }
+        }
+
+        const allWords = [];
+        const seen = new Set();
+        (state.guessWords || []).forEach(w => {
+            if (w && w.length === 5 && !seen.has(w.toLowerCase())) {
+                seen.add(w.toLowerCase());
+                allWords.push(w.toLowerCase());
+            }
+        });
+        boardWords.forEach(w => {
+            if (w && w.length === 5 && !seen.has(w.toLowerCase())) {
+                seen.add(w.toLowerCase());
+                allWords.push(w.toLowerCase());
+            }
+        });
+
+        if (allWords.length === 0) return false;
 
         let currentCandidates = [...wordList];
         const steps = [];
 
-        for (let i = 0; i < state.guessWords.length; i++) {
-            const guess = state.guessWords[i];
-            if (!guess) continue;
-
+        for (let i = 0; i < allWords.length; i++) {
+            const guess = allWords[i];
             const feedback = state.guesses ? state.guesses[i] : null;
             const prevCount = currentCandidates.length;
 
