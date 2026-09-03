@@ -2368,7 +2368,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 reductionBadge.className = 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full text-[10px]';
                 reductionBadge.classList.remove('hidden');
             }
-            reasoningText.innerHTML = `Opener: <strong class="text-indigo-600 dark:text-indigo-400 font-bold">SLATE</strong> covers S, L, A, T, E (top letter frequencies). Input color clues to calculate next pick.`;
+            reasoningText.innerHTML = `Opener: <strong class="text-indigo-600 dark:text-indigo-400 font-bold">SLATE</strong> tests top vowels (A, E) and consonants (S, L, T). Input color clues to calculate next pick.`;
         } else {
             const elimCount = Math.max(0, prevCount - currentCount);
             const dropPct = prevCount > 0 ? ((elimCount / prevCount) * 100).toFixed(1) : '0.0';
@@ -2380,7 +2380,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let text = `Turn ${turn}: Eliminated <strong class="font-bold text-slate-800 dark:text-slate-200">${elimCount.toLocaleString()}</strong> words (${dropPct}% drop). <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${currentCount}</strong> candidates remaining. `;
             if (topPick) {
-                text += `Next recommended pick <strong class="text-indigo-600 dark:text-indigo-400 font-extrabold uppercase">${topPick}</strong> maximally reduces candidate entropy.`;
+                const upperPick = topPick.toUpperCase();
+                text += `Next recommended pick <strong class="text-indigo-600 dark:text-indigo-400 font-extrabold uppercase">${upperPick}</strong> tests key letters to split remaining candidates.`;
             }
             reasoningText.innerHTML = text;
         }
@@ -4612,17 +4613,26 @@ document.addEventListener('DOMContentLoaded', () => {
     let demoAutoPlayTimer = null;
     let activeDemoSteps = [];
 
-    function generateStepReasoning(guess, feedback, prevCount, newCount, nextBest) {
+    function generateStepReasoning(guess, feedback, prevCount, newCount, nextBest, candidatePool = []) {
         const uppercaseGuess = guess.toUpperCase();
-        const letterListFormatted = uppercaseGuess.split('').join(', ');
+        const lettersArr = uppercaseGuess.split('');
+        const uniqueLetters = [...new Set(lettersArr)];
+        const vowelsInGuess = uniqueLetters.filter(ch => 'AEIOU'.includes(ch));
+        const consonantsInGuess = uniqueLetters.filter(ch => !'AEIOU'.includes(ch));
+
         let letterRules = [];
+        let lockedCount = 0;
+        let yellowCount = 0;
+
         if (feedback) {
             for (let i = 0; i < 5; i++) {
                 const char = uppercaseGuess[i];
                 const status = feedback[i];
                 if (status === 'correct') {
+                    lockedCount++;
                     letterRules.push(`Locks <strong class="text-emerald-600 dark:text-emerald-400 font-bold">'${char}'</strong> in slot ${i + 1}`);
                 } else if (status === 'present') {
+                    yellowCount++;
                     letterRules.push(`Confirms <strong class="text-amber-600 dark:text-amber-400 font-bold">'${char}'</strong> in word (not slot ${i + 1})`);
                 }
             }
@@ -4631,19 +4641,64 @@ document.addEventListener('DOMContentLoaded', () => {
         const elimCount = Math.max(0, prevCount - newCount);
         const reductionPct = prevCount > 0 ? ((elimCount / prevCount) * 100).toFixed(1) : '0.0';
 
+        // Sample candidates if pool is small
+        let poolSample = '';
+        if (candidatePool && candidatePool.length > 0 && candidatePool.length <= 6) {
+            const list = candidatePool.slice(0, 4).map(w => w.toUpperCase());
+            poolSample = list.join(', ') + (candidatePool.length > 4 ? '...' : '');
+        }
+
         let descHtml = '';
-        if (prevCount >= 2000) {
-            descHtml = `AI selects <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> as the optimal opener because ${letterListFormatted} cover the top Wordle letter frequencies across all 2,309 initial candidates.`;
-        } else if (feedback && (newCount === 1 || guess === nextBest)) {
-            descHtml = `Only 1 candidate remains matching all yellow/green constraints: <strong class="text-emerald-600 dark:text-emerald-400 font-extrabold">${uppercaseGuess}</strong>! Solved with 100% confidence.`;
+
+        // 1. Initial Opener (> 1500 candidates)
+        if (prevCount >= 1500) {
+            const vowelStr = vowelsInGuess.length > 0 ? `vowels <strong class="font-bold text-slate-800 dark:text-slate-200">${vowelsInGuess.join(', ')}</strong>` : 'vowels';
+            const consStr = consonantsInGuess.length > 0 ? `consonants <strong class="font-bold text-slate-800 dark:text-slate-200">${consonantsInGuess.join(', ')}</strong>` : 'consonants';
+            descHtml = `AI selects <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> to test key ${vowelStr} and ${consStr}. This optimal opener covers top letter frequencies across the 2,309 word dictionary.`;
+
+        // 2. Solved / Single Candidate Left
+        } else if (newCount === 1 || prevCount === 1) {
+            const solvedWord = (candidatePool && candidatePool[0] ? candidatePool[0] : uppercaseGuess).toUpperCase();
+            if (lockedCount === 5) {
+                descHtml = `All 5 letters locked! <strong class="text-emerald-600 dark:text-emerald-400 font-extrabold">${solvedWord}</strong> matches every green constraint — solved with 100% certainty!`;
+            } else if (feedback) {
+                descHtml = `Based on yellow/green clues, <strong class="text-emerald-600 dark:text-emerald-400 font-extrabold">${solvedWord}</strong> is the only valid 5-letter word remaining out of all dictionary entries. Guaranteed target!`;
+            } else {
+                descHtml = `<strong class="text-emerald-600 dark:text-emerald-400 font-extrabold">${solvedWord}</strong> is the single remaining candidate matching all clues. Ready to submit for the win!`;
+            }
+
+        // 3. Very Small Pool (2 to 5 words left)
+        } else if (newCount > 1 && newCount <= 5) {
+            const rulesText = letterRules.length > 0 ? letterRules.slice(0, 2).join('. ') + '. ' : '';
+            if (poolSample) {
+                descHtml = `${rulesText}Only <strong>${newCount} possibilities</strong> remain (${poolSample}). AI plays <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> to test key letters and pinpoint the answer.`;
+            } else {
+                descHtml = `${rulesText}Narrowed down to just <strong>${newCount} words</strong>! AI plays <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> to test distinguishing letters and confirm the target.`;
+            }
+
+        // 4. Mid-Game Filtering with Feedback
         } else if (feedback) {
             const rulesText = letterRules.length > 0 ? letterRules.slice(0, 2).join('. ') + '. ' : '';
-            descHtml = `${rulesText}Eliminated <strong>${elimCount.toLocaleString()}</strong> words (${reductionPct}% reduction). `;
-            if (nextBest) {
-                descHtml += `Next pick <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${nextBest.toUpperCase()}</strong> splits the remaining ${newCount} candidates.`;
+            if (letterRules.length === 0) {
+                descHtml = `None of the letters matched, eliminating <strong>${elimCount.toLocaleString()}</strong> words (${reductionPct}% reduction). AI plays <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> to test 5 fresh high-frequency letters.`;
+            } else {
+                descHtml = `${rulesText}Eliminated <strong>${elimCount.toLocaleString()}</strong> invalid words (${reductionPct}% reduction). `;
+                if (nextBest) {
+                    descHtml += `Playing <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${nextBest.toUpperCase()}</strong> next will split the remaining <strong>${newCount}</strong> candidates into minimal test groups.`;
+                }
             }
+
+        // 5. Fallback without Feedback (Turn previews / Live card)
         } else {
-            descHtml = `AI selects <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> to test unrevealed high-frequency letters and split the remaining <strong>${prevCount.toLocaleString()}</strong> candidates into minimal group sizes.`;
+            const vowelStr = vowelsInGuess.length > 0 ? `vowels (${vowelsInGuess.join(', ')})` : '';
+            const consStr = consonantsInGuess.length > 0 ? `consonants (${consonantsInGuess.join(', ')})` : '';
+            const letterDetails = [vowelStr, consStr].filter(Boolean).join(' and ');
+
+            if (prevCount <= 15) {
+                descHtml = `AI selects <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> to test ${letterDetails} against the remaining <strong>${prevCount}</strong> candidate words.`;
+            } else {
+                descHtml = `AI plays <strong class="text-indigo-600 dark:text-indigo-400 font-bold">${uppercaseGuess}</strong> testing ${letterDetails} to maximize information gain across <strong>${prevCount.toLocaleString()}</strong> potential target words.`;
+            }
         }
 
         return {
@@ -4723,7 +4778,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const newCount = currentCandidates.length;
             const nextBest = newCount > 1 ? currentCandidates[0] : null;
-            const reasoning = generateStepReasoning(guess, feedback, prevCount, newCount, nextBest);
+            const reasoning = generateStepReasoning(guess, feedback, prevCount, newCount, nextBest, currentCandidates);
 
             const letters = guess.toUpperCase().split('').map((char, i) => {
                 let status = 'bg-absent';
@@ -4820,7 +4875,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newCount = feedback ? currentCandidates.length : prevCount;
             const effectiveCount = newCount === 0 && i === allWords.length - 1 ? 1 : newCount;
             const nextBest = effectiveCount > 1 ? currentCandidates[0] : null;
-            const reasoning = generateStepReasoning(guess, feedback, prevCount, effectiveCount, nextBest);
+            const reasoning = generateStepReasoning(guess, feedback, prevCount, effectiveCount, nextBest, currentCandidates);
 
             const letters = guess.toUpperCase().split('').map((char, idx) => {
                 let status = 'bg-white border-2 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200';
