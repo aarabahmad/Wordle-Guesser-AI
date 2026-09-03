@@ -4086,12 +4086,10 @@ document.addEventListener('DOMContentLoaded', () => {
         state.passAndPlayWord = null;
         state.isDailyMode = false;
         state.dailyWord = null;
-        gameOverContainer.classList.add('hidden');
-        actionArea.classList.add('hidden');
-        challengeBanner.classList.add('hidden');
-        passPlayBanner.classList.add('hidden');
-        if (dailyBanner) dailyBanner.classList.add('hidden');
-        insightsPanel.classList.add('hidden');
+        gameOverContainer?.classList.add('hidden');
+        actionArea?.classList.add('hidden');
+        if (activeModeBanner) activeModeBanner.classList.add('hidden');
+        insightsPanel?.classList.add('hidden');
         if (keyboardContainer) keyboardContainer.classList.add('hidden');
 
         // Hide explanation modal if open
