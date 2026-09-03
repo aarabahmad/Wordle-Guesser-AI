@@ -547,6 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Challenge Mode DOM Selectors
     const challengeButton = document.getElementById('challenge-button');
+    const gameOverChallengeButton = document.getElementById('game-over-challenge-button');
     const challengeModal = document.getElementById('challenge-modal');
     const closeChallengeModalButton = document.getElementById('close-challenge-modal-button');
     const challengeWordInput = document.getElementById('challenge-word-input');
