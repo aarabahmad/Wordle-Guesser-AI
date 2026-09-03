@@ -603,6 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modePassPlayBtn = document.getElementById('mode-pass-play-btn');
     const modeDailyBtn = document.getElementById('mode-daily-btn');
     const modeUnlimitedBtn = document.getElementById('mode-unlimited-btn');
+    const unlimitedToggleDetailsBtn = document.getElementById('unlimited-toggle-details-btn');
     const dailyResultOverlay = document.getElementById('daily-result-overlay');
     const dailyModeBadge = document.getElementById('daily-mode-badge');
     const keyboardContainer = document.getElementById('keyboard-container');
